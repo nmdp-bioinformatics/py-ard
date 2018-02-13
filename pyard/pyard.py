@@ -30,7 +30,7 @@ from .util import pandas_explode
 from typing import Dict
 
 
-class ARS(Model):
+class ARD(Model):
     '''
     classdocs
     '''

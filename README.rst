@@ -1,5 +1,5 @@
 ===============================
-pyARS
+pyARD
 ===============================
 
 
@@ -11,10 +11,11 @@ pyARS
         :alt: Documentation Status
 
 
-ARS reduction for HLA with python
+ARD reduction for HLA with python
 
 * Free software: LGPL 3.0
 * Documentation: https://pyars.readthedocs.io.
+
 
 Install
 -------
@@ -28,7 +29,7 @@ Install
 	python setup.py install
 
 	# from PyPi
-	pip install pyars
+	pip install pyard
 
 
 Example
@@ -36,20 +37,20 @@ Example
 
 .. code-block:: python3
 
-	from pyars import ARS
+	from pyard import ARD
 
-	# Initialize ARS object
-	ars = ARS('3290')
+	# Initialize ARD object
+	ard = ARD('3290')
 
 	allele = "A*01:01:01"
 
-	ars.redux(allele, 'G')
+	ard.redux(allele, 'G')
 	# >> 'A*01:01:01G'
 
-	ars.redux(allele, 'lg')
+	ard.redux(allele, 'lg')
 	# >> 'A*01:01g'
 
-	ars.redux(allele, 'lgx')
+	ard.redux(allele, 'lgx')
 	# >> 'A*01:01'
 
 

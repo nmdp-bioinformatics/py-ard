@@ -22,7 +22,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 from __future__ import absolute_import
-from .pyars import ARS
+from .pyard import ARD
 
 __author__ = """Michael Halagan"""
 __email__ = 'mhalagan@nmdp.org'

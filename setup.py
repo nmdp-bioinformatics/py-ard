@@ -41,18 +41,18 @@ test_requirements = [
 ]
 
 setup(
-    name='pyars',
+    name='pyard',
     version='0.0.1',
-    description="ARS reduction for HLA with python",
+    description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="Michael Halagan",
     author_email='mhalagan@nmdp.org',
-    url='https://github.com/nmdp-bioinformatics/pyars',
+    url='https://github.com/nmdp-bioinformatics/pyARD',
     packages=[
-        'pyars',
+        'pyard',
     ],
-    package_dir={'pyars':
-                 'pyars'},
+    package_dir={'pyard':
+                 'pyard'},
     install_requires=requirements,
     license="LGPL 3.0",
     zip_safe=False,
