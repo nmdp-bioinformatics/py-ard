@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='pyard',
-    version='0.0.2',
+    version='0.0.3',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="Michael Halagan",
