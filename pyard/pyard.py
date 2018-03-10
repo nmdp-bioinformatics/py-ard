@@ -41,7 +41,7 @@ class ARD(Model):
     '''
     classdocs
     '''
-    def __init__(self, dbversion: str='Latest'):
+    def __init__(self, dbversion: str='Latest', download_mac: bool=False):
         """
         ARS -
         :param dbversion: The dbversion of this ReferenceData.
@@ -84,15 +84,16 @@ class ARD(Model):
             urllib.request.urlretrieve(allele_url, allele_file)
 
         # Downloading ARS file
-        if not os.path.isfile(mac_pickle):
-            print("Getting MAC File")
-            self.mac = mac(mac_file)
-            with open(mac_pickle, 'wb') as handle:
-                pickle.dump(self.mac, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        else:
-            print("Loading MAC File")
-            with open(mac_pickle, 'rb') as handle:
-                self.mac = pickle.load(handle)
+        if download_mac:
+            if not os.path.isfile(mac_pickle):
+                print("Getting MAC File")
+                self.mac = mac(mac_file)
+                with open(mac_pickle, 'wb') as handle:
+                    pickle.dump(self.mac, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            else:
+                print("Loading MAC File")
+                with open(mac_pickle, 'rb') as handle:
+                    self.mac = pickle.load(handle)
 
         allele_df = pd.read_csv(allele_file, sep=" ", names=["ID", "Allele"])
         allele_df['2d'] = allele_df['Allele'].apply(lambda a:
