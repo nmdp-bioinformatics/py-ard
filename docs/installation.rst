@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/mhalagan-nmdp/pyars
+    $ git clone git://github.com/nmdp-bioinformatics/pyars
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/mhalagan-nmdp/pyars/tarball/master
+    $ curl  -OL https://github.com/nmdp-bioinformatics/pyars/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/mhalagan-nmdp/pyars
-.. _tarball: https://github.com/mhalagan-nmdp/pyars/tarball/master
+.. _Github repo: https://github.com/nmdp-bioinformatics/pyars
+.. _tarball: https://github.com/nmdp-bioinformatics/pyars/tarball/master

@@ -23,31 +23,26 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 
-
-
 """
 test_pyars
 ----------------------------------
 
 Tests for `pyars` module.
 """
-
-
 import sys
 import unittest
 
-from pyars import pyars
+from pyard import ARD
 
 
-
-class TestPyars(unittest.TestCase):
+class TestPyard(unittest.TestCase):
 
     def setUp(self):
+        self.ard = ARD('3310')
+        self.assertIsInstance(self.ard, ARD)
         pass
 
-    def tearDown(self):
-        pass
-
-    def test_000_something(self):
+    def test_000_ard(self):
+        self.assertTrue(self.ard.redux("A*01:01:01", 'G') == "A*01:01:01G")
         pass
 

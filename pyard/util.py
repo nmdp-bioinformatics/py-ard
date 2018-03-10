@@ -29,6 +29,20 @@ from datetime import datetime, date
 from six import integer_types, iteritems
 import pandas as pd
 import copy
+import http.client
+
+
+def mac(csv_file, url='hml.nmdp.org'):
+    conn = http.client.HTTPSConnection(url, 443)
+    conn.putrequest('GET', '/mac/api/codes')
+    conn.endheaders()
+    response = conn.getresponse().read().decode('utf8').splitlines()
+    data = [l.split("\t")[1:3] for l in response]
+    df = pd.DataFrame(data, columns=['Code','Alleles'])
+    df.to_csv(csv_file, header=True, index=False)
+    df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
+    mac_dict = df.set_index("Code").to_dict('index')
+    return mac_dict
 
 
 def pandas_explode(df, column_to_explode):
@@ -61,7 +75,6 @@ def pandas_explode(df, column_to_explode):
     return_df = pd.DataFrame(new_observations)
     # Return
     return return_df
-
 
 
 def _deserialize(data, klass):
