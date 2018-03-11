@@ -12,7 +12,7 @@ To install pyARS, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install pyars
+    $ pip install pyard
 
 This is the preferred method to install pyARS, as it will always install the most recent stable release. 
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/nmdp-bioinformatics/pyars
+    $ git clone git://github.com/nmdp-bioinformatics/pyard
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/nmdp-bioinformatics/pyars/tarball/master
+    $ curl  -OL https://github.com/nmdp-bioinformatics/pyard/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
