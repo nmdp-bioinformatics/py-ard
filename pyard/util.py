@@ -32,7 +32,7 @@ import copy
 import http.client
 
 
-def mac(csv_file, url='hml.nmdp.org'):
+def all_macs(csv_file, url='hml.nmdp.org'):
     conn = http.client.HTTPSConnection(url, 443)
     conn.putrequest('GET', '/mac/api/codes')
     conn.endheaders()

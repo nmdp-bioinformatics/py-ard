@@ -29,26 +29,45 @@ import pandas as pd
 from .base_model_ import Model
 from .util import deserialize_model
 from .util import pandas_explode
-from .util import mac
+from .util import all_macs
 from operator import is_not
 from functools import partial
 from typing import Dict
+from py2neo import Graph
+import logging
 
 ismac = lambda x: True if re.search(":\D+", x) else False
+
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    level=logging.INFO)
+
+
+# Have GFE ARD be in pyARD because requiring
+# pygfe would be a big download.
 
 
 class ARD(Model):
     '''
     classdocs
     '''
-    def __init__(self, dbversion: str='Latest', download_mac: bool=False):
+    def __init__(self, dbversion: str='Latest',
+                 download_mac: bool=True,
+                 graph: Graph=None,
+                 verbose: bool=False,
+                 remove_invalid: bool=True):
         """
-        ARS -
-        :param dbversion: The dbversion of this ReferenceData.
+        ARD -
+        :param dbversion:
         :type dbversion: str
         """
         self.data_types = {
             'dbversion': str,
+            'verbose': bool,
+            'download_mac': bool,
+            'remove_invalid': bool,
+            'graph': Graph,
             'G': Dict,
             'lg': Dict,
             'lgx': Dict
@@ -57,10 +76,23 @@ class ARD(Model):
             'dbversion': 'dbversion',
             'G': 'G',
             'lg': 'lg',
-            'lgx': 'lgx'
+            'lgx': 'lgx',
+            'verbose': 'verbose',
+            'download_mac': 'download_mac',
+            'remove_invalid': 'remove_invalid',
+            'graph': 'graph'
         }
 
+        self.mac = {}
+        self._graph = graph
+        self._verbose = verbose
         self._dbversion = dbversion
+        self._download_mac = download_mac
+        self._remove_invalid = remove_invalid
+
+        # TODO: add check for valid ARD type
+        # TODO: add check for valid db version
+
         # List of expression characters
         expre_chars = ['N', 'Q', 'L', 'S']
         data_dir = os.path.dirname(__file__)
@@ -76,22 +108,29 @@ class ARD(Model):
 
         # Downloading ARS file
         if not os.path.isfile(ars_file):
+            if verbose:
+                logging.info("Downloading " + str(dbversion) + " ARD file")
             urllib.request.urlretrieve(ars_url, ars_file)
 
         # Downloading allele list file
         if not os.path.isfile(allele_file):
-            print("Getting Allele list")
+            if verbose:
+                logging.info("Downloading " + str(dbversion) + " allele list")
             urllib.request.urlretrieve(allele_url, allele_file)
 
-        # Downloading ARS file
+        # Downloading MAC file
         if download_mac:
             if not os.path.isfile(mac_pickle):
-                print("Getting MAC File")
-                self.mac = mac(mac_file)
+                if verbose:
+                    logging.info("Downloading MAC file")
+                self.mac = all_macs(mac_file)
+
+                # Writing dict to pickle file
                 with open(mac_pickle, 'wb') as handle:
                     pickle.dump(self.mac, handle, protocol=pickle.HIGHEST_PROTOCOL)
             else:
-                print("Loading MAC File")
+                if verbose:
+                    logging.info("Loading MAC file")
                 with open(mac_pickle, 'rb') as handle:
                     self.mac = pickle.load(handle)
 
@@ -210,15 +249,45 @@ class ARD(Model):
         """
         return self._dbversion
 
-    @dbversion.setter
-    def dbversion(self, dbversion: str):
+    @property
+    def verbose(self) -> bool:
         """
-        Sets the dbversion of this ARS.
+        Gets the verbose of this ARS.
 
-        :param dbversion: The dbversion of this ARS.
-        :type dbversion: str
+        :return: The verbose of this ARS.
+        :rtype: bool
         """
-        self._dbversion = dbversion
+        return self._verbose
+
+    @property
+    def download_mac(self) -> bool:
+        """
+        Gets the download_mac of this ARS.
+
+        :return: The download_mac of this ARS.
+        :rtype: bool
+        """
+        return self._download_mac
+
+    @property
+    def remove_invalid(self) -> bool:
+        """
+        Gets the remove_invalid of this ARS.
+
+        :return: The remove_invalid of this ARS.
+        :rtype: bool
+        """
+        return self._remove_invalid
+
+    @property
+    def graph(self) -> Graph:
+        """
+        Gets the graph of this ARS.
+
+        :return: The graph of this ARS.
+        :rtype: Graph
+        """
+        return self._graph
 
     @property
     def G(self) -> Dict:
@@ -261,6 +330,10 @@ class ARD(Model):
         :return: ARS reduced allele
         :rtype: str
         """
+        if re.search("HLA-", allele):
+            hla, allele_name = allele.split("-")
+            return "-".join(["HLA", self.redux(allele_name, ars_type)])
+
         if ars_type == "G" and allele in self.G:
             if allele in self.dup_g:
                 return self.dup_g[allele]
@@ -271,7 +344,13 @@ class ARD(Model):
         elif ars_type == "lgx" and allele in self.lgx:
             return self.lgx[allele]
         else:
-            return allele
+            if self.remove_invalid:
+                if allele in self.valid:
+                    return allele
+                else:
+                    return
+            else:
+                return allele
 
     def redux_gl(self, glstring: str, redux_type: str) -> str:
         """
@@ -285,29 +364,40 @@ class ARD(Model):
         :rtype: str
         """
         if re.search("\^", glstring):
-            return "^".join(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]))
+            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")])))
 
         if re.search("\|", glstring):
-            return "|".join(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]))
+            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")])))
 
         if re.search("\+", glstring):
-            return "+".join([self.redux_gl(a, redux_type) for a in glstring.split("+")])
+            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")]))
 
         if re.search("\~", glstring):
             return "~".join([self.redux_gl(a, redux_type) for a in glstring.split("~")])
 
         if re.search("/", glstring):
-            return "/".join(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]))
+            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")])))
 
-        loc_name, code = glstring.split(":")
+        loc_allele = glstring.split(":")
+        loc_name, code = loc_allele[0], loc_allele[1]
 
         if ismac(glstring) and code in self.mac:
-            loc, n = loc_name.split("*")
-            alleles = list(filter(lambda a: a in self.valid,
-                                  [loc_name + ":" + a if len(a) <= 3
-                                   else loc + "*" + a
-                                   for a in self.mac[code]['Alleles']]))            
-            return self.redux("/".join(alleles), redux_type)
+            if re.search("HLA-", glstring):
+                hla, allele_name = glstring.split("-")
+                loc_name, code = allele_name.split(":")
+                loc, n = loc_name.split("*")
+                alleles = list(filter(lambda a: a in self.valid,
+                                      [loc_name + ":" + a if len(a) <= 3
+                                       else loc + "*" + a
+                                       for a in self.mac[code]['Alleles']]))
+                return self.redux_gl("/".join(sorted(["HLA-" + a for a in alleles])), redux_type)
+            else:
+                loc, n = loc_name.split("*")
+                alleles = list(filter(lambda a: a in self.valid,
+                                      [loc_name + ":" + a if len(a) <= 3
+                                       else loc + "*" + a
+                                       for a in self.mac[code]['Alleles']]))
+                return self.redux_gl("/".join(sorted(alleles)), redux_type)
         return self.redux(glstring, redux_type)
 
     def mac_toG(self, allele: str) -> str:

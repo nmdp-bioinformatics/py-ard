@@ -1,11 +1,11 @@
-pyars package
+pyard package
 =======================
 
 
-pyars
+pyard
 --------------------------------------
 
-.. automodule:: pyars.pyars
+.. automodule:: pyard.pyard
     :members:
     :undoc-members:
     :show-inheritance:

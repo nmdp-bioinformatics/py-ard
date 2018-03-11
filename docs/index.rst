@@ -10,7 +10,7 @@ Contents:
    readme
    installation
 
-   pyars
+   pyard
 
    usage
    contributing

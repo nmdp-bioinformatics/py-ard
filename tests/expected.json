@@ -1,0 +1,62 @@
+{
+    "redux_gl": [
+        {
+            "glstring": "A*01:01:01:01+A*01:01:01:01",
+            "ard_type": "G",
+            "expected_gl": "A*01:01:01G+A*01:01:01G"
+        },
+        {
+            "glstring": "HLA-A*01:01:01:01+HLA-A*01:01:01:01",
+            "ard_type": "G",
+            "expected_gl":"HLA-A*01:01:01G+HLA-A*01:01:01G"
+        },
+        {
+            "glstring": "A*01:01:01:01+A*01:01:01:01",
+            "ard_type": "lg",
+            "expected_gl": "A*01:01g+A*01:01g"
+        },
+        {
+            "glstring": "HLA-A*01:01:01:01+HLA-A*01:01:01:01",
+            "ard_type": "lg",
+            "expected_gl":"HLA-A*01:01g+HLA-A*01:01g"
+        },
+        {
+            "glstring": "A*01:01:01:01+A*01:01:01:01",
+            "ard_type": "lgx",
+            "expected_gl": "A*01:01+A*01:01"
+        },
+        {
+            "glstring": "HLA-A*01:01:01:01+HLA-A*01:01:01:01",
+            "ard_type": "lgx",
+            "expected_gl":"HLA-A*01:01+HLA-A*01:01"
+        },
+        {
+            "glstring": "A*01:01+A*01:01^B*07:02+B*07:02",
+            "ard_type": "G",
+            "expected_gl": "A*01:01:01G+A*01:01:01G^B*07:02:01G+B*07:02:01G"
+        },
+        {
+            "glstring": "A*01:01+A*01:01^B*07:02+B*07:02",
+            "ard_type": "lg",
+            "expected_gl": "A*01:01g+A*01:01g^B*07:02g+B*07:02g"
+        },
+        {
+            "glstring": "A*01:01~B*07:02+A*01:01~B*07:02",
+            "ard_type": "G",
+            "expected_gl": "A*01:01:01G~B*07:02:01G+A*01:01:01G~B*07:02:01G"
+        },
+        {
+            "glstring": "A*01:01~B*07:02+A*01:01~B*07:02",
+            "ard_type": "lg",
+            "expected_gl": "A*01:01g~B*07:02g+A*01:01g~B*07:02g"
+        },
+        {
+            "glstring": "A*01:01~B*07:02+A*01:01~B*07:02|A*02:01~B*07:02+A*02:01~B*07:02",
+            "ard_type": "lg",
+            "expected_gl": "A*01:01g~B*07:02g+A*01:01g~B*07:02g|A*02:01g~B*07:02g+A*02:01g~B*07:02g"
+        }
+    ]
+}
+
+
+
