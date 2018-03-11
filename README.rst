@@ -42,6 +42,9 @@ Example
 	# Initialize ARD object
 	ard = ARD('3290')
 
+	# Initialize with latest DB
+	ard = ARD()
+
 	allele = "A*01:01:01"
 
 	ard.redux(allele, 'G')
@@ -53,9 +56,9 @@ Example
 	ard.redux(allele, 'lgx')
 	# 'A*01:01'
 
-	ard_gl = ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:01+B*07:AB", "G")
+	ard_gl = ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
 	# >>> ard_gl
-	# 'B*07:01+B*07:02:01G^A*01:01:01G+A*02:01/A*02:02'
+	# 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
 
 
 Credits
