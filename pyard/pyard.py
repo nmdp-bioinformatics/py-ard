@@ -134,7 +134,20 @@ class ARD(Model):
                 with open(mac_pickle, 'rb') as handle:
                     self.mac = pickle.load(handle)
 
-        allele_df = pd.read_csv(allele_file, sep=" ", names=["ID", "Allele"])
+        with open(allele_file) as f:
+            first_line = f.readline()
+            f.close()
+
+        sep = "," if re.search("#", first_line) else " "
+        allele_data = []
+        with open(allele_file, 'r') as f:
+            for line in f:
+                line = line.rstrip()
+                if not re.search("#", line):
+                    allele_data.append(line.split(sep))
+            f.close()
+
+        allele_df = pd.DataFrame(allele_data, columns=["ID", "Allele"])
         allele_df['2d'] = allele_df['Allele'].apply(lambda a:
                                      ":".join(a.split(":")[0:2]) +
                                      list(a)[-1] if list(a)[-1]
