@@ -26,4 +26,4 @@ from .pyard import ARD
 
 __author__ = """Michael Halagan"""
 __email__ = 'mhalagan@nmdp.org'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
