@@ -30,14 +30,39 @@ from six import integer_types, iteritems
 import pandas as pd
 import copy
 import http.client
+import pickle
+import urllib.request
+import zipfile
+import re
 
 
-def all_macs(csv_file, url='hml.nmdp.org'):
-    conn = http.client.HTTPSConnection(url, 443)
-    conn.putrequest('GET', '/mac/api/codes')
-    conn.endheaders()
-    response = conn.getresponse().read().decode('utf8').splitlines()
-    data = [l.split("\t")[1:3] for l in response]
+# def all_macs(csv_file, url='hml.nmdp.org'):
+#     # conn = http.client.HTTPSConnection(url, 443)
+#     # conn.putrequest('GET', '/mac/api/codes')
+#     # conn.endheaders()
+#     # response = conn.getresponse().read().decode('utf8').splitlines()
+#     data = [l.split("\t")[1:3] for l in response]
+#     urllib.request.urlretrieve(url, 'numeric.v3.zip')
+#     df = pd.DataFrame(data, columns=['Code','Alleles'])
+#     df.to_csv(csv_file, header=True, index=False)
+#     df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
+#     mac_dict = df.set_index("Code").to_dict('index')
+#     return mac_dict
+
+def all_macs(csv_file, url='https://bioinformatics.bethematchclinical.org/HLA/numeric.v3.zip'):
+    urllib.request.urlretrieve(url, 'numeric.v3.zip')
+    zip_ref = zipfile.ZipFile('numeric.v3.zip', 'r')
+    data_dir = os.path.dirname(__file__)
+    zip_ref.extractall(data_dir)
+    zip_ref.close()
+    data = []
+    out_file = data_dir + "/numer.v3.txt"
+    with open(out_file, 'r') as f:
+        for line in f:
+            line = line.rstrip()
+            if re.search("^\D", line) and not re.search("CODE", line) and not re.search("LAST", line):
+                data.append(line.split("\t"))
+        f.close()
     df = pd.DataFrame(data, columns=['Code','Alleles'])
     df.to_csv(csv_file, header=True, index=False)
     df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
