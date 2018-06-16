@@ -14,7 +14,7 @@ pyARD
 ARD reduction for HLA with python
 
 * Free software: LGPL 3.0
-* Documentation: https://pyars.readthedocs.io.
+* Documentation: https://pyard.readthedocs.io.
 
 
 Install
