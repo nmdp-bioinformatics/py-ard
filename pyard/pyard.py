@@ -26,8 +26,6 @@ import os
 import pickle
 import urllib.request
 import pandas as pd
-from .base_model_ import Model
-from .util import deserialize_model
 from .util import pandas_explode
 from .util import all_macs
 from operator import is_not
@@ -48,7 +46,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 # pygfe would be a big download.
 
 
-class ARD(Model):
+class ARD(object):
     '''
     classdocs
     '''
@@ -240,17 +238,17 @@ class ARD(Model):
                               df[['A', 'lgx']]],
                               ignore_index=True).set_index('A').to_dict()['lgx']
 
-    @classmethod
-    def from_dict(cls, dikt) -> 'ARD':
-        """
-        Returns the dict as a model
+    # @classmethod
+    # def from_dict(cls, dikt) -> 'ARD':
+        
+    #     Returns the dict as a model
 
-        :param dikt: A dict.
-        :type: dict
-        :return: The ARD of this ARD.
-        :rtype: ARD
-        """
-        return deserialize_model(dikt, cls)
+    #     :param dikt: A dict.
+    #     :type: dict
+    #     :return: The ARD of this ARD.
+    #     :rtype: ARD
+        
+    #     return deserialize_model(dikt, cls)
 
     @property
     def dbversion(self) -> str:
@@ -303,7 +301,7 @@ class ARD(Model):
         return self._graph
 
     @property
-    def G(self) -> Dict:
+    def G(self):
         """
         Gets the G of this ARS.
 
@@ -313,7 +311,7 @@ class ARD(Model):
         return self._G
 
     @property
-    def lg(self) -> Dict:
+    def lg(self):
         """
         Gets the lg of this ARS.
 
@@ -323,7 +321,7 @@ class ARD(Model):
         return self._lg
 
     @property
-    def lgx(self) -> Dict:
+    def lgx(self):
         """
         Gets the lgx of this ARS.
 
@@ -432,7 +430,7 @@ class ARD(Model):
                                    else loc + "*" + a
                                    for a in self.mac[code]['Alleles']]))
             group = list(filter(partial(is_not, None),
-                         set([self.toG(allele=a, ars_type='G')
+                         set([self.toG(allele=a)
                               for a in alleles])))
             if "X" in group:
                 return None
@@ -459,5 +457,22 @@ class ARD(Model):
         else:
             return "X"
 
+    def expand_mac(self, allele: str):
+        """
+        Exapnds mac codes
 
+        :param allele: An HLA allele.
+        :type: str
+        :return: List
+        :rtype: List
+        """
+        loc_name, code = allele.split(":")
+        loc, n = loc_name.split("*")
+        if code in self.mac:
+            return list(filter(lambda a: a in self.valid,
+                               [loc_name + ":" + a if len(a) <= 3
+                                else loc + "*" + a
+                                for a in self.mac[code]['Alleles']]))
+        else:
+            return ''
 
