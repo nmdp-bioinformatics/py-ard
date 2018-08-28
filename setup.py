@@ -32,8 +32,24 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
+    'certifi==2018.1.18',
+    'chardet==3.0.4',
+    'idna==2.6',
+    'mypy==0.560',
+    'numpy',
     'pandas',
-    'typing'
+    'pkginfo==1.4.1',
+    'psutil==5.4.3',
+    'python-dateutil==2.6.1',
+    'pytz==2018.3',
+    'requests==2.18.4',
+    'requests-toolbelt==0.8.0',
+    'six==1.11.0',
+    'tqdm==4.19.5',
+    'typed-ast==1.1.0',
+    'typing==3.6.4',
+    'urllib3==1.22',
+    'xlrd==1.1.0'
 ]
 
 test_requirements = [
@@ -42,7 +58,7 @@ test_requirements = [
 
 setup(
     name='pyard',
-    version='0.0.8',
+    version='0.0.9',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="Michael Halagan",
@@ -56,7 +72,7 @@ setup(
     install_requires=requirements,
     license="LGPL 3.0",
     zip_safe=False,
-    keywords='pyars',
+    keywords='pyard',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -69,6 +85,8 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
     tests_require=test_requirements

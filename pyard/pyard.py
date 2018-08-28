@@ -31,7 +31,6 @@ from .util import all_macs
 from operator import is_not
 from functools import partial
 from typing import Dict
-from py2neo import Graph
 import logging
 
 ismac = lambda x: True if re.search(":\D+", x) else False
@@ -52,7 +51,6 @@ class ARD(object):
     '''
     def __init__(self, dbversion: str='Latest',
                  download_mac: bool=True,
-                 graph: Graph=None,
                  verbose: bool=False,
                  remove_invalid: bool=True):
         """
@@ -65,7 +63,6 @@ class ARD(object):
             'verbose': bool,
             'download_mac': bool,
             'remove_invalid': bool,
-            'graph': Graph,
             'G': Dict,
             'lg': Dict,
             'lgx': Dict
@@ -77,12 +74,10 @@ class ARD(object):
             'lgx': 'lgx',
             'verbose': 'verbose',
             'download_mac': 'download_mac',
-            'remove_invalid': 'remove_invalid',
-            'graph': 'graph'
+            'remove_invalid': 'remove_invalid'
         }
 
         self.mac = {}
-        self._graph = graph
         self._verbose = verbose
         self._dbversion = dbversion
         self._download_mac = download_mac
@@ -238,18 +233,6 @@ class ARD(object):
                               df[['A', 'lgx']]],
                               ignore_index=True).set_index('A').to_dict()['lgx']
 
-    # @classmethod
-    # def from_dict(cls, dikt) -> 'ARD':
-        
-    #     Returns the dict as a model
-
-    #     :param dikt: A dict.
-    #     :type: dict
-    #     :return: The ARD of this ARD.
-    #     :rtype: ARD
-        
-    #     return deserialize_model(dikt, cls)
-
     @property
     def dbversion(self) -> str:
         """
@@ -290,15 +273,6 @@ class ARD(object):
         """
         return self._remove_invalid
 
-    @property
-    def graph(self) -> Graph:
-        """
-        Gets the graph of this ARS.
-
-        :return: The graph of this ARS.
-        :rtype: Graph
-        """
-        return self._graph
 
     @property
     def G(self):
@@ -468,6 +442,10 @@ class ARD(object):
         """
         loc_name, code = allele.split(":")
         loc, n = loc_name.split("*")
+        if len(loc.split("-")) == 2:
+            loc = loc.split("-")[1]
+            loc_name = loc_name.split("-")[1]
+
         if code in self.mac:
             return list(filter(lambda a: a in self.valid,
                                [loc_name + ":" + a if len(a) <= 3
