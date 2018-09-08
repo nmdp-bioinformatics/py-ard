@@ -29,6 +29,7 @@ import pandas as pd
 from .util import pandas_explode
 from .util import all_macs
 from operator import is_not
+import functools
 from functools import partial
 from typing import Dict
 import logging
@@ -40,9 +41,33 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     datefmt='%m/%d/%Y %I:%M:%S %p',
                     level=logging.INFO)
 
+import string
+
+alpha = list(string.ascii_lowercase) + list(string.ascii_uppercase)
+
 
 # Have GFE ARD be in pyARD because requiring
 # pygfe would be a big download.
+def getvalue(a):
+    return int("".join(list(a)[0:len(list(a))-1])) if list(a)[len(list(a))-1] in alpha else int(a)
+
+
+def loci_sort(a, b):
+    la = a.split(":")
+    lb = b.split(":")
+    a1, a2 = int(la[0].split("*")[1]), getvalue(la[1])
+    b1, b2 = int(lb[0].split("*")[1]), getvalue(lb[1])
+    if a1 > b1:
+        return 1
+    elif a1 == b1:
+        if a2 > b2:
+            return 1
+        elif a2 == b2:
+            return 0
+        else:
+            return -1
+    else:
+        return -1
 
 
 class ARD(object):
@@ -140,13 +165,28 @@ class ARD(object):
                     allele_data.append(line.split(sep))
             f.close()
 
-        allele_df = pd.DataFrame(allele_data, columns=["ID", "Allele"])
+        allele_df = pd.DataFrame(allele_data)
+        if allele_df[:1].values.tolist()[0][1] == 'Allele':
+            allele_df.columns = allele_df[:1].values.tolist()[0]
+            idname = allele_df[:1].values.tolist()[0][0]
+            allele_df.drop(0, inplace=True)
+            allele_df = allele_df.rename(index=str, columns={idname: "ID"})
+        else:
+            allele_df.columns = ["ID", "Allele"]
+
         allele_df['2d'] = allele_df['Allele'].apply(lambda a:
                                      ":".join(a.split(":")[0:2]) +
                                      list(a)[-1] if list(a)[-1]
                                      in expre_chars and
                                      len(a.split(":")) > 2
                                      else ":".join(a.split(":")[0:2]))
+
+        dfxx = pd.DataFrame(pd.Series(allele_df['2d'].unique().tolist()),
+                                      columns=['Allele'])
+        dfxx['1d'] = dfxx['Allele'].apply(lambda x: x.split(":")[0])
+        self.xxcodes = dfxx.groupby(['1d'])\
+                           .apply(lambda x: list(x['Allele']))\
+                           .to_dict()
 
         allele_df['3d'] = allele_df['Allele'].apply(lambda a:
                                  ":".join(a.split(":")[0:3]) +
@@ -348,23 +388,27 @@ class ARD(object):
         :return: ARS reduced allele
         :rtype: str
         """
+        
         if re.search("\^", glstring):
-            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")])))
+            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]), key=functools.cmp_to_key(loci_sort)))
 
         if re.search("\|", glstring):
-            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")])))
+            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]), key=functools.cmp_to_key(loci_sort)))
 
         if re.search("\+", glstring):
-            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")]))
+            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")], key=functools.cmp_to_key(loci_sort)))
 
         if re.search("\~", glstring):
             return "~".join([self.redux_gl(a, redux_type) for a in glstring.split("~")])
 
         if re.search("/", glstring):
-            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")])))
+            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]), key=functools.cmp_to_key(loci_sort)))
 
         loc_allele = glstring.split(":")
         loc_name, code = loc_allele[0], loc_allele[1]
+        if(ismac(glstring) and glstring.split(":")[1] == "XX"):
+            loc, n = loc_name.split("*")
+            return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(loci_sort))), redux_type)
 
         if ismac(glstring) and code in self.mac:
             if re.search("HLA-", glstring):
@@ -375,14 +419,14 @@ class ARD(object):
                                       [loc_name + ":" + a if len(a) <= 3
                                        else loc + "*" + a
                                        for a in self.mac[code]['Alleles']]))
-                return self.redux_gl("/".join(sorted(["HLA-" + a for a in alleles])), redux_type)
+                return self.redux_gl("/".join(sorted(["HLA-" + a for a in alleles], key=functools.cmp_to_key(loci_sort))), redux_type)
             else:
                 loc, n = loc_name.split("*")
                 alleles = list(filter(lambda a: a in self.valid,
                                       [loc_name + ":" + a if len(a) <= 3
                                        else loc + "*" + a
                                        for a in self.mac[code]['Alleles']]))
-                return self.redux_gl("/".join(sorted(alleles)), redux_type)
+                return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(loci_sort))), redux_type)
         return self.redux(glstring, redux_type)
 
     def mac_toG(self, allele: str) -> str:
