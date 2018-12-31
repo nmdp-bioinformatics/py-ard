@@ -48,9 +48,10 @@ requirements = [
     'tqdm==4.19.5',
     'typed-ast==1.1.0',
     'typing==3.6.4',
-    'urllib3==1.22',
+    'urllib3==1.23',
     'xlrd==1.1.0'
 ]
+
 
 test_requirements = [
     # TODO: put package test requirements here
