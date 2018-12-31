@@ -42,7 +42,7 @@ requirements = [
     'psutil==5.4.3',
     'python-dateutil==2.6.1',
     'pytz==2018.3',
-    'requests==2.18.4',
+    'requests==2.20.0',
     'requests-toolbelt==0.8.0',
     'six==1.11.0',
     'tqdm==4.19.5',
