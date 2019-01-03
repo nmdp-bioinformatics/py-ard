@@ -355,6 +355,7 @@ class ARD(object):
         :return: ARS reduced allele
         :rtype: str
         """
+
         if re.search("HLA-", allele):
             hla, allele_name = allele.split("-")
             return "-".join(["HLA", self.redux(allele_name, ars_type)])
@@ -389,6 +390,9 @@ class ARD(object):
         :rtype: str
         """
         
+        if not self.isvalid_gl(glstring):
+            return ""
+
         if re.search("\^", glstring):
             return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]), key=functools.cmp_to_key(loci_sort)))
 
@@ -428,6 +432,42 @@ class ARD(object):
                                        for a in self.mac[code]['Alleles']]))
                 return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(loci_sort))), redux_type)
         return self.redux(glstring, redux_type)
+
+    def isvalid(self, allele: str) -> str:
+        """
+        Determines valididy of an allele
+
+        :param allele: An HLA allele.
+        :type: str
+        :return: allele or empty
+        :rtype: boolean
+        """
+        v = lambda a: a in self.valid
+        return v(allele)
+
+    def isvalid_gl(self, glstring: str) -> str:
+        """
+        Determine validity of glstring
+
+        :param glstring
+        :type: str
+        :return: result
+        :rtype: boolean
+        """
+        
+        if re.search("\^", glstring):
+            return(all(list(map(self.isvalid_gl,glstring.split("^")))))
+        if re.search("\|", glstring):
+            return(all(list(map(self.isvalid_gl,glstring.split("|")))))
+        if re.search("\+", glstring):
+            return(all(list(map(self.isvalid_gl,glstring.split("+")))))
+        if re.search("\~", glstring):
+            return(all(list(map(self.isvalid_gl,glstring.split("~")))))
+        if re.search("/", glstring):
+            return(all(list(map(self.isvalid_gl,glstring.split("/")))))
+
+        # what falls through here is an allele
+        return(self.isvalid(glstring))
 
     def mac_toG(self, allele: str) -> str:
         """
