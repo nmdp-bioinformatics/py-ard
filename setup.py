@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#    pyars pyARS.
+#    pyard pyARD.
 #    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it

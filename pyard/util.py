@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #
-#    seqann Sequence Annotation
-#    Copyright (c) 2017 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#    pyard pyARD
+#    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Lesser General Public License as published
