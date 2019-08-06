@@ -48,7 +48,7 @@ requirements = [
     'tqdm==4.19.5',
     'typed-ast==1.1.0',
     'typing==3.6.4',
-    'urllib3==1.23',
+    'urllib3==1.24.2',
     'xlrd==1.1.0'
 ]
 
