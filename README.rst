@@ -17,10 +17,8 @@ ARD reduction for HLA with python
 * Documentation: https://pyard.readthedocs.io.
 
 
-Install
--------
-
-# from source
+Install from source
+-------------------
 
 .. code-block::
 
@@ -29,7 +27,8 @@ Install
 
 	python setup.py install
 
-# from PyPi
+Install from PyPi
+-----------------
 
 .. code-block::
 	pip install py-ard
