@@ -34,7 +34,7 @@ clean-build: ## remove build artifacts
 	rm -fr dist/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	find . -name '*.egg' -exec rm -rf {} +
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -98,22 +98,4 @@ activate: ## activate a virtual environment. Run `make venv` before activating.
 	@echo "====================================================================="
 	@echo "To activate the new virtualenv, execute the following from your shell"
 	@echo "source $(PWD)/venv/bin/activate"
-
-git-init: ## initializes a git repository. Commits and pushes to github.
-	@echo "====================================================================="
-	@echo "Make sure you've created a github repo 'mhalagan-nmdp/pyars'"
-	@read -p "Continue? [Y/N] " choice; \
-	case "$$choice" in \
-		y | Y ) \
-			echo "====================================================================="; \
-			git init . ; \
-			git add . ; \
-			git commit -m "Initial Import" ; \
-			git remote add origin https://github.com/mhalagan-nmdp/pyars ; \
-			git push -u origin master; \
-			echo "====================================================================="; \
-			echo "Git Initialized!" \
-			;; \
-	  * ) echo "Git NOT initialized!" ;; \
-	esac; 
 

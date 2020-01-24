@@ -32,24 +32,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'certifi==2018.1.18',
-    'chardet==3.0.4',
-    'idna==2.6',
-    'mypy==0.560',
-    'numpy',
-    'pandas',
-    'pkginfo==1.4.1',
-    'psutil==5.4.3',
-    'python-dateutil==2.6.1',
-    'pytz==2018.3',
-    'requests==2.20.0',
-    'requests-toolbelt==0.8.0',
-    'six==1.11.0',
-    'tqdm==4.19.5',
-    'typed-ast==1.1.0',
-    'typing==3.6.4',
-    'urllib3==1.24.2',
-    'xlrd==1.1.0'
+    'pandas==0.25.1'
 ]
 
 
@@ -58,13 +41,13 @@ test_requirements = [
 ]
 
 setup(
-    name='pyard',
-    version='0.0.10',
+    name='py-ard',
+    version='0.0.11',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
-    author="Michael Halagan",
-    author_email='mhalagan@nmdp.org',
-    url='https://github.com/nmdp-bioinformatics/pyARD',
+    author="CIBMTR",
+    author_email='cibmtr-pypi@nmdp.org',
+    url='https://github.com/nmdp-bioinformatics/py-ard',
     packages=[
         'pyard',
     ],
@@ -79,14 +62,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
