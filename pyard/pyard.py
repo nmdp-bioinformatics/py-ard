@@ -435,7 +435,7 @@ class ARD(object):
 
     def isvalid(self, allele: str) -> str:
         """
-        Determines valididy of an allele
+        Determines validity of an allele
 
         :param allele: An HLA allele.
         :type: str
