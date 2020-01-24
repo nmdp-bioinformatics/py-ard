@@ -1,5 +1,5 @@
 ===============================
-pyARD
+py-ard
 ===============================
 
 
@@ -20,16 +20,19 @@ ARD reduction for HLA with python
 Install
 -------
 
+# from source
+
 .. code-block::
 
-	# from source
 	python3 -m venv venv
 	source venv/bin/activate
-	pip install -r requirements.txt
+
 	python setup.py install
 
-	# from PyPi
-	pip install pyard
+# from PyPi
+
+.. code-block::
+	pip install py-ard
 
 
 Example
@@ -60,12 +63,4 @@ Example
 	# >>> ard_gl
 	# 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
 
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
