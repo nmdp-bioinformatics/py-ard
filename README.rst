@@ -31,6 +31,7 @@ Install from PyPi
 -----------------
 
 .. code-block::
+
 	pip install py-ard
 
 
