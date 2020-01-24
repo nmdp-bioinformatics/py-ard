@@ -442,8 +442,9 @@ class ARD(object):
         :return: allele or empty
         :rtype: boolean
         """
-        v = lambda a: a in self.valid
-        return v(allele)
+        if not ismac(allele):
+            return allele in self.valid
+        return True
 
     def isvalid_gl(self, glstring: str) -> str:
         """
