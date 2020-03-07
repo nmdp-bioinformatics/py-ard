@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #
-#    pyars pyARS.
-#    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#    pyard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Lesser General Public License as published
@@ -120,6 +120,7 @@ class ARD(object):
         allele_file = data_dir + '/AlleleList.' + str(dbversion) + ".txt"
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
+        broad_file = data_dir + "/dna_relshp.csv"
 
         allele_url = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/" \
                      + dbversion + "/Allelelist.txt"
@@ -184,9 +185,26 @@ class ARD(object):
         dfxx = pd.DataFrame(pd.Series(allele_df['2d'].unique().tolist()),
                                       columns=['Allele'])
         dfxx['1d'] = dfxx['Allele'].apply(lambda x: x.split(":")[0])
+    
+        # xxcodes maps a first field name to its expansion
         self.xxcodes = dfxx.groupby(['1d'])\
                            .apply(lambda x: list(x['Allele']))\
                            .to_dict()
+
+        # defined broad XX codes
+        dfbroad = pd.read_csv(broad_file, skiprows=1, dtype=str,
+                         names=["Locus", "Broad", "Fam"], sep=",").dropna()
+
+        dictbroad = dfbroad.groupby(['Locus','Broad']).apply(lambda x: list(x['Fam'])).to_dict()
+
+        for (locus,broad) in dictbroad.keys():
+            locusbroad="*".join([locus,broad])  
+            for split in dictbroad[(locus,broad)]:
+                locussplit="*".join([locus,split])
+                if locusbroad in self.xxcodes.keys():
+                    self.xxcodes[locusbroad].extend(self.xxcodes[locussplit])
+                else:
+                    self.xxcodes[locusbroad] = self.xxcodes[locussplit]
 
         allele_df['3d'] = allele_df['Allele'].apply(lambda a:
                                  ":".join(a.split(":")[0:3]) +
@@ -195,6 +213,7 @@ class ARD(object):
                                  len(a.split(":")) > 3
                                  else ":".join(a.split(":")[0:3]))
 
+        # all alleles are valid and also shortening to 3 and 2 fields
         self.valid = list(set(allele_df['Allele'].tolist()
                               + allele_df['2d'].tolist()
                               + allele_df['3d'].tolist()))
@@ -410,6 +429,8 @@ class ARD(object):
 
         loc_allele = glstring.split(":")
         loc_name, code = loc_allele[0], loc_allele[1]
+       
+        # handle XX codes
         if(ismac(glstring) and glstring.split(":")[1] == "XX"):
             loc, n = loc_name.split("*")
             return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(loci_sort))), redux_type)
