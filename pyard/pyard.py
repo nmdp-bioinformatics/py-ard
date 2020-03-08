@@ -26,6 +26,7 @@ import os
 import pickle
 import urllib.request
 import pandas as pd
+import functools
 from .util import pandas_explode
 from .util import all_macs
 from operator import is_not
@@ -37,9 +38,9 @@ import logging
 ismac = lambda x: True if re.search(":\D+", x) else False
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p',
-                    level=logging.INFO)
+# a module shouldn't decide the logging config; thats up to the calling programo
+
+#logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 import string
 
@@ -107,6 +108,8 @@ class ARD(object):
         self._dbversion = dbversion
         self._download_mac = download_mac
         self._remove_invalid = remove_invalid
+
+        self.rHLA = re.compile("HLA-")
 
         # TODO: add check for valid ARD type
         # TODO: add check for valid db version
@@ -217,6 +220,10 @@ class ARD(object):
         self.valid = list(set(allele_df['Allele'].tolist()
                               + allele_df['2d'].tolist()
                               + allele_df['3d'].tolist()))
+        # use a dict
+        self.validd={}
+        for i in self.valid:
+            self.validd[i]=True
 
         # Loading ARS file into pandas
         # TODO: Make skip dynamic in case the files are not consistent
@@ -292,6 +299,17 @@ class ARD(object):
                               df[['A', 'lgx']]],
                               ignore_index=True).set_index('A').to_dict()['lgx']
 
+        # use a dict
+        self._Gd = {}
+        for i in self._G:
+            self._Gd[i]=True
+        self._lgd = {}
+        for i in self._lg:
+            self._lgd[i]=True
+        self._lgxd = {}
+        for i in self._lgx:
+            self._lgxd[i]=True
+
     @property
     def dbversion(self) -> str:
         """
@@ -363,6 +381,7 @@ class ARD(object):
         """
         return self._lgx
 
+    @functools.lru_cache(maxsize=1000)
     def redux(self, allele: str, ars_type: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -375,18 +394,22 @@ class ARD(object):
         :rtype: str
         """
 
-        if re.search("HLA-", allele):
+        # PERFORMANCE: precompiled regex
+        # dealing with leading HLA-
+
+        if self.rHLA.search(allele):
             hla, allele_name = allele.split("-")
             return "-".join(["HLA", self.redux(allele_name, ars_type)])
 
-        if ars_type == "G" and allele in self.G:
+        # PERFORMANCE: use hash instead of allele in "list"
+        if ars_type == "G" and self._Gd.get(allele):
             if allele in self.dup_g:
                 return self.dup_g[allele]
             else:
                 return self.G[allele]
-        elif ars_type == "lg" and allele in self.lg:
+        elif ars_type == "lg" and self._lgd.get(allele):
             return self.lg[allele]
-        elif ars_type == "lgx" and allele in self.lgx:
+        elif ars_type == "lgx" and self._lgx.get(allele):
             return self.lgx[allele]
         else:
             if self.remove_invalid:
@@ -464,7 +487,9 @@ class ARD(object):
         :rtype: boolean
         """
         if not ismac(allele):
-            return allele in self.valid
+            # PERFORMANCE: use hash instead of allele in "list"
+            # return allele in self.valid
+            return self.validd.get(allele)
         return True
 
     def isvalid_gl(self, glstring: str) -> str:
