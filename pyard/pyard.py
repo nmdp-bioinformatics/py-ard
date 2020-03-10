@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #
-#    pyars pyARS.
-#    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#    pyard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Lesser General Public License as published
@@ -26,6 +26,8 @@ import os
 import pickle
 import urllib.request
 import pandas as pd
+import functools
+from .smart_sort import smart_sort_comparator
 from .util import pandas_explode
 from .util import all_macs
 from operator import is_not
@@ -37,9 +39,9 @@ import logging
 ismac = lambda x: True if re.search(":\D+", x) else False
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p',
-                    level=logging.INFO)
+# a module shouldn't decide the logging config; thats up to the calling programo
+
+#logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 import string
 
@@ -108,6 +110,8 @@ class ARD(object):
         self._download_mac = download_mac
         self._remove_invalid = remove_invalid
 
+        self.HLA_regex = re.compile("^HLA-")
+
         # TODO: add check for valid ARD type
         # TODO: add check for valid db version
 
@@ -120,6 +124,7 @@ class ARD(object):
         allele_file = data_dir + '/AlleleList.' + str(dbversion) + ".txt"
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
+        broad_file = data_dir + "/dna_relshp.csv"
 
         allele_url = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/" \
                      + dbversion + "/Allelelist.txt"
@@ -184,9 +189,26 @@ class ARD(object):
         dfxx = pd.DataFrame(pd.Series(allele_df['2d'].unique().tolist()),
                                       columns=['Allele'])
         dfxx['1d'] = dfxx['Allele'].apply(lambda x: x.split(":")[0])
+    
+        # xxcodes maps a first field name to its expansion
         self.xxcodes = dfxx.groupby(['1d'])\
                            .apply(lambda x: list(x['Allele']))\
                            .to_dict()
+
+        # defined broad XX codes
+        dfbroad = pd.read_csv(broad_file, skiprows=1, dtype=str,
+                         names=["Locus", "Broad", "Fam"], sep=",").dropna()
+
+        dictbroad = dfbroad.groupby(['Locus','Broad']).apply(lambda x: list(x['Fam'])).to_dict()
+
+        for (locus,broad) in dictbroad.keys():
+            locusbroad="*".join([locus,broad])  
+            for split in dictbroad[(locus,broad)]:
+                locussplit="*".join([locus,split])
+                if locusbroad in self.xxcodes.keys():
+                    self.xxcodes[locusbroad].extend(self.xxcodes[locussplit])
+                else:
+                    self.xxcodes[locusbroad] = self.xxcodes[locussplit]
 
         allele_df['3d'] = allele_df['Allele'].apply(lambda a:
                                  ":".join(a.split(":")[0:3]) +
@@ -195,9 +217,14 @@ class ARD(object):
                                  len(a.split(":")) > 3
                                  else ":".join(a.split(":")[0:3]))
 
+        # all alleles are valid and also shortening to 3 and 2 fields
         self.valid = list(set(allele_df['Allele'].tolist()
                               + allele_df['2d'].tolist()
                               + allele_df['3d'].tolist()))
+        # use a dict
+        self.valid_dict={}
+        for i in self.valid:
+            self.valid_dict[i]=True
 
         # Loading ARS file into pandas
         # TODO: Make skip dynamic in case the files are not consistent
@@ -344,6 +371,7 @@ class ARD(object):
         """
         return self._lgx
 
+    @functools.lru_cache(maxsize=None)
     def redux(self, allele: str, ars_type: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -356,18 +384,21 @@ class ARD(object):
         :rtype: str
         """
 
-        if re.search("HLA-", allele):
+        # PERFORMANCE: precompiled regex
+        # dealing with leading HLA-
+
+        if self.HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
             return "-".join(["HLA", self.redux(allele_name, ars_type)])
 
-        if ars_type == "G" and allele in self.G:
+        if ars_type == "G" and allele in self._G:
             if allele in self.dup_g:
                 return self.dup_g[allele]
             else:
                 return self.G[allele]
-        elif ars_type == "lg" and allele in self.lg:
+        elif ars_type == "lg" and allele in self._lg:
             return self.lg[allele]
-        elif ars_type == "lgx" and allele in self.lgx:
+        elif ars_type == "lgx" and allele in self._lgx:
             return self.lgx[allele]
         else:
             if self.remove_invalid:
@@ -378,6 +409,7 @@ class ARD(object):
             else:
                 return allele
 
+    @functools.lru_cache(maxsize=None)
     def redux_gl(self, glstring: str, redux_type: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -394,25 +426,27 @@ class ARD(object):
             return ""
 
         if re.search("\^", glstring):
-            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]), key=functools.cmp_to_key(loci_sort)))
+            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]), key=functools.cmp_to_key(smart_sort_comparator)))
 
         if re.search("\|", glstring):
-            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]), key=functools.cmp_to_key(loci_sort)))
+            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]), key=functools.cmp_to_key(smart_sort_comparator)))
 
         if re.search("\+", glstring):
-            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")], key=functools.cmp_to_key(loci_sort)))
+            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")], key=functools.cmp_to_key(smart_sort_comparator)))
 
         if re.search("\~", glstring):
             return "~".join([self.redux_gl(a, redux_type) for a in glstring.split("~")])
 
         if re.search("/", glstring):
-            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]), key=functools.cmp_to_key(loci_sort)))
+            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]), key=functools.cmp_to_key(smart_sort_comparator)))
 
         loc_allele = glstring.split(":")
         loc_name, code = loc_allele[0], loc_allele[1]
+       
+        # handle XX codes
         if(ismac(glstring) and glstring.split(":")[1] == "XX"):
             loc, n = loc_name.split("*")
-            return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(loci_sort))), redux_type)
+            return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
 
         if ismac(glstring) and code in self.mac:
             if re.search("HLA-", glstring):
@@ -423,37 +457,39 @@ class ARD(object):
                                       [loc_name + ":" + a if len(a) <= 3
                                        else loc + "*" + a
                                        for a in self.mac[code]['Alleles']]))
-                return self.redux_gl("/".join(sorted(["HLA-" + a for a in alleles], key=functools.cmp_to_key(loci_sort))), redux_type)
+                return self.redux_gl("/".join(sorted(["HLA-" + a for a in alleles], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
             else:
                 loc, n = loc_name.split("*")
                 alleles = list(filter(lambda a: a in self.valid,
                                       [loc_name + ":" + a if len(a) <= 3
                                        else loc + "*" + a
                                        for a in self.mac[code]['Alleles']]))
-                return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(loci_sort))), redux_type)
+                return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
         return self.redux(glstring, redux_type)
 
-    def isvalid(self, allele: str) -> str:
+    def isvalid(self, allele: str) -> bool:
         """
         Determines validity of an allele
 
         :param allele: An HLA allele.
         :type: str
         :return: allele or empty
-        :rtype: boolean
+        :rtype: bool
         """
         if not ismac(allele):
-            return allele in self.valid
+            # PERFORMANCE: use hash instead of allele in "list"
+            # return allele in self.valid
+            return self.valid_dict.get(allele, False)
         return True
 
-    def isvalid_gl(self, glstring: str) -> str:
+    def isvalid_gl(self, glstring: str) -> bool:
         """
         Determine validity of glstring
 
         :param glstring
         :type: str
         :return: result
-        :rtype: boolean
+        :rtype: bool
         """
         
         if re.search("\^", glstring):
