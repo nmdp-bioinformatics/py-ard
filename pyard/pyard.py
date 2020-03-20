@@ -444,7 +444,8 @@ class ARD(object):
         loc_name, code = loc_allele[0], loc_allele[1]
        
         # handle XX codes
-        if(ismac(glstring) and glstring.split(":")[1] == "XX"):
+        # test that they are valid
+        if(ismac(glstring) and glstring.split(":")[1] == "XX") and glstring in self.xxcodes:
             loc, n = loc_name.split("*")
             return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
 
