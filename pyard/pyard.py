@@ -205,7 +205,7 @@ class ARD(object):
             locusbroad="*".join([locus,broad])  
             for split in dictbroad[(locus,broad)]:
                 locussplit="*".join([locus,split])
-                if locusbroad in self.xxcodes.keys():
+                if locusbroad in self.xxcodes:
                     self.xxcodes[locusbroad].extend(self.xxcodes[locussplit])
                 else:
                     self.xxcodes[locusbroad] = self.xxcodes[locussplit]
@@ -445,7 +445,7 @@ class ARD(object):
        
         # handle XX codes
         # test that they are valid
-        if(ismac(glstring) and glstring.split(":")[1] == "XX") and glstring in self.xxcodes:
+        if(ismac(glstring) and glstring.split(":")[1] == "XX") and loc_name in self.xxcodes:
             loc, n = loc_name.split("*")
             return self.redux_gl("/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
 
