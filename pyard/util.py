@@ -48,7 +48,7 @@ import re
 #     mac_dict = df.set_index("Code").to_dict('index')
 #     return mac_dict
 
-def all_macs(csv_file, url='https://bioinformatics.bethematchclinical.org/HLA/numeric.v3.zip'):
+def all_macs(csv_file, url='https://hml.nmdp.org/mac/files/numer.v3.zip'):
     urllib.request.urlretrieve(url, 'numeric.v3.zip')
     zip_ref = zipfile.ZipFile('numeric.v3.zip', 'r')
     data_dir = os.path.dirname(__file__)
