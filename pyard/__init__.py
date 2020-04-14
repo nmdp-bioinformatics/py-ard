@@ -24,6 +24,5 @@
 from __future__ import absolute_import
 from .pyard import ARD
 
-__author__ = """Michael Halagan"""
-__email__ = 'mhalagan@nmdp.org'
-__version__ = '0.0.10'
+__author__ = """NMDP Bioinformatics"""
+__version__ = '0.0.13'
