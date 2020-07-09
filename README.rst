@@ -3,8 +3,8 @@ py-ard
 ===============================
 
 
-.. image:: https://img.shields.io/pypi/v/pyard.svg
-        :target: https://pypi.python.org/pypi/pyard
+.. image:: https://img.shields.io/pypi/v/py-ard.svg
+        :target: https://pypi.python.org/pypi/py-ard
 
 .. image:: https://readthedocs.org/projects/pyars/badge/?version=latest
         :target: https://pyars.readthedocs.io/en/latest/?badge=latest
