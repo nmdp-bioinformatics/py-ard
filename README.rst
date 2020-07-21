@@ -7,7 +7,7 @@ py-ard
         :target: https://pypi.python.org/pypi/py-ard
 
 .. image:: https://readthedocs.org/projects/pyars/badge/?version=latest
-        :target: https://pyars.readthedocs.io/en/latest/?badge=latest
+        :target: https://pyard.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
