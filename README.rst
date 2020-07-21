@@ -45,6 +45,9 @@ Example
 	# Initialize ARD object
 	ard = ARD('3290')
 
+    # You can specify a data directory for temp files
+    # ard = ard = ARD('3290', data_dir='/tmp/py-ard')
+
 	# Initialize with latest DB
 	ard = ARD()
 
