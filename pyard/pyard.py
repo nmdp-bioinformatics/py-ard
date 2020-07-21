@@ -35,6 +35,7 @@ import functools
 from functools import partial
 from typing import Dict
 import logging
+import pathlib
 
 ismac = lambda x: True if re.search(":\D+", x) else False
 
@@ -79,7 +80,8 @@ class ARD(object):
     def __init__(self, dbversion: str='Latest',
                  download_mac: bool=True,
                  verbose: bool=False,
-                 remove_invalid: bool=True):
+                 remove_invalid: bool=True,
+                 data_dir: str=None):
         """
         ARD -
         :param dbversion:
@@ -117,14 +119,20 @@ class ARD(object):
 
         # List of expression characters
         expre_chars = ['N', 'Q', 'L', 'S']
-        data_dir = os.path.dirname(__file__)
-        ars_url = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/' \
-                  + dbversion + '/wmda/hla_nom_g.txt'
+
+        # Set data directory where all the downloaded files will go
+        if data_dir is None:
+            data_dir = os.path.dirname(__file__)
+        else:
+            pathlib.Path(data_dir).mkdir(exist_ok=True)
+
+        imgt_hla_url = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
+        ars_url = imgt_hla_url + dbversion + '/wmda/hla_nom_g.txt'
         ars_file = data_dir + '/hla_nom_g.' + str(dbversion) + ".txt"
         allele_file = data_dir + '/AlleleList.' + str(dbversion) + ".txt"
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
-        broad_file = data_dir + "/dna_relshp.csv"
+        broad_file = os.path.dirname(__file__) + "/dna_relshp.csv"
         #print("mac_file:", mac_file)
 
         allele_url = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/" \
