@@ -22,17 +22,17 @@ Install from source
 
 .. code-block::
 
-	python3 -m venv venv
-	source venv/bin/activate
+    python3 -m venv venv
+    source venv/bin/activate
 
-	python setup.py install
+    python setup.py install
 
 Install from PyPi
 -----------------
 
 .. code-block::
 
-	pip install py-ard
+    pip install py-ard
 
 
 Example
@@ -40,30 +40,30 @@ Example
 
 .. code-block:: python3
 
-	from pyard import ARD
+    from pyard import ARD
 
-	# Initialize ARD object
-	ard = ARD('3290')
+    # Initialize ARD object
+    ard = ARD('3290')
 
     # You can specify a data directory for temp files
     # ard = ard = ARD('3290', data_dir='/tmp/py-ard')
 
-	# Initialize with latest DB
-	ard = ARD()
+    # Initialize with latest DB
+    ard = ARD()
 
-	allele = "A*01:01:01"
+    allele = "A*01:01:01"
 
-	ard.redux(allele, 'G')
-	# >> 'A*01:01:01G'
+    ard.redux(allele, 'G')
+    # >> 'A*01:01:01G'
 
-	ard.redux(allele, 'lg')
-	# >> 'A*01:01g'
+    ard.redux(allele, 'lg')
+    # >> 'A*01:01g'
 
-	ard.redux(allele, 'lgx')
-	# 'A*01:01'
+    ard.redux(allele, 'lgx')
+    # 'A*01:01'
 
-	ard_gl = ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
-	# >>> ard_gl
-	# 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
+    ard_gl = ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
+    # >>> ard_gl
+    # 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
 
 
