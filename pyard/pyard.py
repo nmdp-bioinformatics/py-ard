@@ -125,6 +125,7 @@ class ARD(object):
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
         broad_file = data_dir + "/dna_relshp.csv"
+        #print("mac_file:", mac_file)
 
         allele_url = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/" \
                      + dbversion + "/Allelelist.txt"
