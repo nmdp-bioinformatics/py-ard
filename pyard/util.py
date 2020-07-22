@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import copy
+import re
+import urllib.request
+import zipfile
 #
 #    pyard pyARD
 #    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -21,34 +25,13 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-import os
-import string
-import random as r
 from datetime import datetime, date
-from six import integer_types, iteritems
+
 import pandas as pd
-import copy
-import http.client
-import pickle
-import urllib.request
-import zipfile
-import re
+from six import integer_types, iteritems
 
 
-# def all_macs(csv_file, url='hml.nmdp.org'):
-#     # conn = http.client.HTTPSConnection(url, 443)
-#     # conn.putrequest('GET', '/mac/api/codes')
-#     # conn.endheaders()
-#     # response = conn.getresponse().read().decode('utf8').splitlines()
-#     data = [l.split("\t")[1:3] for l in response]
-#     urllib.request.urlretrieve(url, 'numeric.v3.zip')
-#     df = pd.DataFrame(data, columns=['Code','Alleles'])
-#     df.to_csv(csv_file, header=True, index=False)
-#     df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
-#     mac_dict = df.set_index("Code").to_dict('index')
-#     return mac_dict
-
-def all_macs(csv_file, url='https://hml.nmdp.org/mac/files/numer.v3.zip', data_dir=os.path.dirname(__file__)):
+def all_macs(csv_file, data_dir, url='https://hml.nmdp.org/mac/files/numer.v3.zip'):
     urllib.request.urlretrieve(url, 'numeric.v3.zip')
     zip_ref = zipfile.ZipFile('numeric.v3.zip', 'r')
     zip_ref.extractall(data_dir)
