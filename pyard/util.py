@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import copy
-import re
-import urllib.request
-import zipfile
 #
 #    pyard pyARD
 #    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -25,6 +21,10 @@ import zipfile
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import copy
+import re
+import urllib.request
+import zipfile
 from datetime import datetime, date
 
 import pandas as pd
@@ -44,7 +44,7 @@ def all_macs(csv_file, data_dir, url='https://hml.nmdp.org/mac/files/numer.v3.zi
             if re.search("^\D", line) and not re.search("CODE", line) and not re.search("LAST", line):
                 data.append(line.split("\t"))
         f.close()
-    df = pd.DataFrame(data, columns=['Code','Alleles'])
+    df = pd.DataFrame(data, columns=['Code', 'Alleles'])
     df.to_csv(csv_file, header=True, index=False)
     df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
     mac_dict = df.set_index("Code").to_dict('index')
