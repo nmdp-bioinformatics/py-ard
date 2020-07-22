@@ -1,7 +1,7 @@
 import functools
 import re
 
-expr_regex = re.compile('[NQLS]')
+expr_regex = re.compile('[NQLSGg]')
 
 @functools.lru_cache(maxsize=None)
 def smart_sort_comparator(a1, a2):
