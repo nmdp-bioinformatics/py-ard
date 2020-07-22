@@ -128,15 +128,14 @@ class ARD(object):
 
         imgt_hla_url = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
         ars_url = imgt_hla_url + dbversion + '/wmda/hla_nom_g.txt'
+        allele_url = imgt_hla_url + dbversion + "/Allelelist.txt"
+
         ars_file = data_dir + '/hla_nom_g.' + str(dbversion) + ".txt"
         allele_file = data_dir + '/AlleleList.' + str(dbversion) + ".txt"
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
+        # dna_relshp.csv is part of the codebase
         broad_file = os.path.dirname(__file__) + "/dna_relshp.csv"
-        #print("mac_file:", mac_file)
-
-        allele_url = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/" \
-                     + dbversion + "/Allelelist.txt"
 
         # Downloading ARS file
         if not os.path.isfile(ars_file):
@@ -155,7 +154,7 @@ class ARD(object):
             if not os.path.isfile(mac_pickle):
                 if verbose:
                     logging.info("Downloading MAC file")
-                self.mac = all_macs(mac_file)
+                self.mac = all_macs(mac_file, data_dir=data_dir)
 
                 # Writing dict to pickle file
                 with open(mac_pickle, 'wb') as handle:
