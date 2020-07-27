@@ -33,14 +33,37 @@ def smart_sort_comparator(a1, a2):
         return 1
 
     # If the first fields are equal, try the 2nd fields
-    a1_f2 = int(a1[a1.find(':')+1:])
-    a2_f2 = int(a2[a2.find(':')+1:])
+
+    a1_f2 = int(a1.split(':')[1])
+    a2_f2 = int(a2.split(':')[1])
 
     if a1_f2 < a2_f2:
         return -1
     if a1_f2 > a2_f2:
         return 1
 
+    # If the two fields are equal, try the 3nd fields
+
+    a1_f3 = int(a1.split(':')[2])
+    a2_f3 = int(a2.split(':')[2])
+
+    if a1_f3 < a2_f3:
+        return -1
+    if a1_f3 > a2_f3:
+        return 1
+
+    # If the two fields are equal, try the 4th fields
+
+    a1_f4 = int(a1.split(':')[3])
+    a2_f3 = int(a2.split(':')[3])
+
+    if a1_f4 < a2_f4:
+        return -1
+    if a1_f4 > a2_f4:
+        return 1
+
+
+    
     # All fields are equal
     return 0
 
