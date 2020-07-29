@@ -42,7 +42,7 @@ def smart_sort_comparator(a1, a2):
     if a1_f2 > a2_f2:
         return 1
 
-    # If the two fields are equal, try the 3nd fields
+    # If the two fields are equal, try the 3rd fields
 
     a1_f3 = int(a1.split(':')[2])
     a2_f3 = int(a2.split(':')[2])
