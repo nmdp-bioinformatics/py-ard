@@ -404,16 +404,26 @@ class ARD(object):
                 return self.dup_g[allele]
             else:
                 return self.G[allele]
-        elif ars_type == "lg" and allele in self._lg:
-            return self.lg[allele]
-        elif ars_type == "lgx" and allele in self._lgx:
-            return self.lgx[allele]
+        elif ars_type == "lg":
+            if allele in self._lg:
+                return self.lg[allele]
+            else:
+                # for 'lg' when allele is not in G group,
+                # return allele with only first 2 field
+                return ':'.join(allele.split(':')[0:2]) + 'g'
+        elif ars_type == "lgx":
+            if allele in self._lgx:
+                return self.lgx[allele]
+            else:
+                # for 'lgx' when allele is not in G group,
+                # return allele with only first 2 field
+                return ':'.join(allele.split(':')[0:2])
         else:
             if self.remove_invalid:
                 if allele in self.valid:
                     return allele
                 else:
-                    return
+                    return ''
             else:
                 return allele
 
