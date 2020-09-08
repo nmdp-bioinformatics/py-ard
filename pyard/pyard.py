@@ -393,11 +393,14 @@ class ARD(object):
         """
 
         # PERFORMANCE: precompiled regex
-        # dealing with leading HLA-
-
+        # dealing with leading 'HLA-'
         if self.HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
             return "-".join(["HLA", self.redux(allele_name, ars_type)])
+
+        # Alleles ending with P or G are valid
+        if allele.endswith(('P', 'G')):
+            allele = allele[:-1]
 
         if ars_type == "G" and allele in self._G:
             if allele in self.dup_g:
@@ -498,6 +501,9 @@ class ARD(object):
         if not ismac(allele):
             # PERFORMANCE: use hash instead of allele in "list"
             # return allele in self.valid
+            # Alleles ending with P or G are valid
+            if allele.endswith(('P', 'G')):
+                allele = allele[:-1]
             return self.valid_dict.get(allele, False)
         return True
 
