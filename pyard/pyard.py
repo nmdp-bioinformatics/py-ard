@@ -503,7 +503,12 @@ class ARD(object):
             # return allele in self.valid
             # Alleles ending with P or G are valid
             if allele.endswith(('P', 'G')):
+                # remove the last character
                 allele = allele[:-1]
+            # validate allele without the 'HLA-' prefix
+            if self.HLA_regex.search(allele):
+                # remove 'HLA-' prefix
+                allele = allele[4:]
             return self.valid_dict.get(allele, False)
         return True
 
