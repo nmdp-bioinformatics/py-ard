@@ -392,28 +392,44 @@ class ARD(object):
         :rtype: str
         """
 
-        # PERFORMANCE: precompiled regex
-        # dealing with leading HLA-
-
+        # deal with leading 'HLA-'
         if self.HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
-            return "-".join(["HLA", self.redux(allele_name, ars_type)])
+            redux_allele = self.redux(allele_name, ars_type)
+            if redux_allele:
+                return "HLA-" + redux_allele
+            else:
+                return redux_allele
+
+        # Alleles ending with P or G are valid
+        if allele.endswith(('P', 'G')):
+            allele = allele[:-1]
 
         if ars_type == "G" and allele in self._G:
             if allele in self.dup_g:
                 return self.dup_g[allele]
             else:
                 return self.G[allele]
-        elif ars_type == "lg" and allele in self._lg:
-            return self.lg[allele]
-        elif ars_type == "lgx" and allele in self._lgx:
-            return self.lgx[allele]
+        elif ars_type == "lg":
+            if allele in self._lg:
+                return self.lg[allele]
+            else:
+                # for 'lg' when allele is not in G group,
+                # return allele with only first 2 field
+                return ':'.join(allele.split(':')[0:2]) + 'g'
+        elif ars_type == "lgx":
+            if allele in self._lgx:
+                return self.lgx[allele]
+            else:
+                # for 'lgx' when allele is not in G group,
+                # return allele with only first 2 field
+                return ':'.join(allele.split(':')[0:2])
         else:
             if self.remove_invalid:
                 if allele in self.valid:
                     return allele
                 else:
-                    return
+                    return ''
             else:
                 return allele
 
@@ -488,6 +504,14 @@ class ARD(object):
         if not ismac(allele):
             # PERFORMANCE: use hash instead of allele in "list"
             # return allele in self.valid
+            # Alleles ending with P or G are valid
+            if allele.endswith(('P', 'G')):
+                # remove the last character
+                allele = allele[:-1]
+            # validate allele without the 'HLA-' prefix
+            if self.HLA_regex.search(allele):
+                # remove 'HLA-' prefix
+                allele = allele[4:]
             return self.valid_dict.get(allele, False)
         return True
 
