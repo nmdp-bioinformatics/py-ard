@@ -392,11 +392,14 @@ class ARD(object):
         :rtype: str
         """
 
-        # PERFORMANCE: precompiled regex
-        # dealing with leading 'HLA-'
+        # deal with leading 'HLA-'
         if self.HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
-            return "-".join(["HLA", self.redux(allele_name, ars_type)])
+            redux_allele = self.redux(allele_name, ars_type)
+            if redux_allele:
+                return "HLA-" + redux_allele
+            else:
+                return redux_allele
 
         # Alleles ending with P or G are valid
         if allele.endswith(('P', 'G')):
