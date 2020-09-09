@@ -76,3 +76,5 @@ class TestPyArd(unittest.TestCase):
 
     def test_mac_G(self):
         self.assertEqual(self.ard.redux("A*01:01:01", 'G'), "A*01:01:01G")
+        self.assertEqual(self.ard.redux_gl("HLA-A*01:AB", "G"), "HLA-A*01:01:01G/HLA-A*01:02")
+        self.assertEqual(self.ard.redux("HLA-A*01:AB", "G"), "")
