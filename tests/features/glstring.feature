@@ -8,14 +8,6 @@ Feature: MAC (Multiple Allele Codes)
 
                 Examples:
                         | Allele      | Level | Redux Allele                |
-                        | A*01:AB     | G     | A*01:01:01G/A*01:02         |
-                        | A*01:AB     | lgx   | A*01:01/A*01:02             | 
-                        | HLA-A*01:AB | G     | HLA-A*01:01:01G/HLA-A*01:02 | 
-                        | HLA-A*01:AB | lgx   | HLA-A*01:01/HLA-A*01:02     | 
-
-                        | A*02:01P    | lgx   | A*02:01                     |
-                        | A*02:01:01G | lgx   | A*02:01                     |
-
                         | A*01:01:01:01+A*01:01:01:01         | G   | A*01:01:01G+A*01:01:01G |
                         | HLA-A*01:01:01:01+HLA-A*01:01:01:01 | G   | HLA-A*01:01:01G+HLA-A*01:01:01G |
                         | A*01:01:01:01+A*01:01:01:01         | lg  | A*01:01g+A*01:01g |
