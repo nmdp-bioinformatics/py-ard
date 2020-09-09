@@ -43,7 +43,7 @@ you'll need to set up a virtual environment.
 .. code-block::
     # Virtual environment setup
     python3 -m venv testing
-    source venv/bin/activate
+    source testing/bin/activate
     pip install --upgrade pip
     pip install -r test-requirements.txt
 
