@@ -46,9 +46,6 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# BDD Testing
-testing/
-
 # Translations
 *.mo
 *.pot
@@ -107,3 +104,7 @@ ENV/
 *.txt 
 *.pickle
 *.zip
+
+# BDD Testing
+testing/
+!test-requirements.txt
