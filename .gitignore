@@ -104,3 +104,7 @@ ENV/
 *.txt 
 *.pickle
 *.zip
+
+# BDD Testing
+testing/
+!test-requirements.txt
