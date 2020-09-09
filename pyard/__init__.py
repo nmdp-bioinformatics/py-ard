@@ -25,4 +25,4 @@ from __future__ import absolute_import
 from .pyard import ARD
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = '0.0.21'
+__version__ = '0.0.22'
