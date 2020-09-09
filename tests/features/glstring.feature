@@ -1,4 +1,4 @@
-Feature: MAC (Multiple Allele Codes)
+Feature: GL (Genotype List) Strings
 
         Scenario Outline:
 

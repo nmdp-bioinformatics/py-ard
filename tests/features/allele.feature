@@ -1,4 +1,4 @@
-Feature: Reduce alleles (no MAC)
+Feature: Alleles
 
         Scenario Outline:
 

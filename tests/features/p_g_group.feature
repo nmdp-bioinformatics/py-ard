@@ -1,4 +1,4 @@
-Feature: MAC (Multiple Allele Codes)
+Feature: P and G Groups
 
         Scenario Outline:
 

@@ -1,4 +1,4 @@
-Feature: MAC (Multiple Allele Codes)
+Feature: MAC (Multiple Allele Code)
 
         Scenario Outline:
 
