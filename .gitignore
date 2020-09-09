@@ -46,6 +46,9 @@ coverage.xml
 *.cover
 .hypothesis/
 
+# BDD Testing
+testing/
+
 # Translations
 *.mo
 *.pot
