@@ -24,4 +24,4 @@
 from .pyard import ARD
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = '0.0.22'
+__version__ = '0.1.0'
