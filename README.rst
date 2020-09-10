@@ -35,15 +35,14 @@ Install from PyPi
     pip install py-ard
 
 Testing
-
 -------
-To run behavior-driven development (BDD) tests locally via the behave framework, 
-you'll need to set up a virtual environment.
+
+To run behavior-driven development (BDD) tests locally via the behave framework,
+you'll need to set up a virtual environment. See Install from source
 
 .. code-block::
-    # Virtual environment setup
-    python3 -m venv testing
-    source testing/bin/activate
+
+    # Install test dependencies
     pip install --upgrade pip
     pip install -r test-requirements.txt
 
@@ -61,7 +60,7 @@ Example
     ard = ARD('3290')
 
     # You can specify a data directory for temp files
-    # ard = ard = ARD('3290', data_dir='/tmp/py-ard')
+    # ard = ARD('3290', data_dir='/tmp/py-ard')
 
     # Initialize with latest DB
     ard = ARD()
