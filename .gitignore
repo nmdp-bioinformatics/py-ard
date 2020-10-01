@@ -108,3 +108,10 @@ ENV/
 # BDD Testing
 testing/
 !test-requirements.txt
+pretty.output
+
+# Misc
+tags
+.swp
+*.patch
+.idea/

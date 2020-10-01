@@ -27,7 +27,7 @@ import re
 expr_regex = re.compile('[NQLSGg]')
 
 
-@functools.lru_cache(maxsize=None)
+@functools.lru_cache(maxsize=1000)
 def smart_sort_comparator(a1, a2):
     """
     Natural sort 2 given alleles.
