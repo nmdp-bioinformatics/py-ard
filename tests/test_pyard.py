@@ -46,7 +46,7 @@ class TestPyArd(unittest.TestCase):
         self.assertIsInstance(self.ard, ARD)
 
     def test_no_mac(self):
-        self.ard_no_mac = ARD(self.db_version, data_dir='/tmp/3290', download_mac=False)
+        self.ard_no_mac = ARD(self.db_version, data_dir='/tmp/3290', load_mac_file=False)
         self.assertIsInstance(self.ard_no_mac, ARD)
         self.assertEqual(len(self.ard_no_mac.mac.keys()), 0)
         self.assertEqual(self.ard_no_mac.redux("A*01:01:01", 'G'), "A*01:01:01G")

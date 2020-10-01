@@ -32,7 +32,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'pandas==0.25.1'
+    'pandas==1.1.2'
 ]
 
 
@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.0.22',
+    version='0.1.0',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
