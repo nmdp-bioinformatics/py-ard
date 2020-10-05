@@ -33,13 +33,48 @@ from typing import Dict
 
 import pandas as pd
 
+from .broad_splits import broad_splits_mapping
 from .smart_sort import smart_sort_comparator
 from .util import all_macs
 from .util import pandas_explode
 
+# The GitHub URL where IMGT HLA files are downloaded.
+IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
+
 
 def is_mac(x):
     return True if re.search(r":\D+", x) else False
+
+
+HLA_regex = re.compile("^HLA-")
+
+# List of expression characters
+expression_chars = ['N', 'Q', 'L', 'S']
+
+
+def get_n_field_allele(allele: str, n: int) -> str:
+    """
+    Given an HLA allele of >= n field, return n field allele.
+    Preserve the expression character if it exists
+
+    :param allele: Original allele
+    :param n: n number of fields to reduce to
+    :return: trimmed to n fields of the original allele
+    """
+    last_char = allele[-1]
+    fields = allele.split(':')
+    if last_char in expression_chars and len(fields) > n:
+        return ':'.join(fields[0:n]) + last_char
+    else:
+        return ':'.join(fields[0:n])
+
+
+def get_3field_allele(a: str) -> str:
+    return get_n_field_allele(a, 3)
+
+
+def get_2field_allele(a: str) -> str:
+    return get_n_field_allele(a, 2)
 
 
 class ARD(object):
@@ -55,38 +90,15 @@ class ARD(object):
         :param dbversion:
         :type dbversion: str
         """
-        self.data_types = {
-            'dbversion': str,
-            'verbose': bool,
-            'load_mac_file': bool,
-            'remove_invalid': bool,
-            'G': Dict,
-            'lg': Dict,
-            'lgx': Dict
-        }
-        self.attribute_map = {
-            'dbversion': 'dbversion',
-            'G': 'G',
-            'lg': 'lg',
-            'lgx': 'lgx',
-            'verbose': 'verbose',
-            'load_mac_file': 'load_mac_file',
-            'remove_invalid': 'remove_invalid'
-        }
-
         self.mac = {}
         self._verbose = verbose
         self._dbversion = dbversion
         self._load_mac_file = load_mac_file
         self._remove_invalid = remove_invalid
 
-        self.HLA_regex = re.compile("^HLA-")
 
-        # TODO: add check for valid ARD type
-        # TODO: add check for valid db version
-
-        # List of expression characters
-        expression_chars = ['N', 'Q', 'L', 'S']
+        # TODO: add check for valid_alleles ARD type
+        # TODO: add check for valid_alleles db version
 
         # Set data directory where all the downloaded files will go
         if data_dir is None:
@@ -94,28 +106,17 @@ class ARD(object):
         else:
             pathlib.Path(data_dir).mkdir(exist_ok=True)
 
-        imgt_hla_url = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
-        ars_url = imgt_hla_url + dbversion + '/wmda/hla_nom_g.txt'
-        allele_url = imgt_hla_url + dbversion + "/Allelelist.txt"
+        ars_url = IMGT_HLA_URL + dbversion + '/wmda/hla_nom_g.txt'
 
         ars_file = data_dir + '/hla_nom_g.' + str(dbversion) + ".txt"
-        allele_file = data_dir + '/AlleleList.' + str(dbversion) + ".txt"
         mac_file = data_dir + "/mac.txt"
         mac_pickle = data_dir + "/mac.pickle"
-        # dna_relshp.csv is part of the codebase
-        broad_file = os.path.dirname(__file__) + "/dna_relshp.csv"
 
         # Downloading ARS file
         if not os.path.isfile(ars_file):
             if verbose:
                 logging.info("Downloading " + str(dbversion) + " ARD file")
             urllib.request.urlretrieve(ars_url, ars_file)
-
-        # Downloading allele list file
-        if not os.path.isfile(allele_file):
-            if verbose:
-                logging.info("Downloading " + str(dbversion) + " allele list")
-            urllib.request.urlretrieve(allele_url, allele_file)
 
         # Downloading MAC file
         if load_mac_file:
@@ -133,74 +134,7 @@ class ARD(object):
                 with open(mac_pickle, 'rb') as handle:
                     self.mac = pickle.load(handle)
 
-        with open(allele_file) as f:
-            first_line = f.readline()
-            f.close()
-
-        sep = "," if re.search("#", first_line) else " "
-        allele_data = []
-        with open(allele_file, 'r') as f:
-            for line in f:
-                line = line.rstrip()
-                if not re.search("#", line):
-                    allele_data.append(line.split(sep))
-            f.close()
-
-        allele_df = pd.DataFrame(allele_data)
-        if allele_df[:1].values.tolist()[0][1] == 'Allele':
-            allele_df.columns = allele_df[:1].values.tolist()[0]
-            idname = allele_df[:1].values.tolist()[0][0]
-            allele_df.drop(0, inplace=True)
-            allele_df = allele_df.rename(index=str, columns={idname: "ID"})
-        else:
-            allele_df.columns = ["ID", "Allele"]
-
-        allele_df['2d'] = allele_df['Allele'].apply(lambda a:
-                                                    ":".join(a.split(":")[0:2]) +
-                                                    list(a)[-1] if list(a)[-1]
-                                                                   in expression_chars and
-                                                                   len(a.split(":")) > 2
-                                                    else ":".join(a.split(":")[0:2]))
-
-        dfxx = pd.DataFrame(pd.Series(allele_df['2d'].unique().tolist()),
-                            columns=['Allele'])
-        dfxx['1d'] = dfxx['Allele'].apply(lambda x: x.split(":")[0])
-
-        # xxcodes maps a first field name to its expansion
-        self.xxcodes = dfxx.groupby(['1d']) \
-            .apply(lambda x: list(x['Allele'])) \
-            .to_dict()
-
-        # defined broad XX codes
-        dfbroad = pd.read_csv(broad_file, skiprows=1, dtype=str,
-                              names=["Locus", "Broad", "Fam"], sep=",").dropna()
-
-        dictbroad = dfbroad.groupby(['Locus', 'Broad']).apply(lambda x: list(x['Fam'])).to_dict()
-
-        for (locus, broad) in dictbroad.keys():
-            locusbroad = "*".join([locus, broad])
-            for split in dictbroad[(locus, broad)]:
-                locussplit = "*".join([locus, split])
-                if locusbroad in self.xxcodes:
-                    self.xxcodes[locusbroad].extend(self.xxcodes[locussplit])
-                else:
-                    self.xxcodes[locusbroad] = self.xxcodes[locussplit]
-
-        allele_df['3d'] = allele_df['Allele'].apply(lambda a:
-                                                    ":".join(a.split(":")[0:3]) +
-                                                    list(a)[-1] if list(a)[-1]
-                                                                   in expression_chars and
-                                                                   len(a.split(":")) > 3
-                                                    else ":".join(a.split(":")[0:3]))
-
-        # all alleles are valid and also shortening to 3 and 2 fields
-        self.valid = list(set(allele_df['Allele'].tolist()
-                              + allele_df['2d'].tolist()
-                              + allele_df['3d'].tolist()))
-        # use a dict
-        self.valid_dict = {}
-        for i in self.valid:
-            self.valid_dict[i] = True
+        self.generate_alleles_and_xxcodes(dbversion, data_dir)
 
         # Loading ARS file into pandas
         # TODO: Make skip dynamic in case the files are not consistent
@@ -219,19 +153,8 @@ class ARD(object):
 
         df = pandas_explode(df, 'A')
 
-        df['2d'] = df['A'].apply(lambda a:
-                                 ":".join(a.split(":")[0:2]) +
-                                 list(a)[-1] if list(a)[-1]
-                                                in expression_chars and
-                                                len(a.split(":")) > 2
-                                 else ":".join(a.split(":")[0:2]))
-
-        df['3d'] = df['A'].apply(lambda a:
-                                 ":".join(a.split(":")[0:3]) +
-                                 list(a)[-1] if list(a)[-1]
-                                                in expression_chars and
-                                                len(a.split(":")) > 3
-                                 else ":".join(a.split(":")[0:3]))
+        df['2d'] = df['A'].apply(get_2field_allele)
+        df['3d'] = df['A'].apply(get_3field_allele)
 
         df_values = df.drop_duplicates(['2d', 'G'])['2d'] \
             .value_counts().reset_index() \
@@ -275,6 +198,88 @@ class ARD(object):
                                       columns={"3d": "A"})[['A', 'lgx']],
                                df[['A', 'lgx']]],
                               ignore_index=True).set_index('A').to_dict()['lgx']
+
+    def generate_alleles_and_xxcodes(self, dbversion: str, data_dir: str) -> None:
+        """
+        Checks to see if there's already an allele list file for the `dbversion`
+        in the `data_dir` directory. If not, will download the file and create
+        a valid allele set and corresponding xx codes.
+
+        The format of the AlleleList file has a 6-line header with a header
+        on the 7th line
+        ```
+        # file: Allelelist.3290.txt
+        # date: 2017-07-10
+        # version: IPD-IMGT/HLA 3.29.0
+        # origin: https://github.com/ANHIG/IMGTHLA/Allelelist.3290.txt
+        # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3290.txt
+        # author: WHO, Steven G. E. Marsh (steven.marsh@ucl.ac.uk)
+        AlleleID,Allele
+        HLA00001,A*01:01:01:01
+        HLA02169,A*01:01:01:02N
+        HLA14798,A*01:01:01:03
+        HLA15760,A*01:01:01:04
+        HLA16415,A*01:01:01:05
+        HLA16417,A*01:01:01:06
+        HLA16436,A*01:01:01:07
+        ```
+
+        :param dbversion: IMGT database version
+        :param data_dir: Data Directory to save the resulting files
+        :return: None, updates self
+        """
+
+        allele_file = f'{data_dir}/AlleleList.{dbversion}.pickle'
+        xx_codes_file = f'{data_dir}/XX_Codes.{dbversion}.pickle'
+
+        # If the pickled files already exist for the particular db version
+        # then reload the files without re-downloading
+        if pathlib.Path(allele_file).exists() and \
+                pathlib.Path(xx_codes_file).exists():
+            print("Loading from file.")
+            with open(allele_file, 'rb') as load_file:
+                self.valid_alleles = pickle.load(load_file)
+            with open(xx_codes_file, 'rb') as load_file:
+                self.xxcodes = pickle.load(load_file)
+            return
+
+        # Create a Pandas DataFrame from the allele list file
+        # Skip the header (first 6 lines) and use only the Allele
+        allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.{dbversion}.txt'
+        allele_df = pd.read_csv(allele_list_url, header=6, usecols=['Allele'])
+
+        # Create a set of valid alleles
+        # All 2-field, 3-field and the original Alleles are considered valid alleles
+        allele_df['2d'] = allele_df['Allele'].apply(get_2field_allele)
+        allele_df['3d'] = allele_df['Allele'].apply(get_3field_allele)
+        self.valid_alleles = set(allele_df['Allele']). \
+            union(set(allele_df['2d'])). \
+            union(set(allele_df['3d']))
+
+        # Create xxcodes mapping from the unique alleles in 2-field column
+        xx_df = pd.DataFrame(allele_df['2d'].unique(), columns=['Allele'])
+        # Also create a first-field column
+        xx_df['1d'] = xx_df['Allele'].apply(lambda x: x.split(":")[0])
+        # xxcodes maps a first field name to its 2 field expansion
+        self.xxcodes = xx_df.groupby(['1d']) \
+            .apply(lambda x: list(x['Allele'])) \
+            .to_dict()
+
+        # Update xx codes with broads and splits
+        for broad, splits in broad_splits_mapping.items():
+            for split in splits:
+                if broad in self.xxcodes:
+                    self.xxcodes[broad].extend(self.xxcodes[split])
+                else:
+                    self.xxcodes[broad] = self.xxcodes[split]
+
+        # Save this version of the valid alleles and xx codes
+        # Save alleles to pickle file
+        with open(allele_file, 'wb') as save_file:
+            pickle.dump(self.valid_alleles, save_file, protocol=pickle.HIGHEST_PROTOCOL)
+        # Save xx codes to pickle file
+        with open(xx_codes_file, 'wb') as save_file:
+            pickle.dump(self.xxcodes, save_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     @property
     def dbversion(self) -> str:
@@ -360,7 +365,7 @@ class ARD(object):
         """
 
         # deal with leading 'HLA-'
-        if self.HLA_regex.search(allele):
+        if HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
             redux_allele = self.redux(allele_name, ars_type)
             if redux_allele:
@@ -368,7 +373,7 @@ class ARD(object):
             else:
                 return redux_allele
 
-        # Alleles ending with P or G are valid
+        # Alleles ending with P or G are valid_alleles
         if allele.endswith(('P', 'G')):
             allele = allele[:-1]
 
@@ -393,7 +398,7 @@ class ARD(object):
                 return ':'.join(allele.split(':')[0:2])
         else:
             if self.remove_invalid:
-                if allele in self.valid:
+                if allele in self.valid_alleles:
                     return allele
                 else:
                     return ''
@@ -439,14 +444,14 @@ class ARD(object):
         loc_name, code = loc_allele[0], loc_allele[1]
 
         # handle XX codes
-        # test that they are valid
+        # test that they are valid_alleles
         if (is_mac(glstring) and glstring.split(":")[1] == "XX") and loc_name in self.xxcodes:
             loc, n = loc_name.split("*")
             return self.redux_gl(
                 "/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
 
         if is_mac(glstring) and code in self.mac:
-            if self.HLA_regex.search(glstring):
+            if HLA_regex.search(glstring):
                 hla, allele_name = glstring.split("-")
                 loc_name, code = allele_name.split(":")
                 alleles = self.get_alleles(code, loc_name)
@@ -461,7 +466,7 @@ class ARD(object):
 
     def get_alleles(self, code, loc_name):
         loc, n = loc_name.split("*")
-        alleles = list(filter(lambda a: a in self.valid,
+        alleles = list(filter(lambda a: a in self.valid_alleles,
                               [loc_name + ":" + a if len(a) <= 3
                                else loc + "*" + a
                                for a in self.mac[code]['Alleles']]))
@@ -478,16 +483,16 @@ class ARD(object):
         """
         if not is_mac(allele):
             # PERFORMANCE: use hash instead of allele in "list"
-            # return allele in self.valid
-            # Alleles ending with P or G are valid
+            # return allele in self.valid_alleles
+            # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
             # validate allele without the 'HLA-' prefix
-            if self.HLA_regex.search(allele):
+            if HLA_regex.search(allele):
                 # remove 'HLA-' prefix
                 allele = allele[4:]
-            return self.valid_dict.get(allele, False)
+            return allele in self.valid_alleles
         return True
 
     def isvalid_gl(self, glstring: str) -> bool:
@@ -526,7 +531,7 @@ class ARD(object):
         loc_name, code = allele.split(":")
         loc, n = loc_name.split("*")
         if code in self.mac:
-            alleles = list(filter(lambda a: a in self.valid,
+            alleles = list(filter(lambda a: a in self.valid_alleles,
                                   [loc_name + ":" + a if len(a) <= 3
                                    else loc + "*" + a
                                    for a in self.mac[code]['Alleles']]))
@@ -574,7 +579,7 @@ class ARD(object):
             loc_name = loc_name.split("-")[1]
 
         if code in self.mac:
-            return list(filter(lambda a: a in self.valid,
+            return list(filter(lambda a: a in self.valid_alleles,
                                [loc_name + ":" + a if len(a) <= 3
                                 else loc + "*" + a
                                 for a in self.mac[code]['Alleles']]))
