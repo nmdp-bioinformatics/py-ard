@@ -22,33 +22,10 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import copy
-import re
-import urllib.request
-import zipfile
 from datetime import datetime, date
 
 import pandas as pd
 from six import integer_types, iteritems
-
-
-def all_macs(csv_file, data_dir, url='https://hml.nmdp.org/mac/files/numer.v3.zip'):
-    urllib.request.urlretrieve(url, 'numeric.v3.zip')
-    zip_ref = zipfile.ZipFile('numeric.v3.zip', 'r')
-    zip_ref.extractall(data_dir)
-    zip_ref.close()
-    data = []
-    out_file = data_dir + "/numer.v3.txt"
-    with open(out_file, 'r') as f:
-        for line in f:
-            line = line.rstrip()
-            if re.search("^\D", line) and not re.search("CODE", line) and not re.search("LAST", line):
-                data.append(line.split("\t"))
-        f.close()
-    df = pd.DataFrame(data, columns=['Code', 'Alleles'])
-    df.to_csv(csv_file, header=True, index=False)
-    df['Alleles'] = df['Alleles'].apply(lambda x: x.split("/"))
-    mac_dict = df.set_index("Code").to_dict('index')
-    return mac_dict
 
 
 def pandas_explode(df, column_to_explode):

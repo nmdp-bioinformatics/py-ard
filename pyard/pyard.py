@@ -35,7 +35,6 @@ import pandas as pd
 
 from .broad_splits import broad_splits_mapping
 from .smart_sort import smart_sort_comparator
-from .util import all_macs
 from .util import pandas_explode
 
 # The GitHub URL where IMGT HLA files are downloaded.
@@ -79,17 +78,12 @@ def get_2field_allele(a: str) -> str:
 
 class ARD(object):
     """ ARD reduction for HLA """
-
     def __init__(self, dbversion: str = 'Latest',
                  load_mac_file: bool = True,
                  verbose: bool = False,
                  remove_invalid: bool = True,
                  data_dir: str = None):
-        """
-        ARD -
-        :param dbversion:
-        :type dbversion: str
-        """
+
         self.mac = {}
         self._verbose = verbose
         self._dbversion = dbversion
@@ -107,33 +101,17 @@ class ARD(object):
             pathlib.Path(data_dir).mkdir(exist_ok=True)
 
         ars_url = IMGT_HLA_URL + dbversion + '/wmda/hla_nom_g.txt'
-
         ars_file = data_dir + '/hla_nom_g.' + str(dbversion) + ".txt"
-        mac_file = data_dir + "/mac.txt"
-        mac_pickle = data_dir + "/mac.pickle"
-
         # Downloading ARS file
         if not os.path.isfile(ars_file):
             if verbose:
                 logging.info("Downloading " + str(dbversion) + " ARD file")
             urllib.request.urlretrieve(ars_url, ars_file)
 
-        # Downloading MAC file
+        # Load MAC codes
         if load_mac_file:
-            if not os.path.isfile(mac_pickle):
-                if verbose:
-                    logging.info("Downloading MAC file")
-                self.mac = all_macs(mac_file, data_dir=data_dir)
-
-                # Writing dict to pickle file
-                with open(mac_pickle, 'wb') as handle:
-                    pickle.dump(self.mac, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            else:
-                if verbose:
-                    logging.info("Loading MAC file")
-                with open(mac_pickle, 'rb') as handle:
-                    self.mac = pickle.load(handle)
-
+            self.generate_mac_codes(data_dir)
+        # Load Alleles and XX Codes
         self.generate_alleles_and_xxcodes(dbversion, data_dir)
 
         # Loading ARS file into pandas
@@ -199,6 +177,71 @@ class ARD(object):
                                df[['A', 'lgx']]],
                               ignore_index=True).set_index('A').to_dict()['lgx']
 
+    def generate_mac_codes(self, data_dir):
+        """
+        MAC files come in 2 different versions:
+
+        Martin: when they’re printed, the first is better for encoding and the
+        second is better for decoding. The entire list was maintained both as an
+        excel spreadsheet and also as a sybase database table. The excel was the
+        one that was printed and distributed.
+
+            **==> numer.v3.txt <==**
+
+            Sorted by the length and the the values in the list
+            ```
+            "LAST UPDATED: 09/30/20"
+            CODE	SUBTYPE
+
+            AB	01/02
+            AC	01/03
+            AD	01/04
+            AE	01/05
+            AG	01/06
+            AH	01/07
+            AJ	01/08
+            ```
+
+            **==> alpha.v3.txt <==**
+
+            Sorted by the code
+
+            ```
+            "LAST UPDATED: 10/01/20"
+            *	CODE	SUBTYPE
+
+                AA	01/02/03/05
+                AB	01/02
+                AC	01/03
+                AD	01/04
+                AE	01/05
+                AF	01/09
+                AG	01/06
+            ```
+
+        :param data_dir:
+        :return:
+        """
+
+        mac_pickle = f'{data_dir}/mac.pickle'
+
+        if not os.path.isfile(mac_pickle):
+            if self.verbose:
+                logging.info("Downloading MAC file")
+            # Load the MAC file to a DataFrame
+            mac_url = 'https://hml.nmdp.org/mac/files/numer.v3.zip'
+            df_mac = pd.read_csv(mac_url, sep='\t', compression='zip', skiprows=3, names=['Code', 'Alleles'])
+            self.mac = df_mac.set_index("Code")["Alleles"].to_dict()
+
+            # Writing dict to pickle file
+            with open(mac_pickle, 'wb') as save_file:
+                pickle.dump(self.mac, save_file, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            if self.verbose:
+                logging.info("Loading MAC file")
+            with open(mac_pickle, 'rb') as load_file:
+                self.mac = pickle.load(load_file)
+
     def generate_alleles_and_xxcodes(self, dbversion: str, data_dir: str) -> None:
         """
         Checks to see if there's already an allele list file for the `dbversion`
@@ -236,7 +279,6 @@ class ARD(object):
         # then reload the files without re-downloading
         if pathlib.Path(allele_file).exists() and \
                 pathlib.Path(xx_codes_file).exists():
-            print("Loading from file.")
             with open(allele_file, 'rb') as load_file:
                 self.valid_alleles = pickle.load(load_file)
             with open(xx_codes_file, 'rb') as load_file:
@@ -398,7 +440,7 @@ class ARD(object):
                 return ':'.join(allele.split(':')[0:2])
         else:
             if self.remove_invalid:
-                if allele in self.valid_alleles:
+                if self._is_valid_allele(allele):
                     return allele
                 else:
                     return ''
@@ -446,7 +488,6 @@ class ARD(object):
         # handle XX codes
         # test that they are valid_alleles
         if (is_mac(glstring) and glstring.split(":")[1] == "XX") and loc_name in self.xxcodes:
-            loc, n = loc_name.split("*")
             return self.redux_gl(
                 "/".join(sorted(self.xxcodes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
 
@@ -454,23 +495,21 @@ class ARD(object):
             if HLA_regex.search(glstring):
                 hla, allele_name = glstring.split("-")
                 loc_name, code = allele_name.split(":")
-                alleles = self.get_alleles(code, loc_name)
+                alleles = self._get_alleles(code, loc_name)
                 return self.redux_gl(
                     "/".join(sorted(["HLA-" + a for a in alleles], key=functools.cmp_to_key(smart_sort_comparator))),
                     redux_type)
             else:
-                alleles = self.get_alleles(code, loc_name)
+                alleles = self._get_alleles(code, loc_name)
                 return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(smart_sort_comparator))),
                                      redux_type)
         return self.redux(glstring, redux_type)
 
-    def get_alleles(self, code, loc_name):
-        loc, n = loc_name.split("*")
-        alleles = list(filter(lambda a: a in self.valid_alleles,
-                              [loc_name + ":" + a if len(a) <= 3
-                               else loc + "*" + a
-                               for a in self.mac[code]['Alleles']]))
-        return alleles
+    def _is_valid_allele(self, allele):
+        return allele in self.valid_alleles
+
+    def _get_alleles(self, code, loc_name):
+        return filter(self._is_valid_allele, [f'{loc_name}:{a}' for a in self.mac[code].split('/')])
 
     def isvalid(self, allele: str) -> bool:
         """
@@ -492,7 +531,7 @@ class ARD(object):
             if HLA_regex.search(allele):
                 # remove 'HLA-' prefix
                 allele = allele[4:]
-            return allele in self.valid_alleles
+            return self._is_valid_allele(allele)
         return True
 
     def isvalid_gl(self, glstring: str) -> bool:
@@ -529,12 +568,8 @@ class ARD(object):
         :rtype: str
         """
         loc_name, code = allele.split(":")
-        loc, n = loc_name.split("*")
         if code in self.mac:
-            alleles = list(filter(lambda a: a in self.valid_alleles,
-                                  [loc_name + ":" + a if len(a) <= 3
-                                   else loc + "*" + a
-                                   for a in self.mac[code]['Alleles']]))
+            alleles = self._get_alleles(code, loc_name)
             group = list(filter(partial(is_not, None),
                                 set([self.toG(allele=a)
                                      for a in alleles])))
@@ -565,7 +600,7 @@ class ARD(object):
 
     def expand_mac(self, allele: str):
         """
-        Exapnds mac codes
+        Expands mac codes
 
         :param allele: An HLA allele.
         :type: str
@@ -575,13 +610,9 @@ class ARD(object):
         loc_name, code = allele.split(":")
         loc, n = loc_name.split("*")
         if len(loc.split("-")) == 2:
-            loc = loc.split("-")[1]
             loc_name = loc_name.split("-")[1]
 
         if code in self.mac:
-            return list(filter(lambda a: a in self.valid_alleles,
-                               [loc_name + ":" + a if len(a) <= 3
-                                else loc + "*" + a
-                                for a in self.mac[code]['Alleles']]))
+            return self._get_alleles(code, loc_name)
         else:
             return ''
