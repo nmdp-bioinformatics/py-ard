@@ -26,7 +26,6 @@ import os
 import pathlib
 import pickle
 import re
-import urllib.request
 from functools import partial
 from operator import is_not
 from typing import Dict
@@ -35,7 +34,6 @@ import pandas as pd
 
 from .broad_splits import broad_splits_mapping
 from .smart_sort import smart_sort_comparator
-from .util import pandas_explode
 
 # The GitHub URL where IMGT HLA files are downloaded.
 IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
@@ -78,6 +76,7 @@ def get_2field_allele(a: str) -> str:
 
 class ARD(object):
     """ ARD reduction for HLA """
+
     def __init__(self, dbversion: str = 'Latest',
                  load_mac_file: bool = True,
                  verbose: bool = False,
@@ -90,92 +89,77 @@ class ARD(object):
         self._load_mac_file = load_mac_file
         self._remove_invalid = remove_invalid
 
-
-        # TODO: add check for valid_alleles ARD type
-        # TODO: add check for valid_alleles db version
-
         # Set data directory where all the downloaded files will go
         if data_dir is None:
-            data_dir = os.path.dirname(__file__)
-        else:
-            pathlib.Path(data_dir).mkdir(exist_ok=True)
+            data_dir = pathlib.Path.home() / ".pyard"
 
-        ars_url = IMGT_HLA_URL + dbversion + '/wmda/hla_nom_g.txt'
-        ars_file = data_dir + '/hla_nom_g.' + str(dbversion) + ".txt"
-        # Downloading ARS file
-        if not os.path.isfile(ars_file):
-            if verbose:
-                logging.info("Downloading " + str(dbversion) + " ARD file")
-            urllib.request.urlretrieve(ars_url, ars_file)
+        data_dir = f'{data_dir}/{dbversion}'
+        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
 
         # Load MAC codes
         if load_mac_file:
             self.generate_mac_codes(data_dir)
         # Load Alleles and XX Codes
         self.generate_alleles_and_xxcodes(dbversion, data_dir)
+        # Load ARS mappings
+        self.generate_ars_mapping(data_dir)
 
-        # Loading ARS file into pandas
-        # TODO: Make skip dynamic in case the files are not consistent
-        df = pd.read_csv(ars_file, skiprows=6,
-                         names=["Locus", "A", "G"], sep=";").dropna()
+    def generate_ars_mapping(self, data_dir):
 
-        df['Locus'] = df['Locus'].apply(lambda l: l.split("*")[0])
-        df['A'] = df[['Locus', 'A']].apply(lambda row: [row['Locus'] + "*" + a
-                                                        for a in
-                                                        row['A'].split("/")
-                                                        ],
-                                           axis=1)
-        df['G'] = df[['Locus', 'G']].apply(lambda row: "*".join([row['Locus'],
-                                                                 row['G']]),
-                                           axis=1)
+        mapping_file = f'{data_dir}/ars_mapping.pickle'
+        if os.path.isfile(mapping_file):
+            with open(mapping_file, 'rb') as load_file:
+                ars_mapping = pickle.load(load_file)
+                self._G, self._lg, self._lgx, self.dup_g = ars_mapping
+                return
 
-        df = pandas_explode(df, 'A')
+        ars_url = f'{IMGT_HLA_URL}{self._dbversion}/wmda/hla_nom_g.txt'
+        df = pd.read_csv(ars_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+
+        df['A'] = df['A'].apply(lambda a: a.split('/'))
+        df = df.explode('A')
+        df['A'] = df['Locus'] + df['A']
+        df['G'] = df['Locus'] + df['G']
 
         df['2d'] = df['A'].apply(get_2field_allele)
         df['3d'] = df['A'].apply(get_3field_allele)
 
-        df_values = df.drop_duplicates(['2d', 'G'])['2d'] \
-            .value_counts().reset_index() \
-            .sort_values(by='2d', ascending=False)
-        multiple_Glist = df_values[df_values['2d'] > 1]['index'].tolist()
-        self.dup_g = df[df['2d'].isin(multiple_Glist)][['G', '2d']] \
+        mg = df.drop_duplicates(['2d', 'G'])['2d'].value_counts()
+        multiple_g_list = mg[mg > 1].reset_index()['index'].to_list()
+
+        self.dup_g = df[df['2d'].isin(multiple_g_list)][['G', '2d']] \
             .drop_duplicates() \
             .groupby('2d', as_index=True).agg("/".join) \
             .to_dict()['G']
 
-        df['lg'] = df['G'].apply(lambda a:
-                                 ":".join(a.split(":")[0:2]) + "g")
-
-        df['lgx'] = df['G'].apply(lambda a:
-                                  ":".join(a.split(":")[0:2]))
+        df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
+        df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
 
         # Creating dictionaries with allele->ARS group mapping
-        self._G = pd.concat([df.drop(['A', 'lg', 'lgx', '3d'], axis=1)
-                            .rename(index=str,
-                                    columns={"2d": "A"})[['A', 'G']],
-                             df.drop(['A', 'lg', 'lgx', '2d'], axis=1)
-                            .rename(index=str,
-                                    columns={"3d": "A"})[['A', 'G']],
-                             df[['A', 'G']]],
-                            ignore_index=True).set_index('A').to_dict()['G']
+        df_G = pd.concat([
+            df[['2d', 'G']].rename(columns={'2d': 'A'}),
+            df[['3d', 'G']].rename(columns={'3d': 'A'}),
+            df[['A', 'G']]
+        ], ignore_index=True)
+        self._G = df_G.set_index('A')['G'].to_dict()
 
-        self._lg = pd.concat([df.drop(['A', 'G', 'lgx', '3d'], axis=1)
-                             .rename(index=str,
-                                     columns={"2d": "A"})[['A', 'lg']],
-                              df.drop(['A', 'G', 'lgx', '2d'], axis=1)
-                             .rename(index=str,
-                                     columns={"3d": "A"})[['A', 'lg']],
-                              df[['A', 'lg']]],
-                             ignore_index=True).set_index('A').to_dict()['lg']
+        df_lg = pd.concat([
+            df[['2d', 'lg']].rename(columns={'2d': 'A'}),
+            df[['3d', 'lg']].rename(columns={'3d': 'A'}),
+            df[['A', 'lg']]
+        ])
+        self._lg = df_lg.set_index('A')['lg'].to_dict()
 
-        self._lgx = pd.concat([df.drop(['A', 'lg', 'G', '3d'], axis=1)
-                              .rename(index=str,
-                                      columns={"2d": "A"})[['A', 'lgx']],
-                               df.drop(['A', 'lg', 'G', '2d'], axis=1)
-                              .rename(index=str,
-                                      columns={"3d": "A"})[['A', 'lgx']],
-                               df[['A', 'lgx']]],
-                              ignore_index=True).set_index('A').to_dict()['lgx']
+        df_lgx = pd.concat([
+            df[['2d', 'lgx']].rename(columns={'2d': 'A'}),
+            df[['3d', 'lgx']].rename(columns={'3d': 'A'}),
+            df[['A', 'lgx']]
+        ])
+        self._lgx = df_lgx.set_index('A')['lgx'].to_dict()
+
+        ars_mapping = (self._G, self._lg, self._lgx, self.dup_g)
+        with open(mapping_file, 'wb') as save_file:
+            pickle.dump(ars_mapping, save_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def generate_mac_codes(self, data_dir):
         """
@@ -287,7 +271,10 @@ class ARD(object):
 
         # Create a Pandas DataFrame from the allele list file
         # Skip the header (first 6 lines) and use only the Allele
-        allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.{dbversion}.txt'
+        if dbversion == "Latest":
+            allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.txt'
+        else:
+            allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.{dbversion}.txt'
         allele_df = pd.read_csv(allele_list_url, header=6, usecols=['Allele'])
 
         # Create a set of valid alleles
