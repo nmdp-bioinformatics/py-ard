@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.1.0',
+    version='0.2.0',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
@@ -51,8 +51,7 @@ setup(
     packages=[
         'pyard',
     ],
-    package_dir={'pyard':
-                 'pyard'},
+    package_dir={'pyard': 'pyard'},
     install_requires=requirements,
     license="LGPL 3.0",
     zip_safe=False,
@@ -62,7 +61,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     test_suite='tests',
     tests_require=test_requirements,
