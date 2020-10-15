@@ -46,15 +46,12 @@ class TestPyArd(unittest.TestCase):
         self.assertIsInstance(self.ard, ARD)
 
     def test_no_mac(self):
-        ard_no_mac = ARD(self.db_version, data_dir='/tmp/3290', load_mac_file=False)
-        self.assertIsInstance(ard_no_mac, ARD)
-        self.assertEqual(len(ard_no_mac.mac.keys()), 0)
-        self.assertEqual(ard_no_mac.redux("A*01:01:01", 'G'), "A*01:01:01G")
-        self.assertEqual(ard_no_mac.redux("A*01:01:01", 'lg'), "A*01:01g")
-        self.assertEqual(ard_no_mac.redux("A*01:01:01", 'lgx'), "A*01:01")
-        self.assertEqual(ard_no_mac.redux("HLA-A*01:01:01", 'G'), "HLA-A*01:01:01G")
-        self.assertEqual(ard_no_mac.redux("HLA-A*01:01:01", 'lg'), "HLA-A*01:01g")
-        self.assertEqual(ard_no_mac.redux("HLA-A*01:01:01", 'lgx'), "HLA-A*01:01")
+        self.assertEqual(self.ard.redux("A*01:01:01", 'G'), "A*01:01:01G")
+        self.assertEqual(self.ard.redux("A*01:01:01", 'lg'), "A*01:01g")
+        self.assertEqual(self.ard.redux("A*01:01:01", 'lgx'), "A*01:01")
+        self.assertEqual(self.ard.redux("HLA-A*01:01:01", 'G'), "HLA-A*01:01:01G")
+        self.assertEqual(self.ard.redux("HLA-A*01:01:01", 'lg'), "HLA-A*01:01g")
+        self.assertEqual(self.ard.redux("HLA-A*01:01:01", 'lgx'), "HLA-A*01:01")
 
     def test_remove_invalid(self):
         self.assertEqual(self.ard.redux("A*01:01:01", 'G'), "A*01:01:01G")
@@ -116,3 +113,21 @@ class TestPyArd(unittest.TestCase):
                           ':360'
         gl = self.ard.redux_gl('B*40:XX', 'G')
         self.assertEqual(gl, expanded_string)
+
+    def test_expand_mac(self):
+        mac_ab_expanded = ['A*01:01', 'A*01:02']
+        self.assertEqual(self.ard.expand_mac('A*01:AB'), mac_ab_expanded)
+
+        mac_hla_ab_expanded = ['HLA-A*01:01', 'HLA-A*01:02']
+        self.assertEqual(self.ard.expand_mac('HLA-A*01:AB'), mac_hla_ab_expanded)
+
+        mac_ac_expanded = ['A*01:01', 'A*01:03']
+        self.assertEqual(self.ard.expand_mac('A*01:AC'), mac_ac_expanded)
+
+        mac_hla_ac_expanded = ['HLA-A*01:01', 'HLA-A*01:03']
+        self.assertEqual(self.ard.expand_mac('HLA-A*01:AC'), mac_hla_ac_expanded)
+
+    def test_mac_toG(self):
+        g_alleles = 'A*01:01:01G/A*01:03:01G'
+        self.assertEqual(self.ard.mac_toG('A*01:AC'), g_alleles)
+        self.assertEqual(self.ard.mac_toG('A*01:AB'), '')
