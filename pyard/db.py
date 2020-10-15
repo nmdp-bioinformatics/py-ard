@@ -1,6 +1,6 @@
 import pathlib
 import sqlite3
-from typing import Tuple, Dict, Union, Set, List
+from typing import Tuple, Dict, Set, List
 
 
 def create_db_connection(data_dir, imgt_version, ro=False):
@@ -53,7 +53,7 @@ def table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
     return result[0] > 0
 
 
-def tables_exists(connection: sqlite3.Connection, table_names):
+def tables_exists(connection: sqlite3.Connection, table_names: List[str]):
     """
     Do all the given tables exist in the database ?
 
@@ -98,7 +98,8 @@ def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
     return result[0] > 0
 
 
-def save_dict(connection: sqlite3.Connection, table_name: str, dictionary: Union[Dict, Set], columns=Tuple[str, str]) -> bool:
+def save_dict(connection: sqlite3.Connection, table_name: str,
+              dictionary: Dict[str, str], columns=Tuple[str, str]) -> bool:
     """
     Save the dictionary as a table with column names from columns Tuple.
 
