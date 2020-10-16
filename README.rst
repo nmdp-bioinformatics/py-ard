@@ -54,17 +54,21 @@ Example
 
 .. code-block:: python3
 
-    from pyard import ARD
+    import pyard
 
-    # Initialize ARD object
-    ard = ARD('3290')
+    # Initialize ARD object with a version of IMGT HLA database
+    ard = pyard.ARD(3290)
 
     # You can specify a data directory for temp files
-    # ard = ARD('3290', data_dir='/tmp/py-ard')
+    # ard = pyard.ARD('3290', data_dir='/tmp/py-ard')
 
-    # Initialize with latest DB
-    ard = ARD()
+    # Initialize with latest IMGT HLA database
+    ard = pyard.ARD()
 
+    # You can choose to refresh the MAC code for previously used versions
+    # ard =  pyard.ARD(3290, refresh_mac=True)
+
+    # Allele to reduce
     allele = "A*01:01:01"
 
     ard.redux(allele, 'G')
