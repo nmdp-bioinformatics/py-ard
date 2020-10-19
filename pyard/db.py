@@ -110,12 +110,16 @@ def save_dict(connection: sqlite3.Connection, table_name: str,
     :return: success status
     """
     cursor = connection.cursor()
+
+    # Drop the table first
+    drop_table_sql = f"DROP TABLE IF EXISTS {table_name}"
+    cursor.execute(drop_table_sql)
+
+    # Create table
     create_table_sql = f"""CREATE TABLE {table_name} (
                             {columns[0]} TEXT PRIMARY KEY,
                             {columns[1]} TEXT NOT NULL
                     )"""
-
-    # Create table
     cursor.execute(create_table_sql)
 
     # insert
@@ -140,11 +144,15 @@ def save_set(connection: sqlite3.Connection, table_name: str, rows: Set, column:
     :return: success status
     """
     cursor = connection.cursor()
+
+    # Drop the table first
+    drop_table_sql = f"DROP TABLE IF EXISTS {table_name}"
+    cursor.execute(drop_table_sql)
+
+    # Create table
     create_table_sql = f"""CREATE TABLE {table_name} (
                             {column} TEXT PRIMARY KEY
                     )"""
-
-    # Create table
     cursor.execute(create_table_sql)
 
     # insert

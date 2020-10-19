@@ -41,7 +41,8 @@ class ARD(object):
 
     def __init__(self, imgt_version: str = 'Latest',
                  remove_invalid: bool = True,
-                 data_dir: str = None):
+                 data_dir: str = None,
+                 refresh_mac: bool = False) -> None:
         """
         ARD will load valid alleles, xx codes and MAC mappings for the given
         version of IMGT database, downloading and generating the database if
@@ -57,7 +58,7 @@ class ARD(object):
         self.db_connection = db.create_db_connection(data_dir, imgt_version)
 
         # Load MAC codes
-        generate_mac_codes(self.db_connection)
+        generate_mac_codes(self.db_connection, refresh_mac)
         # Load Alleles and XX Codes
         self.valid_alleles, self.xx_codes = generate_alleles_and_xx_codes(self.db_connection, imgt_version)
         # Load ARS mappings
