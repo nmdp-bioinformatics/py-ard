@@ -72,15 +72,19 @@ Example
     allele = "A*01:01:01"
 
     ard.redux(allele, 'G')
-    # >> 'A*01:01:01G'
+    # 'A*01:01:01G'
 
     ard.redux(allele, 'lg')
-    # >> 'A*01:01g'
+    # 'A*01:01g'
 
     ard.redux(allele, 'lgx')
     # 'A*01:01'
 
     ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
     # 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
+
+    # py-ard can also reduce serology based typings
+    ard.redux_gl('HLA-A*10^HLA-A*9', 'lg')
+    # 'HLA-A*24:19g/HLA-A*24:22g^HLA-A*26:01g/HLA-A*26:10g/HLA-A*26:15g/HLA-A*26:92g/HLA-A*66:01g/HLA-A*66:03g'
 
 

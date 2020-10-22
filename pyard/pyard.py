@@ -26,7 +26,8 @@ import re
 from typing import Iterable
 
 from . import db
-from .data_repository import generate_ars_mapping, generate_mac_codes, generate_alleles_and_xx_codes
+from .data_repository import generate_ars_mapping, generate_mac_codes, generate_alleles_and_xx_codes, \
+    generate_serology_mapping
 from .db import is_valid_mac_code, mac_code_to_alleles
 from .smart_sort import smart_sort_comparator
 
@@ -63,6 +64,8 @@ class ARD(object):
         self.valid_alleles, self.xx_codes = generate_alleles_and_xx_codes(self.db_connection, imgt_version)
         # Load ARS mappings
         self.dup_g, self._G, self._lg, self._lgx = generate_ars_mapping(self.db_connection, imgt_version)
+        # Load Serology mappings
+        generate_serology_mapping(self.db_connection, imgt_version)
 
         # Close the current read-write db connection
         self.db_connection.close()
@@ -169,28 +172,46 @@ class ARD(object):
             return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]),
                                    key=functools.cmp_to_key(smart_sort_comparator)))
 
+        # Handle Serology
+        if self.is_serology(glstring):
+            if HLA_regex.search(glstring):
+                # Remove HLA- prefix
+                serology = glstring.split("-")[1]
+                alleles = self._get_alleles_from_serology(serology)
+                alleles = ['HLA-' + a for a in alleles]
+            else:
+                alleles = self._get_alleles_from_serology(glstring)
+            return self.redux_gl("/".join(alleles), redux_type)
+
         loc_allele = glstring.split(":")
         loc_name, code = loc_allele[0], loc_allele[1]
 
-        # handle XX codes
-        # test that they are valid_alleles
+        # Handle XX codes
         if (self.is_mac(glstring) and glstring.split(":")[1] == "XX") and loc_name in self.xx_codes:
-            return self.redux_gl(
-                "/".join(sorted(self.xx_codes[loc_name], key=functools.cmp_to_key(smart_sort_comparator))), redux_type)
+            return self.redux_gl("/".join(self.xx_codes[loc_name]), redux_type)
 
+        # Handle MAC
         if self.is_mac(glstring) and is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(glstring):
-                hla, allele_name = glstring.split("-")
+                # Remove HLA- prefix
+                allele_name = glstring.split("-")[1]
                 loc_name, code = allele_name.split(":")
                 alleles = self._get_alleles(code, loc_name)
-                return self.redux_gl(
-                    "/".join(sorted(["HLA-" + a for a in alleles], key=functools.cmp_to_key(smart_sort_comparator))),
-                    redux_type)
+                alleles = ["HLA-" + a for a in alleles]
             else:
                 alleles = self._get_alleles(code, loc_name)
-                return self.redux_gl("/".join(sorted(alleles, key=functools.cmp_to_key(smart_sort_comparator))),
-                                     redux_type)
+            return self.redux_gl("/".join(alleles), redux_type)
+
         return self.redux(glstring, redux_type)
+
+    @staticmethod
+    def is_serology(allele: str) -> bool:
+        """
+        An allele is serology if the allele name after * is numeral only, no ':'
+        :param allele: The allele to test for serology
+        :return: True if serology
+        """
+        return allele.split('*')[1].isdigit()
 
     @staticmethod
     def is_mac(gl: str) -> bool:
@@ -198,7 +219,7 @@ class ARD(object):
         MAC has there are non-digit characters after the : character,
         then it's a MAC.
         :param gl: glstring to test if it has a MAC code
-        :return: bool
+        :return: True if MAC
         """
         return re.search(r":\D+", gl) is not None
 
@@ -221,6 +242,10 @@ class ARD(object):
         return filter(self._is_valid_allele,
                       [f'{loc_name}:{a}' for a in alleles])
 
+    def _get_alleles_from_serology(self, serology) -> Iterable[str]:
+        alleles = db.serology_to_alleles(self.db_connection, serology)
+        return filter(self._is_valid_allele, alleles)
+
     def isvalid(self, allele: str) -> bool:
         """
         Determines validity of an allele
@@ -230,7 +255,7 @@ class ARD(object):
         :return: allele or empty
         :rtype: bool
         """
-        if not self.is_mac(allele):
+        if not self.is_mac(allele) and not self.is_serology(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
