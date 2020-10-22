@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.3.1',
+    version='0.4.0',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
