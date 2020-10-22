@@ -1,3 +1,4 @@
+import functools
 import sqlite3
 
 import pandas as pd
@@ -6,6 +7,8 @@ from pyard import db
 from pyard.broad_splits import broad_splits_mapping
 
 # GitHub URL where IMGT HLA files are downloaded.
+from pyard.smart_sort import smart_sort_comparator
+
 IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
 
 # List of expression characters
@@ -97,65 +100,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     return dup_g, g_group, lg_group, lgx_group
 
 
-def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
-    """
-    MAC files come in 2 different versions:
-
-    Martin: when they’re printed, the first is better for encoding and the
-    second is better for decoding. The entire list was maintained both as an
-    excel spreadsheet and also as a sybase database table. The excel was the
-    one that was printed and distributed.
-
-        **==> numer.v3.txt <==**
-
-        Sorted by the length and the the values in the list
-        ```
-        "LAST UPDATED: 09/30/20"
-        CODE	SUBTYPE
-
-        AB	01/02
-        AC	01/03
-        AD	01/04
-        AE	01/05
-        AG	01/06
-        AH	01/07
-        AJ	01/08
-        ```
-
-        **==> alpha.v3.txt <==**
-
-        Sorted by the code
-
-        ```
-        "LAST UPDATED: 10/01/20"
-        *	CODE	SUBTYPE
-
-            AA	01/02/03/05
-            AB	01/02
-            AC	01/03
-            AD	01/04
-            AE	01/05
-            AF	01/09
-            AG	01/06
-        ```
-
-    :param db_connection:
-    :param data_dir:
-    :return:
-    """
-    mac_table_name = 'mac_codes'
-    if refresh_mac or not db.table_exists(db_connection, mac_table_name):
-        # Load the MAC file to a DataFrame
-        mac_url = 'https://hml.nmdp.org/mac/files/numer.v3.zip'
-        df_mac = pd.read_csv(mac_url, sep='\t', compression='zip',
-                             skiprows=3, names=['Code', 'Alleles'])
-        # Create a dict from code to alleles
-        mac = df_mac.set_index("Code")["Alleles"].to_dict()
-        # Save the mac dict to db
-        db.save_dict(db_connection, table_name=mac_table_name,
-                     dictionary=mac, columns=('code', 'alleles'))
-
-
 def generate_alleles_and_xx_codes(db_connection: sqlite3.Connection, imgt_version):
     """
     Checks to see if there's already an allele list file for the `imgt_version`
@@ -226,10 +170,110 @@ def generate_alleles_and_xx_codes(db_connection: sqlite3.Connection, imgt_versio
             else:
                 xx_codes[broad] = xx_codes[split]
 
-    # Save this version of the valid alleles and xx codes
+    # Save this version of the valid alleles
     db.save_set(db_connection, 'alleles', valid_alleles, 'allele')
-    flat_xx_codes = {k: '/'.join(v) for k, v in xx_codes.items()}
+    # Save this version of xx codes
+    flat_xx_codes = {k: '/'.join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator)))
+                     for k, v in xx_codes.items()}
     db.save_dict(db_connection, 'xx_codes', flat_xx_codes,
                  ('allele_1d', 'allele_list'))
 
     return valid_alleles, xx_codes
+
+
+def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
+    """
+    MAC files come in 2 different versions:
+
+    Martin: when they’re printed, the first is better for encoding and the
+    second is better for decoding. The entire list was maintained both as an
+    excel spreadsheet and also as a sybase database table. The excel was the
+    one that was printed and distributed.
+
+        **==> numer.v3.txt <==**
+
+        Sorted by the length and the the values in the list
+        ```
+        "LAST UPDATED: 09/30/20"
+        CODE	SUBTYPE
+
+        AB	01/02
+        AC	01/03
+        AD	01/04
+        AE	01/05
+        AG	01/06
+        AH	01/07
+        AJ	01/08
+        ```
+
+        **==> alpha.v3.txt <==**
+
+        Sorted by the code
+
+        ```
+        "LAST UPDATED: 10/01/20"
+        *	CODE	SUBTYPE
+
+            AA	01/02/03/05
+            AB	01/02
+            AC	01/03
+            AD	01/04
+            AE	01/05
+            AF	01/09
+            AG	01/06
+        ```
+
+    :param db_connection: Database connection to the sqlite database
+    :param refresh_mac: Refresh the database with newer MAC data ?
+    :return: None
+    """
+    mac_table_name = 'mac_codes'
+    if refresh_mac or not db.table_exists(db_connection, mac_table_name):
+        # Load the MAC file to a DataFrame
+        mac_url = 'https://hml.nmdp.org/mac/files/numer.v3.zip'
+        df_mac = pd.read_csv(mac_url, sep='\t', compression='zip',
+                             skiprows=3, names=['Code', 'Alleles'])
+        # Create a dict from code to alleles
+        mac = df_mac.set_index("Code")["Alleles"].to_dict()
+        # Save the mac dict to db
+        db.save_dict(db_connection, table_name=mac_table_name,
+                     dictionary=mac, columns=('code', 'alleles'))
+
+
+def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
+    if not db.table_exists(db_connection, 'serology_mapping'):
+        # Load WMDA serology mapping data
+        rel_dna_ser_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/rel_dna_ser.txt'
+        df_sero = pd.read_csv(rel_dna_ser_url, sep=';', skiprows=6,
+                              names=['Locus', 'Allele', 'USA', 'PSA', 'ASA'],
+                              index_col=False)
+
+        # Remove 0 and ?
+        df_sero = df_sero[(df_sero != '0') & (df_sero != '?')]
+        df_sero['Allele'] = df_sero['Locus'] + df_sero['Allele']
+
+        usa = df_sero[['Locus', 'Allele', 'USA']].dropna()
+        usa['Sero'] = usa['Locus'] + usa['USA']
+
+        psa = df_sero[['Locus', 'Allele', 'PSA']].dropna()
+        psa['PSA'] = psa['PSA'].apply(lambda row: row.split('/'))
+        psa = psa.explode('PSA')
+        psa = psa[(psa != '0') & (psa != '?')].dropna()
+        psa['Sero'] = psa['Locus'] + psa['PSA']
+
+        asa = df_sero[['Locus', 'Allele', 'ASA']].dropna()
+        asa['ASA'] = asa['ASA'].apply(lambda x: x.split('/'))
+        asa = asa.explode('ASA')
+        asa = asa[(asa != '0') & (asa != '?')].dropna()
+        asa['Sero'] = asa['Locus'] + asa['ASA']
+
+        sero_mapping_combined = pd.concat([usa[['Sero', 'Allele']],
+                                           psa[['Sero', 'Allele']],
+                                           asa[['Sero', 'Allele']]])
+        sero_mapping = sero_mapping_combined.groupby('Sero').\
+            apply(lambda x: '/'.join(sorted(x['Allele']))).\
+            to_dict()
+
+        # Save the serology mapping to db
+        db.save_dict(db_connection, table_name='serology_mapping',
+                     dictionary=sero_mapping, columns=('serology', 'allele_list'))
