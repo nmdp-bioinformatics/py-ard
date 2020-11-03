@@ -32,7 +32,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'pandas==1.1.2'
+    'pandas>=1.1.4'
 ]
 
 
@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.4.0',
+    version='0.4.1',
     description="ARD reduction for HLA with python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
@@ -62,6 +62,7 @@ setup(
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     test_suite='tests',
     tests_require=test_requirements,
