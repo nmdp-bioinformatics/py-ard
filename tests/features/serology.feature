@@ -12,13 +12,9 @@ Feature: Serology
 
     Examples: Valid A serology typings
       | Serology | Level | Redux Allele                                                |
-      | A*10     | G     | A*26:01:01G/A*26:10/A*26:15/A*26:92/A*66:01:01G/A*66:03:01G |
-      | A*10     | lg    | A*26:01g/A*26:10g/A*26:15g/A*26:92g/A*66:01g/A*66:03g       |
-      | A*10     | lgx   | A*26:01/A*26:10/A*26:15/A*26:92/A*66:01/A*66:03             |
-
-    Examples: With HLA- prefix
-      | Serology    | Level | Redux Allele                                                                        |
-      | HLA-A*10    | G     | HLA-A*26:01:01G/HLA-A*26:10/HLA-A*26:15/HLA-A*26:92/HLA-A*66:01:01G/HLA-A*66:03:01G |
-      | HLA-B*15:03 | G     | HLA-B*15:03:01G                                                                     |
-      | HLA-DQB1*1  | G     | HLA-DQB1*06:11:01/HLA-DQB1*06:11:02/HLA-DQB1*06:11:03/HLA-DQB1*06:12                |
-      | HLA-DQB1*1  | lg    | HLA-DQB1*06:11g/HLA-DQB1*06:12g                                                     |
+      | A10      | G     | A*26:01:01G/A*26:10/A*26:15/A*26:92/A*66:01:01G/A*66:03:01G |
+      | A10      | lg    | A*26:01g/A*26:10g/A*26:15g/A*26:92g/A*66:01g/A*66:03g       |
+      | A10      | lgx   | A*26:01/A*26:10/A*26:15/A*26:92/A*66:01/A*66:03             |
+      | A19      | G     | A*02:65/A*33:09                                             |
+      | DR1403   | G     | DRB1*14:03:01/DRB1*14:03:02                                 |
+      | DR2      | G     | DRB1*15:08/DRB1*16:03                                       |

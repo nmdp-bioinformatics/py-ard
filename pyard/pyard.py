@@ -174,20 +174,14 @@ class ARD(object):
 
         # Handle Serology
         if self.is_serology(glstring):
-            if HLA_regex.search(glstring):
-                # Remove HLA- prefix
-                serology = glstring.split("-")[1]
-                alleles = self._get_alleles_from_serology(serology)
-                alleles = ['HLA-' + a for a in alleles]
-            else:
-                alleles = self._get_alleles_from_serology(glstring)
+            alleles = self._get_alleles_from_serology(glstring)
             return self.redux_gl("/".join(alleles), redux_type)
 
         loc_allele = glstring.split(":")
         loc_name, code = loc_allele[0], loc_allele[1]
 
         # Handle XX codes
-        if (self.is_mac(glstring) and glstring.split(":")[1] == "XX") and loc_name in self.xx_codes:
+        if self.is_mac(glstring) and code == "XX" and loc_name in self.xx_codes:
             return self.redux_gl("/".join(self.xx_codes[loc_name]), redux_type)
 
         # Handle MAC
@@ -207,11 +201,26 @@ class ARD(object):
     @staticmethod
     def is_serology(allele: str) -> bool:
         """
-        An allele is serology if the allele name after * is numeral only, no ':'
+        A serology has the locus name (first 2 letters for DRB1, DRB3, DQB1, DQA1, DPB1 and DPA1)
+        of the allele followed by numerical antigen.
+
         :param allele: The allele to test for serology
         :return: True if serology
         """
-        return allele.split('*')[1].isdigit()
+        if '*' in allele or ':' in allele:
+            return False
+
+        locus = allele[0:2]
+        if locus in ['DR', 'DP', 'DQ']:
+            antigen = allele[2:]
+            return antigen.isdigit()
+
+        locus = allele[0:1]
+        if locus in ['A', 'B', 'C', 'D']:
+            antigen = allele[1:]
+            return antigen.isdigit()
+
+        return False
 
     @staticmethod
     def is_mac(gl: str) -> bool:
@@ -255,6 +264,8 @@ class ARD(object):
         :return: allele or empty
         :rtype: bool
         """
+        if allele == '':
+            return False
         if not self.is_mac(allele) and not self.is_serology(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
@@ -310,7 +321,6 @@ class ARD(object):
                 return ''
             else:
                 return "/".join(group)
-
         else:
             return ''
 
