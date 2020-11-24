@@ -79,7 +79,7 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     if result:
         alleles = result[0].split('/')
     else:
-        alleles = None
+        alleles = []
     return alleles
 
 
@@ -98,7 +98,7 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     if result:
         alleles = result[0].split('/')
     else:
-        alleles = None
+        alleles = []
     return alleles
 
 

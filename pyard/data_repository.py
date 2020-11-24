@@ -240,6 +240,23 @@ def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
                      dictionary=mac, columns=('code', 'alleles'))
 
 
+def to_serological_name(locus_name: str):
+    """
+    Map a DNA Allele name to Serological Equivalent.
+    http://hla.alleles.org/antigens/recognised_serology.html
+    Eg:
+      A*1 -> A1
+      ...
+      DRB5*51 -> DR51
+    :param locus_name: DNA Locus Name
+    :return: Serological equivalent
+    """
+    locus, sero_number = locus_name.split('*')
+    sero_locus = locus[:2]
+    sero_name = sero_locus + sero_number
+    return sero_name
+
+
 def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
     if not db.table_exists(db_connection, 'serology_mapping'):
         # Load WMDA serology mapping data
@@ -270,8 +287,13 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
         sero_mapping_combined = pd.concat([usa[['Sero', 'Allele']],
                                            psa[['Sero', 'Allele']],
                                            asa[['Sero', 'Allele']]])
-        sero_mapping = sero_mapping_combined.groupby('Sero').\
-            apply(lambda x: '/'.join(sorted(x['Allele']))).\
+
+        # Map to only valid serological antigen name
+        sero_mapping_combined['Sero'] = sero_mapping_combined['Sero']. \
+            apply(to_serological_name)
+
+        sero_mapping = sero_mapping_combined.groupby('Sero'). \
+            apply(lambda x: '/'.join(sorted(x['Allele']))). \
             to_dict()
 
         # Save the serology mapping to db
