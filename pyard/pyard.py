@@ -178,22 +178,22 @@ class ARD(object):
             return self.redux_gl("/".join(alleles), redux_type)
 
         loc_allele = glstring.split(":")
-        loc_name, code = loc_allele[0], loc_allele[1]
+        loc_antigen, code = loc_allele[0], loc_allele[1]
 
         # Handle XX codes
-        if self.is_mac(glstring) and code == "XX" and loc_name in self.xx_codes:
-            return self.redux_gl("/".join(self.xx_codes[loc_name]), redux_type)
+        if self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes:
+            return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
         if self.is_mac(glstring) and is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(glstring):
                 # Remove HLA- prefix
                 allele_name = glstring.split("-")[1]
-                loc_name, code = allele_name.split(":")
-                alleles = self._get_alleles(code, loc_name)
+                loc_antigen, code = allele_name.split(":")
+                alleles = self._get_alleles(code, loc_antigen)
                 alleles = ["HLA-" + a for a in alleles]
             else:
-                alleles = self._get_alleles(code, loc_name)
+                alleles = self._get_alleles(code, loc_antigen)
             return self.redux_gl("/".join(alleles), redux_type)
 
         return self.redux(glstring, redux_type)
@@ -242,19 +242,28 @@ class ARD(object):
             return allele in self.valid_alleles
         return True
 
-    def _get_alleles(self, code, loc_name) -> Iterable[str]:
+    def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
         Look up allele code in database and generate alleles
         :param code: allele code to look up
-        :param loc_name: locus name for alleles
+        :param locus_antigen: locus name for alleles
         :return: valid alleles corresponding to allele code
         """
         alleles = mac_code_to_alleles(self.db_connection, code)
-        if self._remove_invalid:
-            return filter(self._is_valid_allele,
-                          [f'{loc_name}:{a}' for a in alleles])
+
+        # It's an allelic expansion if any of the alleles have a `:`
+        # else it's a group expansion
+        is_allelic_expansion = any([':' in allele for allele in alleles])
+        if is_allelic_expansion:
+            locus = locus_antigen.split('*')[0] # Just keep the locus name
+            alleles = [f'{locus}*{a}' for a in alleles]
         else:
-            return [f'{loc_name}:{a}' for a in alleles]
+            alleles = [f'{locus_antigen}:{a}' for a in alleles]
+
+        if self._remove_invalid:
+            return filter(self._is_valid_allele, alleles)
+        else:
+            return alleles
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
@@ -319,11 +328,11 @@ class ARD(object):
         :return: ARS reduced allele
         :rtype: str
         """
-        loc_name, code = allele.split(":")
+        locus_antigen, code = allele.split(":")
         if HLA_regex.search(allele):
-            loc_name = loc_name.split("-")[1]
+            locus_antigen = locus_antigen.split("-")[1] # Remove HLA- prefix
         if is_valid_mac_code(self.db_connection, code):
-            alleles = self._get_alleles(code, loc_name)
+            alleles = self._get_alleles(code, locus_antigen)
             group = [self.toG(a) for a in alleles]
             if "X" in group:
                 return ''
@@ -358,12 +367,12 @@ class ARD(object):
         :return: List
         :rtype: List
         """
-        loc_name, code = mac_code.split(":")
+        locus_antigen, code = mac_code.split(":")
         if is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(mac_code):
-                loc_name = loc_name.split("-")[1]
-                return ['HLA-' + a for a in self._get_alleles(code, loc_name)]
+                locus_antigen = locus_antigen.split("-")[1] # Remove HLA- prefix
+                return ['HLA-' + a for a in self._get_alleles(code, locus_antigen)]
             else:
-                return list(self._get_alleles(code, loc_name))
+                return list(self._get_alleles(code, locus_antigen))
 
         return ''
