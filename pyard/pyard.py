@@ -238,7 +238,9 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.valid_alleles
+        if self._remove_invalid:
+            return allele in self.valid_alleles
+        return True
 
     def _get_alleles(self, code, loc_name) -> Iterable[str]:
         """
@@ -248,12 +250,18 @@ class ARD(object):
         :return: valid alleles corresponding to allele code
         """
         alleles = mac_code_to_alleles(self.db_connection, code)
-        return filter(self._is_valid_allele,
-                      [f'{loc_name}:{a}' for a in alleles])
+        if self._remove_invalid:
+            return filter(self._is_valid_allele,
+                          [f'{loc_name}:{a}' for a in alleles])
+        else:
+            return [f'{loc_name}:{a}' for a in alleles]
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
-        return filter(self._is_valid_allele, alleles)
+        if self._remove_invalid:
+            return filter(self._is_valid_allele, alleles)
+        else:
+            return alleles
 
     def isvalid(self, allele: str) -> bool:
         """
