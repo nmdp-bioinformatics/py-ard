@@ -27,3 +27,8 @@ def step_impl(context, redux_allele):
 @given("the serology typing is {serology}")
 def step_impl(context, serology):
     context.allele = serology
+
+
+@given("the version 2 typing is {v2_allele}")
+def step_impl(context, v2_allele):
+    context.allele = v2_allele

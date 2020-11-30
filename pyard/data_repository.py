@@ -1,3 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+#    py-ard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
 import functools
 import sqlite3
 
@@ -299,3 +321,25 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
         # Save the serology mapping to db
         db.save_dict(db_connection, table_name='serology_mapping',
                      dictionary=sero_mapping, columns=('serology', 'allele_list'))
+
+
+def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
+    if not db.table_exists(db_connection, 'v2_mapping'):
+        # TODO: Create mapping table using both the allele list history and
+        #  deleted alleles as reference.
+        # Temporary Example
+        v2_to_v3_example = {
+            "A*0104": "A*01:04N",
+            "A*0105N": "A*01:04N",
+            "A*0111": "A*01:11N",
+            "A*01123": "A*01:123N",
+            "A*0115": "A*01:15N",
+            "A*0116": "A*01:16N",
+            "A*01160": "A*01:160N",
+            "A*01162": "A*01:162N",
+            "A*01178": "A*01:178N",
+            "A*01179": "A*01:179N",
+            "DRB5*02ZB": "DRB5*02:UTV",
+        }
+        db.save_dict(db_connection, table_name='v2_mapping',
+                     dictionary=v2_to_v3_example, columns=('v2', 'v3'))
