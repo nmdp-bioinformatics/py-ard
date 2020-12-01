@@ -44,9 +44,12 @@ def smart_sort_comparator(a1, a2):
     if a1 == a2:
         return 0
 
-    # Ignore GL String matches
+    # GL String matches
     if re.search(glstring_chars, a1) or re.search(glstring_chars, a2):
-        return 0
+        if a1 > a2:
+            return 1
+        else:
+            return -1
 
     # remove any non-numerics
     a1 = re.sub(expr_regex, '', a1)
