@@ -88,3 +88,31 @@ Example
     # 'HLA-A*24:19g/HLA-A*24:22g^HLA-A*26:01g/HLA-A*26:10g/HLA-A*26:15g/HLA-A*26:92g/HLA-A*66:01g/HLA-A*66:03g'
 
 
+Command Line Tools
+------------------
+
+.. code-block:: bash
+
+    # Import the latest IMGT database
+    $ pyard-import
+    Created Latest py-ard database
+
+    # Import particular version of IMGT database
+    $ pyard-import --import-db-version 3.29.0
+    Created py-ard version 3290 database
+
+    # Import particular version of IMGT database and
+    # replace the v2 to v3 mapping table
+    $ pyard-import --import-db-version 3.29.0 --v2-to-v3-mapping map2to3.csv
+    Created py-ard version 3290 database
+    Updated v2_mapping table with 'map2to3.csv' mapping file.
+
+    # Reduce a gl string from command line
+    $ pyard --gl 'A*01:AB' -r lgx
+    A*01:01/A*01:02
+
+    $ pyard --gl 'DRB1*08:XX' -r G
+    DRB1*08:01:01G/DRB1*08:02:01G/DRB1*08:03:02G/DRB1*08:04:01G/DRB1*08:05/ ...
+
+    $ pyard -v 3290 --gl 'A1' -r lgx
+    A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...

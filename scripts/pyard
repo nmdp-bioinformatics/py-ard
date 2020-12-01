@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#    py-ard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
+import argparse
+
+import pyard
+
+
+def get_imgt_version(imgt_version):
+    if imgt_version:
+        version = imgt_version.replace('.', '')
+        if version.isdigit():
+            return version
+        raise RuntimeError(f"{imgt_version} is not a valid IMGT database version number")
+    return None
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        usage="""[-v <IMGT DB Version>] [gl-string redux_type]""",
+        description="""py-ard tool to redux GL String"""
+    )
+    parser.add_argument(
+        "-v",
+        "--imgt-version",
+        dest="imgt_version"
+    )
+    parser.add_argument(
+        "--gl",
+        required=True,
+        dest="gl_string"
+    )
+    parser.add_argument(
+        "-r",
+        choices=['G', 'lg', 'lgx'],
+        required=True,
+        dest="redux_type"
+    )
+
+    args = parser.parse_args()
+
+    imgt_version = get_imgt_version(args.imgt_version)
+    if imgt_version:
+        ard = pyard.ARD(imgt_version)
+    else:
+        ard = pyard.ARD()
+
+    print(ard.redux_gl(args.gl_string, args.redux_type))
+    del ard

@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#    py-ard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
+import argparse
+import pathlib
+
+import pyard
+from pyard import db
+import pandas as pd
+
+
+def get_imgt_version(imgt_version):
+    if imgt_version:
+        version = imgt_version.replace('.', '')
+        if version.isdigit():
+            return version
+        raise RuntimeError(f"{imgt_version} is not a valid IMGT database version number")
+    return None
+
+
+def get_data_dir(data_dir):
+    if data_dir:
+        path = pathlib.Path(data_dir)
+        if not path.exists() or not path.is_dir():
+            raise RuntimeError(f"{data_dir} is not a valid directory")
+    return data_dir
+
+
+def get_v2_v3_mapping(v2_v3_mapping):
+    if v2_v3_mapping:
+        path = pathlib.Path(v2_v3_mapping)
+        if not path.exists() or not path.is_file():
+            raise RuntimeError(f"{data_dir} is not a valid file")
+        df = pd.read_csv(path, names=['v2', 'v3'])
+        return df.set_index('v2')['v3'].to_dict()
+    return None
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        usage="""[--import-db-version <IMGT DB Version>]\
+        [--data-dir <directory for db file>]\
+        [--v2-to-v3-mapping <V2 to V3 mapping CSV file>]""",
+        description="""py-ard tool to generate reference SQLite database.\
+        Allows updating db with custom mappings."""
+    )
+    parser.add_argument(
+        "--import-db-version",
+        dest="imgt_version"
+    )
+    parser.add_argument(
+        "--data-dir",
+        dest="data_dir"
+    )
+    parser.add_argument(
+        "--v2-to-v3-mapping",
+        dest="v2_v3_mapping"
+    )
+    args = parser.parse_args()
+
+    imgt_version = get_imgt_version(args.imgt_version)
+    # print(imgt_version)
+
+    data_dir = get_data_dir(args.data_dir)
+    # print(data_dir)
+
+    v2_to_v3_dict = get_v2_v3_mapping(args.v2_v3_mapping)
+    # print(len(v2_to_v3_dict))
+
+    if imgt_version:
+        ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+        print(f"Created py-ard version {imgt_version} database")
+    else:
+        ard = pyard.ARD(data_dir=data_dir)
+        print(f"Created Latest py-ard database")
+    del ard
+
+    if v2_to_v3_dict:
+        db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
+        db.save_dict(db_connection, table_name='v2_mapping',
+                     dictionary=v2_to_v3_dict, columns=('v2', 'v3'))
+        print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file.")
