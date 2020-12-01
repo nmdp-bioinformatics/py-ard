@@ -25,6 +25,7 @@ import functools
 import re
 
 expr_regex = re.compile('[NQLSGg]')
+glstring_chars = re.compile('[/|+^~]')
 
 
 @functools.lru_cache(maxsize=1000)
@@ -41,6 +42,10 @@ def smart_sort_comparator(a1, a2):
 
     # Check to see if they are the same alleles
     if a1 == a2:
+        return 0
+
+    # Ignore GL String matches
+    if re.search(glstring_chars, a1) or re.search(glstring_chars, a2):
         return 0
 
     # remove any non-numerics
@@ -92,4 +97,3 @@ def smart_sort_comparator(a1, a2):
 
     # All fields are considered equal after 4th field
     return 0
-
