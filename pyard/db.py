@@ -1,3 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+#    py-ard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
 import pathlib
 import sqlite3
 from typing import Tuple, Dict, Set, List
@@ -92,7 +114,7 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     :return: List of alleles
     """
     serology_query = "SELECT allele_list from serology_mapping where serology = ?"
-    cursor = connection.execute(serology_query, (serology, ))
+    cursor = connection.execute(serology_query, (serology,))
     result = cursor.fetchone()
     cursor.close()
     if result:
@@ -100,6 +122,23 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     else:
         alleles = []
     return alleles
+
+
+def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
+    """
+    Look up V3 version of the allele in the database.
+
+    :param connection: db connection of type sqlite.Connection
+    :param v2_allele: V2 allele
+    :return: V3 allele
+    """
+    v2_query = "SELECT v3 from v2_mapping where v2 = ?"
+    cursor = connection.execute(v2_query, (v2_allele,))
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        return result[0]
+    return ''
 
 
 def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:

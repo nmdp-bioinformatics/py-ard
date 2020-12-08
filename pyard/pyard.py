@@ -27,8 +27,8 @@ from typing import Iterable
 
 from . import db
 from .data_repository import generate_ars_mapping, generate_mac_codes, generate_alleles_and_xx_codes, \
-    generate_serology_mapping
-from .db import is_valid_mac_code, mac_code_to_alleles
+    generate_serology_mapping, generate_v2_to_v3_mapping
+from .db import is_valid_mac_code, mac_code_to_alleles, v2_to_v3_allele
 from .smart_sort import smart_sort_comparator
 
 HLA_regex = re.compile("^HLA-")
@@ -66,6 +66,8 @@ class ARD(object):
         self.dup_g, self._G, self._lg, self._lgx = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Serology mappings
         generate_serology_mapping(self.db_connection, imgt_version)
+        # Load V2 to V3 mappings
+        generate_v2_to_v3_mapping(self.db_connection, imgt_version)
 
         # Close the current read-write db connection
         self.db_connection.close()
@@ -172,6 +174,11 @@ class ARD(object):
             return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]),
                                    key=functools.cmp_to_key(smart_sort_comparator)))
 
+        # Handle V2 to V3 mapping
+        if self.is_v2(glstring):
+            glstring = self._map_v2_to_v3(glstring)
+            return self.redux_gl(glstring, redux_type)
+
         # Handle Serology
         if self.is_serology(glstring):
             alleles = self._get_alleles_from_serology(glstring)
@@ -232,6 +239,17 @@ class ARD(object):
         """
         return re.search(r":\D+", gl) is not None
 
+    @staticmethod
+    def is_v2(allele: str) -> bool:
+        """
+        Version 2 of the nomenclature is a single field.
+        It does not have any ':' field separator.
+        Eg: A*0104
+        :param allele: Possible allele
+        :return: Is the allele in V2 nomenclature
+        """
+        return '*' in allele and not ':' in allele
+
     def _is_valid_allele(self, allele):
         """
         Test if allele is valid in the current imgt database
@@ -255,7 +273,7 @@ class ARD(object):
         # else it's a group expansion
         is_allelic_expansion = any([':' in allele for allele in alleles])
         if is_allelic_expansion:
-            locus = locus_antigen.split('*')[0] # Just keep the locus name
+            locus = locus_antigen.split('*')[0]  # Just keep the locus name
             alleles = [f'{locus}*{a}' for a in alleles]
         else:
             alleles = [f'{locus_antigen}:{a}' for a in alleles]
@@ -272,6 +290,14 @@ class ARD(object):
         else:
             return alleles
 
+    def _map_v2_to_v3(self, v2_allele):
+        """
+        Get V3 version of V2 versioned allele
+        :param v2_allele: V2 versioned allele
+        :return: V3 versioned allele
+        """
+        return v2_to_v3_allele(self.db_connection, v2_allele)
+
     def isvalid(self, allele: str) -> bool:
         """
         Determines validity of an allele
@@ -283,7 +309,9 @@ class ARD(object):
         """
         if allele == '':
             return False
-        if not self.is_mac(allele) and not self.is_serology(allele):
+        if not self.is_mac(allele) and \
+                not self.is_serology(allele) and \
+                not self.is_v2(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
@@ -330,7 +358,7 @@ class ARD(object):
         """
         locus_antigen, code = allele.split(":")
         if HLA_regex.search(allele):
-            locus_antigen = locus_antigen.split("-")[1] # Remove HLA- prefix
+            locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
         if is_valid_mac_code(self.db_connection, code):
             alleles = self._get_alleles(code, locus_antigen)
             group = [self.toG(a) for a in alleles]
@@ -370,7 +398,7 @@ class ARD(object):
         locus_antigen, code = mac_code.split(":")
         if is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(mac_code):
-                locus_antigen = locus_antigen.split("-")[1] # Remove HLA- prefix
+                locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
                 return ['HLA-' + a for a in self._get_alleles(code, locus_antigen)]
             else:
                 return list(self._get_alleles(code, locus_antigen))

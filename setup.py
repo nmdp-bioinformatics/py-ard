@@ -35,15 +35,15 @@ requirements = [
     'pandas>=1.1.4'
 ]
 
-
 test_requirements = [
-    # TODO: put package test requirements here
+    'behave==1.2.6',
+    'PyHamcrest==2.0.2'
 ]
 
 setup(
     name='py-ard',
-    version='0.5.1',
-    description="ARD reduction for HLA with python",
+    version='0.6.0',
+    description="ARD reduction for HLA with Python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
     author_email='cibmtr-pypi@nmdp.org',
@@ -51,7 +51,11 @@ setup(
     packages=[
         'pyard',
     ],
-    package_dir={'pyard': 'pyard'},
+    provides=['pyard'],
+    scripts=[
+        'scripts/pyard',
+        'scripts/pyard-import',
+    ],
     install_requires=requirements,
     license="LGPL 3.0",
     zip_safe=False,

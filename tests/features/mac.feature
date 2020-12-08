@@ -16,7 +16,9 @@ Feature: MAC (Multiple Allele Code)
 
 
     Examples: MACs with allelic expansions
-      | Allele     | Level | Redux Allele      |
-      | B*08:ASXJP | G     | B*08:01:01G       |
-      | B*08:ASXJP | lgx   | B*08:01           |
-      | C*07:HTGM  | lgx   | C*07:01/C*07:150Q |
+      | Allele          | Level | Redux Allele                                |
+      | B*08:ASXJP      | G     | B*08:01:01G                                 |
+      | B*08:ASXJP      | lgx   | B*08:01                                     |
+      | C*07:HTGM       | lgx   | C*07:01/C*07:150Q                           |
+      | A*01:AC+A*01:AB | G     | A*01:01:01G/A*01:02+A*01:01:01G/A*01:03:01G |
+      | A*01:01+A*01:AB | G     | A*01:01:01G+A*01:01:01G/A*01:02             |
