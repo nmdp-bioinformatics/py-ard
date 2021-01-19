@@ -188,7 +188,7 @@ class ARD(object):
         loc_antigen, code = loc_allele[0], loc_allele[1]
 
         # Handle XX codes
-        if self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes:
+        if self.is_XX(glstring, loc_antigen, code):
             return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
@@ -204,6 +204,12 @@ class ARD(object):
             return self.redux_gl("/".join(alleles), redux_type)
 
         return self.redux(glstring, redux_type)
+
+    def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
+        if loc_antigen is None or code is None:
+            loc_allele = glstring.split(":")
+            loc_antigen, code = loc_allele[0], loc_allele[1]
+        return self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes
 
     @staticmethod
     def is_serology(allele: str) -> bool:
@@ -248,7 +254,7 @@ class ARD(object):
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return '*' in allele and not ':' in allele
+        return '*' in allele and ':' not in allele
 
     def _is_valid_allele(self, allele):
         """
