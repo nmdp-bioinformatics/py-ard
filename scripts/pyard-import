@@ -92,6 +92,7 @@ if __name__ == '__main__':
         print(f"Created py-ard version {imgt_version} database")
     else:
         ard = pyard.ARD(data_dir=data_dir)
+        imgt_version = 'Latest'
         print(f"Created Latest py-ard database")
     del ard
 
@@ -99,4 +100,4 @@ if __name__ == '__main__':
         db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
         db.save_dict(db_connection, table_name='v2_mapping',
                      dictionary=v2_to_v3_dict, columns=('v2', 'v3'))
-        print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file.")
+        print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database.")
