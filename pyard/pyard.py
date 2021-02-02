@@ -302,7 +302,7 @@ class ARD(object):
 
     def _predict_v3(self, v2_allele: str) -> str:
         """
-        Use heurestic to predict V3 from V2
+        Use heuristic to predict V3 from V2
 
         :param v2_allele: Allele in V2 format
         :return: V3 format of V2 allele
