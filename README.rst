@@ -54,17 +54,23 @@ Example
 
 .. code-block:: python3
 
-    from pyard import ARD
+    import pyard
 
-    # Initialize ARD object
-    ard = ARD('3290')
+    # Initialize ARD object with a version of IMGT HLA database
+    ard = pyard.ARD(3290)
 
-    # Initialize with latest DB
-    ard = ARD()
+    # You can specify a data directory for temp files
+    # ard = pyard.ARD('3290', data_dir='/tmp/py-ard')
 
-    # 
+    # Initialize with latest IMGT HLA database
+    ard = pyard.ARD()
+
+    # You can choose to refresh the MAC code for previously used versions
+    # ard =  pyard.ARD(3290, refresh_mac=True)
+
+    #
     # Reduce Allele
-    # 
+    #
     allele = "A*01:01:01"
 
     ard.redux(allele, 'G')
@@ -76,12 +82,18 @@ Example
     ard.redux(allele, 'lgx')
     # >>> 'A*01:01'
 
-    # 
+    #
     # Reduce GL String
-    # 
-    ard_gl = ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
-    # >>> ard_gl
+    #
+    ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
     # 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
+
+    # py-ard can also reduce serology based typings
+    ard.redux_gl('HLA-A*10^HLA-A*9', 'lg')
+    # >>> ard_gl
+    # 'HLA-A*24:19g/HLA-A*24:22g^HLA-A*26:01g/HLA-A*26:10g/HLA-A*26:15g/HLA-A*26:92g/HLA-A*66:01g/HLA-A*66:03g'
+
+
 
 Command Line Tools
 ------------------
