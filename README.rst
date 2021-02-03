@@ -11,7 +11,7 @@ py-ard
         :alt: Documentation Status
 
 
-ARD reduction for HLA with python
+ARD reduction for HLA with Python
 
 * Free software: LGPL 3.0
 * Documentation: https://pyard.readthedocs.io.
@@ -68,24 +68,31 @@ Example
     # You can choose to refresh the MAC code for previously used versions
     # ard =  pyard.ARD(3290, refresh_mac=True)
 
-    # Allele to reduce
+    #
+    # Reduce Allele
+    #
     allele = "A*01:01:01"
 
     ard.redux(allele, 'G')
-    # 'A*01:01:01G'
+    # >>> 'A*01:01:01G'
 
     ard.redux(allele, 'lg')
-    # 'A*01:01g'
+    # >>> 'A*01:01g'
 
     ard.redux(allele, 'lgx')
-    # 'A*01:01'
+    # >>> 'A*01:01'
 
+    #
+    # Reduce GL String
+    #
     ard.redux_gl("A*01:01/A*01:01N+A*02:AB^B*07:02+B*07:AB", "G")
     # 'B*07:02:01G+B*07:02:01G^A*01:01:01G+A*02:01:01G/A*02:02'
 
     # py-ard can also reduce serology based typings
     ard.redux_gl('HLA-A*10^HLA-A*9', 'lg')
+    # >>> ard_gl
     # 'HLA-A*24:19g/HLA-A*24:22g^HLA-A*26:01g/HLA-A*26:10g/HLA-A*26:15g/HLA-A*26:92g/HLA-A*66:01g/HLA-A*66:03g'
+
 
 
 Command Line Tools
@@ -106,6 +113,9 @@ Command Line Tools
     $ pyard-import --import-db-version 3.29.0 --v2-to-v3-mapping map2to3.csv
     Created py-ard version 3290 database
     Updated v2_mapping table with 'map2to3.csv' mapping file.
+
+    # Replace the Latest IMGT database with V2 mappings
+    $ pyard-import  --v2-to-v3-mapping map2to3.csv
 
     # Reduce a gl string from command line
     $ pyard --gl 'A*01:AB' -r lgx

@@ -188,7 +188,7 @@ class ARD(object):
         loc_antigen, code = loc_allele[0], loc_allele[1]
 
         # Handle XX codes
-        if self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes:
+        if self.is_XX(glstring, loc_antigen, code):
             return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
@@ -204,6 +204,12 @@ class ARD(object):
             return self.redux_gl("/".join(alleles), redux_type)
 
         return self.redux(glstring, redux_type)
+
+    def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
+        if loc_antigen is None or code is None:
+            loc_allele = glstring.split(":")
+            loc_antigen, code = loc_allele[0], loc_allele[1]
+        return self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes
 
     @staticmethod
     def is_serology(allele: str) -> bool:
@@ -248,7 +254,7 @@ class ARD(object):
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return '*' in allele and not ':' in allele
+        return '*' in allele and ':' not in allele
 
     def _is_valid_allele(self, allele):
         """
@@ -290,13 +296,53 @@ class ARD(object):
         else:
             return alleles
 
+    def _combine_with_colon(self, digits_field):
+        num_of_digits = len(digits_field)
+        return ':'.join(digits_field[i:i + 2] for i in range(0, num_of_digits, 2))
+
+    def _predict_v3(self, v2_allele: str) -> str:
+        """
+        Use heuristic to predict V3 from V2
+
+        :param v2_allele: Allele in V2 format
+        :return: V3 format of V2 allele
+        """
+        # Separate out the locus and the allele name part
+        locus, allele_name = v2_allele.split('*')
+        # Separate out the numeric and non-numeric components
+        components = re.findall(r'^(\d+)(.*)', allele_name)
+        if not components:
+            return v2_allele
+        digits_field, non_digits_field = components.pop()
+        # final_allele is the result of the transformation
+        final_allele = digits_field
+        num_of_digits = len(digits_field)
+        if num_of_digits == 1:
+            return v2_allele
+        if num_of_digits > 2:
+            if locus.startswith('DP') and num_of_digits == 5:  # covers DPs with 5 digits
+                final_allele = digits_field[:3] + ':' + (digits_field[3:]) + non_digits_field
+            elif num_of_digits % 2 == 0:  # covers digits with 2, 4, 6, 8
+                final_allele = self._combine_with_colon(digits_field) + non_digits_field
+            else:
+                final_allele = digits_field[:2] + ':' + (digits_field[2:]) + non_digits_field
+        else:
+            if non_digits_field:
+                final_allele = digits_field + ':' + non_digits_field
+        return locus + '*' + final_allele
+
     def _map_v2_to_v3(self, v2_allele):
         """
         Get V3 version of V2 versioned allele
         :param v2_allele: V2 versioned allele
         :return: V3 versioned allele
         """
-        return v2_to_v3_allele(self.db_connection, v2_allele)
+        # Check if it's in the exception case mapping
+        v3_allele = v2_to_v3_allele(self.db_connection, v2_allele)
+        if not v3_allele:
+            # Try and predict V3
+            v3_allele = self._predict_v3(v2_allele)
+        return v3_allele
 
     def isvalid(self, allele: str) -> bool:
         """
@@ -404,3 +450,14 @@ class ARD(object):
                 return list(self._get_alleles(code, locus_antigen))
 
         return ''
+
+    def v2_to_v3(self, v2_allele) -> str:
+        """
+        Convert Version 2 Allele Name to Version 3 Allele Name
+
+        :param v2_allele: Version 2 Allele Name
+        :return: Version 3 Allele Name
+        """
+        if self.is_v2(v2_allele):
+            return self._map_v2_to_v3(v2_allele)
+        return v2_allele
