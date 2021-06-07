@@ -26,7 +26,8 @@ import sqlite3
 import pandas as pd
 
 from pyard import db
-from pyard.broad_splits import broad_splits_mapping
+from pyard.broad_splits import broad_splits_dna_mapping
+from pyard.broad_splits import broad_splits_ser_mapping
 
 # GitHub URL where IMGT HLA files are downloaded.
 from pyard.smart_sort import smart_sort_comparator
@@ -185,7 +186,7 @@ def generate_alleles_and_xx_codes(db_connection: sqlite3.Connection, imgt_versio
         .to_dict()
 
     # Update xx codes with broads and splits
-    for broad, splits in broad_splits_mapping.items():
+    for broad, splits in broad_splits_dna_mapping.items():
         for split in splits:
             if broad in xx_codes:
                 xx_codes[broad].extend(xx_codes[split])
@@ -317,6 +318,20 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
         sero_mapping = sero_mapping_combined.groupby('Sero'). \
             apply(lambda x: '/'.join(sorted(x['Allele']))). \
             to_dict()
+
+        # map alleles for split serology to their corresponding broad
+        # Update xx codes with broads and splits
+        for broad, splits in broad_splits_ser_mapping.items():
+            for split in splits:
+                try:
+                    sero_mapping[broad] = '/'.join([sero_mapping[broad], sero_mapping[split]])
+
+                except KeyError:
+                    sero_mapping[broad] = sero_mapping[split]
+
+        # re-sort allele lists into smartsort order
+        for sero in sero_mapping.keys():
+           sero_mapping[sero] =  '/'.join(sorted(sero_mapping[sero].split('/'), key=functools.cmp_to_key(smart_sort_comparator)))
 
         # Save the serology mapping to db
         db.save_dict(db_connection, table_name='serology_mapping',
