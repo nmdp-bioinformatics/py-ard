@@ -329,7 +329,9 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
                 except KeyError:
                     sero_mapping[broad] = sero_mapping[split]
 
-        # TODO: re-sort allele lists into smartsort order
+        # re-sort allele lists into smartsort order
+        for sero in sero_mapping.keys():
+           sero_mapping[sero] =  '/'.join(sorted(sero_mapping[sero].split('/'), key=functools.cmp_to_key(smart_sort_comparator)))
 
         # Save the serology mapping to db
         db.save_dict(db_connection, table_name='serology_mapping',
