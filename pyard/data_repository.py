@@ -81,6 +81,8 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 
     df['2d'] = df['A'].apply(get_2field_allele)
     df['3d'] = df['A'].apply(get_3field_allele)
+    df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
+    df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
 
     mg = df.drop_duplicates(['2d', 'G'])['2d'].value_counts()
     multiple_g_list = mg[mg > 1].reset_index()['index'].to_list()
@@ -90,8 +92,23 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         .groupby('2d', as_index=True).agg("/".join) \
         .to_dict()['G']
 
-    df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
-    df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
+    mlg = df.drop_duplicates(['2d', 'lg'])['2d'].value_counts()
+    multiple_lg_list = mlg[mlg > 1].reset_index()['index'].to_list()
+
+    dup_lg = df[df['2d'].isin(multiple_lg_list)][['lg', '2d']] \
+        .drop_duplicates() \
+        .groupby('2d', as_index=True).agg("/".join) \
+        .to_dict()['lg']
+
+    mlgx = df.drop_duplicates(['2d', 'lgx'])['2d'].value_counts()
+    multiple_lgx_list = mlgx[mlgx > 1].reset_index()['index'].to_list()
+
+    dup_lgx = df[df['2d'].isin(multiple_lgx_list)][['lgx', '2d']] \
+        .drop_duplicates() \
+        .groupby('2d', as_index=True).agg("/".join) \
+        .to_dict()['lgx']
+
+
 
     # Creating dictionaries with mac_code->ARS group mapping
     df_g = pd.concat([
@@ -116,11 +133,13 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     lgx_group = df_lgx.set_index('A')['lgx'].to_dict()
 
     db.save_dict(db_connection, table_name='dup_g', dictionary=dup_g, columns=('allele', 'g_group'))
+    db.save_dict(db_connection, table_name='dup_lg', dictionary=dup_lg, columns=('allele', 'lg_group'))
+    db.save_dict(db_connection, table_name='dup_lgx', dictionary=dup_lgx, columns=('allele', 'lgx_group'))
     db.save_dict(db_connection, table_name='g_group', dictionary=g_group, columns=('allele', 'g'))
     db.save_dict(db_connection, table_name='lg_group', dictionary=lg_group, columns=('allele', 'lg'))
     db.save_dict(db_connection, table_name='lgx_group', dictionary=lgx_group, columns=('allele', 'lgx'))
 
-    return dup_g, g_group, lg_group, lgx_group
+    return dup_g, dup_lg, dup_lgx, g_group, lg_group, lgx_group
 
 
 def generate_alleles_and_xx_codes(db_connection: sqlite3.Connection, imgt_version):
