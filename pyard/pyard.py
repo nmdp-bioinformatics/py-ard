@@ -63,7 +63,7 @@ class ARD(object):
         # Load Alleles and XX Codes
         self.valid_alleles, self.xx_codes = generate_alleles_and_xx_codes(self.db_connection, imgt_version)
         # Load ARS mappings
-        self.dup_g, self._G, self._lg, self._lgx = generate_ars_mapping(self.db_connection, imgt_version)
+        self.dup_g, self.dup_lg, self.dup_lgx, self._G, self._lg, self._lgx = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Serology mappings
         generate_serology_mapping(self.db_connection, imgt_version)
         # Load V2 to V3 mappings
@@ -117,14 +117,18 @@ class ARD(object):
             else:
                 return self._G[allele]
         elif ars_type == "lg":
-            if allele in self._lg:
+            if allele in self.dup_lg:
+                return self.dup_lg[allele]
+            elif allele in self._lg:
                 return self._lg[allele]
             else:
                 # for 'lg' when allele is not in G group,
                 # return allele with only first 2 field
                 return ':'.join(allele.split(':')[0:2]) + 'g'
         elif ars_type == "lgx":
-            if allele in self._lgx:
+            if allele in self.dup_lgx:
+                return self.dup_lgx[allele]
+            elif allele in self._lgx:
                 return self._lgx[allele]
             else:
                 # for 'lgx' when allele is not in G group,
