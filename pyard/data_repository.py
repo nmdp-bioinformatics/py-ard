@@ -20,6 +20,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+from collections import namedtuple
 import functools
 import sqlite3
 
@@ -36,6 +37,9 @@ IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
 
 # List of expression characters
 expression_chars = ['N', 'Q', 'L', 'S']
+
+ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group']
+ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
 
 def get_n_field_allele(allele: str, n: int) -> str:
@@ -64,12 +68,15 @@ def get_2field_allele(a: str) -> str:
 
 
 def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
-    if db.tables_exists(db_connection, ['dup_g', 'g_group', 'lg_group', 'lgx_group']):
+    if db.tables_exists(db_connection, ars_mapping_tables):
         dup_g = db.load_dict(db_connection, table_name='dup_g', columns=('allele', 'g_group'))
+        dup_lg = db.load_dict(db_connection, table_name='dup_lg', columns=('allele', 'lg_group'))
+        dup_lgx = db.load_dict(db_connection, table_name='dup_lgx', columns=('allele', 'lgx_group'))
         g_group = db.load_dict(db_connection, table_name='g_group', columns=('allele', 'g'))
         lg_group = db.load_dict(db_connection, table_name='lg_group', columns=('allele', 'lg'))
         lgx_group = db.load_dict(db_connection, table_name='lgx_group', columns=('allele', 'lgx'))
-        return dup_g, g_group, lg_group, lgx_group
+        return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
+                          g_group=g_group, lg_group=lg_group, lgx_group=lgx_group)
 
     ars_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
     df = pd.read_csv(ars_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
@@ -84,31 +91,35 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
     df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
 
+    # multiple Gs
     mg = df.drop_duplicates(['2d', 'G'])['2d'].value_counts()
     multiple_g_list = mg[mg > 1].reset_index()['index'].to_list()
 
+    # Keep only the alleles that have more than 1 mapping
     dup_g = df[df['2d'].isin(multiple_g_list)][['G', '2d']] \
         .drop_duplicates() \
         .groupby('2d', as_index=True).agg("/".join) \
         .to_dict()['G']
 
+    # multiple lg
     mlg = df.drop_duplicates(['2d', 'lg'])['2d'].value_counts()
     multiple_lg_list = mlg[mlg > 1].reset_index()['index'].to_list()
 
+    # Keep only the alleles that have more than 1 mapping
     dup_lg = df[df['2d'].isin(multiple_lg_list)][['lg', '2d']] \
         .drop_duplicates() \
         .groupby('2d', as_index=True).agg("/".join) \
         .to_dict()['lg']
 
+    # multiple lgx
     mlgx = df.drop_duplicates(['2d', 'lgx'])['2d'].value_counts()
     multiple_lgx_list = mlgx[mlgx > 1].reset_index()['index'].to_list()
 
+    # Keep only the alleles that have more than 1 mapping
     dup_lgx = df[df['2d'].isin(multiple_lgx_list)][['lgx', '2d']] \
         .drop_duplicates() \
         .groupby('2d', as_index=True).agg("/".join) \
         .to_dict()['lgx']
-
-
 
     # Creating dictionaries with mac_code->ARS group mapping
     df_g = pd.concat([
@@ -139,7 +150,8 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     db.save_dict(db_connection, table_name='lg_group', dictionary=lg_group, columns=('allele', 'lg'))
     db.save_dict(db_connection, table_name='lgx_group', dictionary=lgx_group, columns=('allele', 'lgx'))
 
-    return dup_g, dup_lg, dup_lgx, g_group, lg_group, lgx_group
+    return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
+                      g_group=g_group, lg_group=lg_group, lgx_group=lgx_group)
 
 
 def generate_alleles_and_xx_codes(db_connection: sqlite3.Connection, imgt_version):
@@ -350,7 +362,8 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
 
         # re-sort allele lists into smartsort order
         for sero in sero_mapping.keys():
-           sero_mapping[sero] =  '/'.join(sorted(sero_mapping[sero].split('/'), key=functools.cmp_to_key(smart_sort_comparator)))
+            sero_mapping[sero] = '/'.join(
+                sorted(sero_mapping[sero].split('/'), key=functools.cmp_to_key(smart_sort_comparator)))
 
         # Save the serology mapping to db
         db.save_dict(db_connection, table_name='serology_mapping',
