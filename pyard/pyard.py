@@ -26,7 +26,8 @@ import re
 from typing import Iterable
 
 from . import db
-from .data_repository import generate_ars_mapping, generate_mac_codes, generate_alleles_and_xx_codes, \
+from .data_repository import generate_ars_mapping, \
+    generate_mac_codes, generate_alleles_and_xx_codes, \
     generate_serology_mapping, generate_v2_to_v3_mapping
 from .db import is_valid_mac_code, mac_code_to_alleles, v2_to_v3_allele
 from .smart_sort import smart_sort_comparator
@@ -63,7 +64,7 @@ class ARD(object):
         # Load Alleles and XX Codes
         self.valid_alleles, self.xx_codes = generate_alleles_and_xx_codes(self.db_connection, imgt_version)
         # Load ARS mappings
-        self.dup_g, self._G, self._lg, self._lgx = generate_ars_mapping(self.db_connection, imgt_version)
+        self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Serology mappings
         generate_serology_mapping(self.db_connection, imgt_version)
         # Load V2 to V3 mappings
@@ -111,21 +112,25 @@ class ARD(object):
         if allele.endswith(('P', 'G')):
             allele = allele[:-1]
 
-        if ars_type == "G" and allele in self._G:
-            if allele in self.dup_g:
-                return self.dup_g[allele]
+        if ars_type == "G" and allele in self.ars_mappings.g_group:
+            if allele in self.ars_mappings.dup_g:
+                return self.ars_mappings.dup_g[allele]
             else:
-                return self._G[allele]
+                return self.ars_mappings.g_group[allele]
         elif ars_type == "lg":
-            if allele in self._lg:
-                return self._lg[allele]
+            if allele in self.ars_mappings.dup_lg:
+                return self.ars_mappings.dup_lg[allele]
+            elif allele in self.ars_mappings.lg_group:
+                return self.ars_mappings.lg_group[allele]
             else:
                 # for 'lg' when allele is not in G group,
                 # return allele with only first 2 field
                 return ':'.join(allele.split(':')[0:2]) + 'g'
         elif ars_type == "lgx":
-            if allele in self._lgx:
-                return self._lgx[allele]
+            if allele in self.ars_mappings.dup_lgx:
+                return self.ars_mappings.dup_lgx[allele]
+            elif allele in self.ars_mappings.lgx_group:
+                return self.ars_mappings.lgx_group[allele]
             else:
                 # for 'lgx' when allele is not in G group,
                 # return allele with only first 2 field
@@ -296,7 +301,8 @@ class ARD(object):
         else:
             return alleles
 
-    def _combine_with_colon(self, digits_field):
+    @staticmethod
+    def _combine_with_colon(digits_field):
         num_of_digits = len(digits_field)
         return ':'.join(digits_field[i:i + 2] for i in range(0, num_of_digits, 2))
 
@@ -424,11 +430,11 @@ class ARD(object):
         :return: ARS G reduced allele
         :rtype: str
         """
-        if allele in self._G:
-            if allele in self.dup_g:
-                return self.dup_g[allele]
+        if allele in self.ars_mappings.g_group:
+            if allele in self.ars_mappings.dup_g:
+                return self.ars_mappings.dup_g[allele]
             else:
-                return self._G[allele]
+                return self.ars_mappings.g_group[allele]
         else:
             return "X"
 
