@@ -7,6 +7,12 @@ def map_drbx(drb_alleles: List, locus_in_allele_name: bool) -> Tuple:
     Expects Type1 and Type2 DRB3, DRB4 and DRB5 typings in that order
     in `drb_alleles` list.
 
+    Reference:
+    World Marrow Donor Association guidelines for use of HLA nomenclature
+    and its validation in the data exchange among hematopoietic
+    stem cell donor registries and cord blood banks
+    https://www.nature.com/articles/1705672
+
     :param drb_alleles: Type1/Type2 DRB3, DRB4 and DRB5 typings.
     :param locus_in_allele_name: Does typing include DRBn prefix?
     :return: Tuple of DRBX type1/type2
