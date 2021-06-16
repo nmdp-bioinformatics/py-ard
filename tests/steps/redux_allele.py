@@ -21,6 +21,8 @@ def step_impl(context, level):
 
 @then('the reduced allele is found to be {redux_allele}')
 def step_impl(context, redux_allele):
+    if redux_allele == 'X':
+       redux_allele = ''
     assert_that(context.redux_allele, is_(redux_allele))
 
 
