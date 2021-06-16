@@ -307,6 +307,8 @@ def to_serological_name(locus_name: str):
     """
     locus, sero_number = locus_name.split('*')
     sero_locus = locus[:2]
+    if (sero_locus == "C"):
+        sero_locus = "Cw"
     sero_name = sero_locus + sero_number
     return sero_name
 

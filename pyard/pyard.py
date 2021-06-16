@@ -197,16 +197,20 @@ class ARD(object):
             return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
-        if self.is_mac(glstring) and is_valid_mac_code(self.db_connection, code):
-            if HLA_regex.search(glstring):
-                # Remove HLA- prefix
-                allele_name = glstring.split("-")[1]
-                loc_antigen, code = allele_name.split(":")
-                alleles = self._get_alleles(code, loc_antigen)
-                alleles = ["HLA-" + a for a in alleles]
+        if self.is_mac(glstring):
+            if is_valid_mac_code(self.db_connection, code):
+                if HLA_regex.search(glstring):
+                    # Remove HLA- prefix
+                    allele_name = glstring.split("-")[1]
+                    loc_antigen, code = allele_name.split(":")
+                    alleles = self._get_alleles(code, loc_antigen)
+                    alleles = ["HLA-" + a for a in alleles]
+                else:
+                    alleles = self._get_alleles(code, loc_antigen)
+                return self.redux_gl("/".join(alleles), redux_type)
             else:
-                alleles = self._get_alleles(code, loc_antigen)
-            return self.redux_gl("/".join(alleles), redux_type)
+                raise ValueError
+                
 
         return self.redux(glstring, redux_type)
 
@@ -229,12 +233,12 @@ class ARD(object):
             return False
 
         locus = allele[0:2]
-        if locus in ['DR', 'DP', 'DQ']:
+        if locus in ['DR', 'DP', 'DQ', 'Cw']:
             antigen = allele[2:]
             return antigen.isdigit()
 
         locus = allele[0:1]
-        if locus in ['A', 'B', 'C', 'D']:
+        if locus in ['A', 'B']:
             antigen = allele[1:]
             return antigen.isdigit()
 
