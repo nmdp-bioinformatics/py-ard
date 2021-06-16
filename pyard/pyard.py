@@ -209,9 +209,8 @@ class ARD(object):
                     alleles = self._get_alleles(code, loc_antigen)
                 return self.redux_gl("/".join(alleles), redux_type)
             else:
-                raise ValueError
-                
-
+                # future: raise ValueError
+                return ''
         return self.redux(glstring, redux_type)
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
@@ -223,8 +222,9 @@ class ARD(object):
     @staticmethod
     def is_serology(allele: str) -> bool:
         """
-        A serology has the locus name (first 2 letters for DRB1, DRB3, DQB1, DQA1, DPB1 and DPA1)
+        A serology has the locus name (first 2 letters for DRB1, DQB1)
         of the allele followed by numerical antigen.
+        Cw is the serlogical designation for HLA-C 
 
         :param allele: The allele to test for serology
         :return: True if serology

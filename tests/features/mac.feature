@@ -22,3 +22,4 @@ Feature: MAC (Multiple Allele Code)
       | C*07:HTGM       | lgx   | C*07:01/C*07:150Q                           |
       | A*01:AC+A*01:AB | G     | A*01:01:01G/A*01:02+A*01:01:01G/A*01:03:01G |
       | A*01:01+A*01:AB | G     | A*01:01:01G+A*01:01:01G/A*01:02             |
+      | C*05:APUF       | lg    | X                                           |
