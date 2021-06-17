@@ -34,7 +34,13 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run BDD Tests
       run: |
+        # When run the first time, it'll build the library
+        behave
+        # When run the second time, it should use the already installed library
         behave
     - name: Run Unit Tests
       run: |
+        # When run the first time, it'll build the library
+        python -m unittest tests.test_pyard tests.test_smart_sort
+        # When run the second time, it should use the already installed library
         python -m unittest tests.test_pyard tests.test_smart_sort

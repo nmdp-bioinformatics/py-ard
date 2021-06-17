@@ -1,0 +1,43 @@
+{
+  "in_csv_filename": "sample.csv",
+  "out_csv_filename": "clean_sample.csv",
+  "columns_from_csv": [
+    "nmdp_id",
+    "r_a_typ1",
+    "r_a_typ2",
+    "r_b_typ1",
+    "r_b_typ2",
+    "r_c_typ1",
+    "r_c_typ2",
+    "r_drb1_typ1",
+    "r_drb1_typ2",
+    "r_dpb1_typ1",
+    "r_dpb1_typ2"
+  ],
+  "columns_to_reduce_in_csv": [
+    "r_a_typ1",
+    "r_a_typ2",
+    "r_b_typ1",
+    "r_b_typ2",
+    "r_c_typ1",
+    "r_c_typ2",
+    "r_drb1_typ1",
+    "r_drb1_typ2",
+    "r_dpb1_typ1",
+    "r_dpb1_typ2"
+  ],
+  "redux_type": "lgx",
+  "apply_compression": "gzip",
+  "reduce_serology": false,
+  "reduce_v2": true,
+  "reduce_3field": true,
+  "reduce_P": true,
+  "reduce_XX": false,
+  "reduce_MAC": true,
+  "locus_in_allele_name": false,
+  "keep_locus_in_allele_name": false,
+  "output_file_format": "csv",
+  "new_column_for_redux": false,
+  "map_drb345_to_drbx": false,
+  "verbose_log": true
+}
