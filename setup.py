@@ -55,6 +55,7 @@ setup(
     scripts=[
         'scripts/pyard',
         'scripts/pyard-import',
+        'scripts/pyard-reduce-csv'
     ],
     install_requires=requirements,
     license="LGPL 3.0",
