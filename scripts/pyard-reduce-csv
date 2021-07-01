@@ -216,9 +216,12 @@ if __name__ == '__main__':
         out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
         df.to_csv(out_file_name, index=False, compression=ard_config["apply_compression"])
 
-    print("Summary")
-    print("-------")
-    for message in failure_summary_messages:
-        print("\t", message)
+    if len(failure_summary_messages) == 0:
+        print("No Errors")
+    else:
+        print("Summary")
+        print("-------")
+        for message in failure_summary_messages:
+            print("\t", message)
     # Done
     print(f"Saved result to file:{out_file_name}")
