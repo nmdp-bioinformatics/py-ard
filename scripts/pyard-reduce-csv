@@ -56,19 +56,6 @@ def is_P(allele: str) -> bool:
     return False
 
 
-def clean_locus(allele: str, column_name: str = 'Unknown') -> str:
-    if allele:
-        # Remove all white spaces
-        allele = white_space_regex.sub('', allele)
-        locus = column_name.split('_')[1].upper()
-        # If the allele comes in as an allele list, apply reduce to all alleles
-        if '/' in allele:
-            return "/".join(map(reduce, allele.split('/'), locus))
-        else:
-            return reduce(allele, locus)
-    return allele
-
-
 def should_be_reduced(allele, locus_allele):
     if is_serology(allele):
         return ard_config["reduce_serology"]
@@ -96,8 +83,10 @@ def should_be_reduced(allele, locus_allele):
     return False
 
 
-def reduce(allele, locus):
+def reduce(allele, locus, column_name):
     # Does the allele name have the locus in it ?
+    if allele == '':
+        return allele
     if '*' in allele:
         locus_allele = allele
     elif ard_config["locus_in_allele_name"]:
@@ -108,7 +97,15 @@ def reduce(allele, locus):
     # Check the config if this allele should be reduced
     if should_be_reduced(allele, locus_allele):
         # print(f"reducing '{locus_allele}'")
-        reduced_allele = ard.redux_gl(locus_allele, ard_config["redux_type"])
+        try:
+            reduced_allele = ard.redux_gl(locus_allele, ard_config["redux_type"])
+        except RuntimeError as e:
+            if verbose:
+                print(e)
+            message = f"Failed reducing '{locus_allele}' in column {column_name}"
+            print(message)
+            failure_summary_messages.append(message)
+            return allele
         # print(f"reduced to '{reduced_allele}'")
         if reduced_allele:
             if ard_config["keep_locus_in_allele_name"]:
@@ -126,6 +123,19 @@ def reduce(allele, locus):
         if ard_config["keep_locus_in_allele_name"]:
             allele = locus_allele
 
+    return allele
+
+
+def clean_locus(allele: str, column_name: str = 'Unknown') -> str:
+    if allele:
+        # Remove all white spaces
+        allele = white_space_regex.sub('', allele)
+        locus = column_name.split('_')[1].upper()
+        # If the allele comes in as an allele list, apply reduce to all alleles
+        if '/' in allele:
+            return "/".join(map(reduce, allele.split('/'), locus, column_name))
+        else:
+            return reduce(allele, locus, column_name)
     return allele
 
 
@@ -159,51 +169,56 @@ if __name__ == '__main__':
         print("  pip install openpyxl")
         sys.exit(1)
 
-# Instantiate py-ard object with the latest
-ard = pyard.ARD(remove_invalid=False)
+    # Instantiate py-ard object with the latest
+    ard = pyard.ARD(remove_invalid=False)
 
-# Read the Input File
-# Read only the columns to be saved.
-# Header is the first row
-# Don't convert to NAs
-df = pd.read_csv(ard_config["in_csv_filename"],
-                 usecols=ard_config["columns_from_csv"],
-                 header=0, dtype=str,
-                 keep_default_na=False)
+    # Read the Input File
+    # Read only the columns to be saved.
+    # Header is the first row
+    # Don't convert to NAs
+    df = pd.read_csv(ard_config["in_csv_filename"],
+                     usecols=ard_config["columns_from_csv"],
+                     header=0, dtype=str,
+                     keep_default_na=False)
 
-# Reduce each of the specified columns
-for column in ard_config["columns_to_reduce_in_csv"]:
-    if verbose:
-        print(f"Column:{column} =>")
-    if ard_config["new_column_for_redux"]:
-        # insert a new column
-        new_column_name = f"reduced_{column}"
-        new_column_index = df.columns.get_loc(column) + 1
-        # Apply clean_locus function to the column and insert as a new column
-        df.insert(new_column_index, new_column_name,
-                  df[column].apply(clean_locus, column_name=column))
+    failure_summary_messages = []
+    # Reduce each of the specified columns
+    for column in ard_config["columns_to_reduce_in_csv"]:
+        if verbose:
+            print(f"Column:{column} =>")
+        if ard_config["new_column_for_redux"]:
+            # insert a new column
+            new_column_name = f"reduced_{column}"
+            new_column_index = df.columns.get_loc(column) + 1
+            # Apply clean_locus function to the column and insert as a new column
+            df.insert(new_column_index, new_column_name,
+                      df[column].apply(clean_locus, column_name=column))
+        else:
+            # Apply clean_locus function to the column and replace the column
+            df[column] = df[column].apply(clean_locus, column_name=column)
+
+    # Map DRB3,DRB4,DRB5 to DRBX if specified
+    # New columns DRBX_1 and DRBX_2 are created
+    if ard_config['map_drb345_to_drbx']:
+        drbx_loci = ['DRB3', 'DRB4', 'DRB5']
+        drbx_columns = [col_name for col_name in df.columns if col_name.split('_')[1] in drbx_loci]
+        if len(drbx_columns) == len(drbx_loci) * 2:  # For Type1/Type2
+            locus_in_allele_name = ard_config["keep_locus_in_allele_name"]
+            df_drbx = df[drbx_columns].apply(create_drbx, axis=1, args=(locus_in_allele_name,))
+            df['DRBX_1'], df['DRBX_2'] = zip(*df_drbx)
+
+    # Save as XLSX if specified
+    if ard_config["output_file_format"] == 'xlsx':
+        out_file_name = f"{ard_config['out_csv_filename']}.xlsx"
+        df.to_excel(out_file_name, index=False)
     else:
-        # Apply clean_locus function to the column and replace the column
-        df[column] = df[column].apply(clean_locus, column_name=column)
+        # Save as compressed CSV
+        out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
+        df.to_csv(out_file_name, index=False, compression=ard_config["apply_compression"])
 
-# Map DRB3,DRB4,DRB5 to DRBX if specified
-# New columns DRBX_1 and DRBX_2 are created
-if ard_config['map_drb345_to_drbx']:
-    drbx_loci = ['DRB3', 'DRB4', 'DRB5']
-    drbx_columns = [col_name for col_name in df.columns if col_name.split('_')[1] in drbx_loci]
-    if len(drbx_columns) == len(drbx_loci) * 2:  # For Type1/Type2
-        locus_in_allele_name = ard_config["keep_locus_in_allele_name"]
-        df_drbx = df[drbx_columns].apply(create_drbx, axis=1, args=(locus_in_allele_name,))
-        df['DRBX_1'], df['DRBX_2'] = zip(*df_drbx)
-
-# Save as XLSX if specified
-if ard_config["output_file_format"] == 'xlsx':
-    out_file_name = f"{ard_config['out_csv_filename']}.xlsx"
-    df.to_excel(out_file_name, index=False)
-else:
-    # Save as compressed CSV
-    out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
-    df.to_csv(out_file_name, index=False, compression=ard_config["apply_compression"])
-
-# Done
-print(f"Saved result to file:{out_file_name}")
+    print("Summary")
+    print("-------")
+    for message in failure_summary_messages:
+        print("\t", message)
+    # Done
+    print(f"Saved result to file:{out_file_name}")
