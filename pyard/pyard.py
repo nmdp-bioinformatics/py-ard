@@ -74,9 +74,6 @@ class ARD(object):
         # Close the current read-write db connection
         self.db_connection.close()
 
-        # reference data is read-only and can be frozen
-        gc.freeze()
-
         # Re-open the connection in read-only mode as we're not updating it anymore
         self.db_connection = db.create_db_connection(data_dir, imgt_version, ro=True)
 
@@ -382,8 +379,9 @@ class ARD(object):
         if allele == '':
             return False
 
+        # removed the test for is_v2()
         # this leads to an infinte recursion if the input matches these patterns
-        # but is not ultimately valid
+        # but is not ultimately valid e.g. DRB3*NNNN
 
         if not self.is_mac(allele) and \
                 not self.is_serology(allele):
