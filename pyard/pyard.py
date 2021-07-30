@@ -381,9 +381,12 @@ class ARD(object):
         """
         if allele == '':
             return False
+
+        # this leads to an infinte recursion if the input matches these patterns
+        # but is not ultimately valid
+
         if not self.is_mac(allele) and \
-                not self.is_serology(allele) and \
-                not self.is_v2(allele):
+                not self.is_serology(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
