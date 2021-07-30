@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 #    py-ard
-#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. 
+#    All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Lesser General Public License as published
@@ -27,7 +28,7 @@ from typing import Iterable
 
 from . import db
 from .data_repository import generate_ars_mapping, \
-    generate_mac_codes, generate_alleles_and_xx_codes, \
+    generate_mac_codes, generate_alleles_and_xx_codes_and_who, \
     generate_serology_mapping, generate_v2_to_v3_mapping
 from .db import is_valid_mac_code, mac_code_to_alleles, v2_to_v3_allele
 from .smart_sort import smart_sort_comparator
@@ -62,7 +63,7 @@ class ARD(object):
         # Load MAC codes
         generate_mac_codes(self.db_connection, refresh_mac)
         # Load Alleles and XX Codes
-        self.valid_alleles, self.xx_codes = generate_alleles_and_xx_codes(self.db_connection, imgt_version)
+        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version)
         # Load ARS mappings
         self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Serology mappings
@@ -98,7 +99,6 @@ class ARD(object):
         :return: ARS reduced allele
         :rtype: str
         """
-
         # deal with leading 'HLA-'
         if HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
@@ -135,6 +135,14 @@ class ARD(object):
                 # for 'lgx' when allele is not in G group,
                 # return allele with only first 2 field
                 return ':'.join(allele.split(':')[0:2])
+        elif ars_type == "W":
+            # new ars_type which is full WHO expansion
+            if self._is_who_allele(allele):
+                    return allele
+            if allele in self.who_group:
+                return self.redux_gl("/".join(self.who_group[allele]), ars_type)
+            else:
+                return allele
         else:
             if self._remove_invalid:
                 if self._is_valid_allele(allele):
@@ -264,6 +272,14 @@ class ARD(object):
         :return: Is the allele in V2 nomenclature
         """
         return '*' in allele and ':' not in allele
+
+    def _is_who_allele(self, allele):
+        """
+        Test if allele is a WHO allele in the current imgt database
+        :param allele: Allele to test
+        :return: bool to indicate if allele is valid
+        """
+        return allele in self.who_alleles
 
     def _is_valid_allele(self, allele):
         """
