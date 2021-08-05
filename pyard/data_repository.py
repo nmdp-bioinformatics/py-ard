@@ -38,7 +38,7 @@ IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
 # List of expression characters
 expression_chars = ['N', 'Q', 'L', 'S']
 
-ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group']
+ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group', 'exon_group']
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
 
@@ -75,8 +75,8 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         g_group = db.load_dict(db_connection, table_name='g_group', columns=('allele', 'g'))
         lg_group = db.load_dict(db_connection, table_name='lg_group', columns=('allele', 'lg'))
         lgx_group = db.load_dict(db_connection, table_name='lgx_group', columns=('allele', 'lgx'))
-        return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
-                g_group=g_group, lg_group=lg_group, lgx_group=lgx_group)
+        exon_group = db.load_dict(db_connection, table_name='exon_group', columns=('allele', 'exon'))
+        return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx, g_group=g_group, lg_group=lg_group, lgx_group=lgx_group, exon_group=exon_group)
 
     ars_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
     df = pd.read_csv(ars_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
@@ -143,15 +143,18 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     ])
     lgx_group = df_lgx.set_index('A')['lgx'].to_dict()
 
+    df_exon = pd.concat([ df[['A', '3d']].rename(columns={'3d': 'exon'}), ])
+    exon_group = df_exon.set_index('A')['exon'].to_dict()
+
     db.save_dict(db_connection, table_name='dup_g', dictionary=dup_g, columns=('allele', 'g_group'))
     db.save_dict(db_connection, table_name='dup_lg', dictionary=dup_lg, columns=('allele', 'lg_group'))
     db.save_dict(db_connection, table_name='dup_lgx', dictionary=dup_lgx, columns=('allele', 'lgx_group'))
     db.save_dict(db_connection, table_name='g_group', dictionary=g_group, columns=('allele', 'g'))
     db.save_dict(db_connection, table_name='lg_group', dictionary=lg_group, columns=('allele', 'lg'))
     db.save_dict(db_connection, table_name='lgx_group', dictionary=lgx_group, columns=('allele', 'lgx'))
+    db.save_dict(db_connection, table_name='exon_group', dictionary=exon_group, columns=('allele', 'exon'))
 
-    return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
-                      g_group=g_group, lg_group=lg_group, lgx_group=lgx_group)
+    return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx, g_group=g_group, lg_group=lg_group, lgx_group=lgx_group, exon_group=exon_group)
 
 
 def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version):
