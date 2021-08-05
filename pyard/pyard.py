@@ -135,6 +135,12 @@ class ARD(object):
                 # for 'lgx' when allele is not in G group,
                 # return allele with only first 2 field
                 return ':'.join(allele.split(':')[0:2])
+        elif ars_type == "exon":
+            if allele in self.ars_mappings.exon_group:
+                return self.ars_mappings.exon_group[allele]
+            else:
+                # for 'exon' return allele with only first 3 fields
+                return ':'.join(allele.split(':')[0:3])
         else:
             if self._remove_invalid:
                 if self._is_valid_allele(allele):
