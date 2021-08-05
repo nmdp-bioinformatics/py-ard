@@ -84,7 +84,7 @@ class ARD(object):
         """
         self.db_connection.close()
 
-    @functools.lru_cache(maxsize=1000)
+    @functools.lru_cache(maxsize=1000000)
     def redux(self, allele: str, ars_type: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -155,7 +155,7 @@ class ARD(object):
             else:
                 return allele
 
-    @functools.lru_cache(maxsize=1000)
+    @functools.lru_cache(maxsize=1000000)
     def redux_gl(self, glstring: str, redux_type: str) -> str:
         """
         Does ARS reduction with gl string and ARS type
