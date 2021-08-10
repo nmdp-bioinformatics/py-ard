@@ -54,7 +54,10 @@ def get_n_field_allele(allele: str, n: int) -> str:
     last_char = allele[-1]
     fields = allele.split(':')
     if last_char in expression_chars and len(fields) > n:
-        return ':'.join(fields[0:n]) + last_char
+
+        # don't actually do this;  it makes things like A*02:01:01L which is invalid
+        #return ':'.join(fields[0:n]) + last_char
+        return ':'.join(fields[0:n])
     else:
         return ':'.join(fields[0:n])
 
