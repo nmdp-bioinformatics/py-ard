@@ -22,7 +22,6 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import functools
-import gc
 import re
 from typing import Iterable
 
@@ -62,10 +61,12 @@ class ARD(object):
 
         # Load MAC codes
         generate_mac_codes(self.db_connection, refresh_mac)
-        # Load Alleles and XX Codes
-        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version)
         # Load ARS mappings
         self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
+        # Load Alleles and XX Codes
+        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings)
+
+        
         # Load Serology mappings
         generate_serology_mapping(self.db_connection, imgt_version)
         # Load V2 to V3 mappings
@@ -105,9 +106,12 @@ class ARD(object):
             else:
                 return redux_allele
 
-        # Alleles ending with P or G are valid_alleles
-        if allele.endswith(('P', 'G')):
-            allele = allele[:-1]
+
+        # g_group maps alleles to their g_group
+        # note: this includes mappings for shortened version of alleles 
+        # C*12:02:02:01 => C*12:02:01G 
+        # C*12:02:02    => C*12:02:01G 
+        # C*12:02       => C*12:02:01G
 
         if ars_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
@@ -147,6 +151,8 @@ class ARD(object):
                 # for 'exon' return allele with only first 3 fields
                 return ':'.join(allele.split(':')[0:3])
         else:
+            if allele.endswith(('P', 'G')):
+                 allele = allele[:-1]
             if self._remove_invalid:
                 if self._is_valid_allele(allele):
                     return allele
@@ -257,6 +263,8 @@ class ARD(object):
 
     @staticmethod
     def is_mac(gl: str) -> bool:
+        # TODO: need a more stringent test here
+	# not all strings are MACs e.g. ":THISISNOTAMAC"
         """
         MAC has there are non-digit characters after the : character,
         then it's a MAC.
@@ -267,6 +275,8 @@ class ARD(object):
 
     @staticmethod
     def is_v2(allele: str) -> bool:
+        # TODO: need a more stringent test here
+        # not all strings with "*" but not ":" are v2 nomenclature e.g. "this s*it"
         """
         Version 2 of the nomenclature is a single field.
         It does not have any ':' field separator.

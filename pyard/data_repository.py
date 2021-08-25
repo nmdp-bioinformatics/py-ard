@@ -160,7 +160,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx, g_group=g_group, lg_group=lg_group, lgx_group=lgx_group, exon_group=exon_group)
 
 
-def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version):
+def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version, ars_mappings):
     """
     Checks to see if there's already an allele list file for the `imgt_version`
     in the `data_dir` directory. If not, will download the file and create
@@ -231,8 +231,13 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
         .apply(lambda x: list(x['Allele'])) \
         .to_dict()
 
-    # Save this version of the who
-    #db.save_set(db_connection, 'who', valid_alleles, 'allele')
+
+    # Also create a first-field column
+    xx_df['1d'] = xx_df['Allele'].apply(lambda x: x.split(":")[0])
+    # xx_codes maps a first field name to its 2 field expansion
+    xx_codes = xx_df.groupby(['1d']) \
+        .apply(lambda x: list(x['Allele'])) \
+        .to_dict()
 
     # Update xx codes with broads and splits
     for broad, splits in broad_splits_dna_mapping.items():
@@ -266,13 +271,20 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     who_df1.rename(columns = {'1d':'input'}, inplace = True)
     who_df2.rename(columns = {'2d':'input'}, inplace = True)
     who_df3.rename(columns = {'3d':'input'}, inplace = True)
-    who_codes = pd.concat([who_df1, who_df2, who_df3])
+
+    # Create g_codes expansion mapping from the same tables used to reduce to G
+    g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','input']) 
+
+    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df])
 
     # remove valid alleles from who_codes to avoid recursion
     # there is a more pythonic way to do this for sure
     for k in who_alleles:
         if k in who_codes['input']:
             who_codes.drop(labels=k, axis='index') 
+
+    # drop duplicates
+    who_codes = who_codes.drop_duplicates()
 
     # who_codes maps a first field name to its 2 field expansion
     who_group = who_codes.groupby(['input']).apply(lambda x: list(x['Allele'])).to_dict()
