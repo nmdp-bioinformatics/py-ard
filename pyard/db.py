@@ -47,7 +47,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
             raise RuntimeError(f'Reference Database {db_filename}  not available.')
 
     # Create the data directory if it doesn't exist
-    if not pathlib.Path(db_filename).exists():
+    if not pathlib.Path(data_dir).exists():
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     if ro:

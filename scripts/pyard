@@ -52,7 +52,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "-r",
-        choices=['G', 'lg', 'lgx'],
+        choices=['G', 'lg', 'lgx', 'W', 'exon'],
         required=True,
         dest="redux_type"
     )
