@@ -271,8 +271,8 @@ class ARD(object):
     @staticmethod
     def is_mac(gl: str) -> bool:
         """
-        MAC has there are non-digit characters after the : character,
-        then it's a MAC.
+        MAC has non-digit characters after the : character.
+
         :param gl: glstring to test if it has a MAC code
         :return: True if MAC
         """
@@ -283,11 +283,14 @@ class ARD(object):
         """
         Version 2 of the nomenclature is a single field.
         It does not have any ':' field separator.
-        Eg: A*0104
+            Eg: A*0104
+        Exceptions:
+            DRB3*NNNN is not v2 allele
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return '*' in allele and ':' not in allele
+        return '*' in allele and ':' not in allele \
+               and not allele.endswith('*NNNN')
 
     def _is_who_allele(self, allele):
         """
@@ -395,8 +398,18 @@ class ARD(object):
         :return: allele or empty
         :rtype: bool
         """
-        if allele == '':
+        if allele == '' or allele.endswith('*'):
             return False
+
+        # validate allele without the 'HLA-' prefix
+        if HLA_regex.search(allele):
+            # remove 'HLA-' prefix
+            allele = allele[4:]
+
+        if '*' in allele:
+            alphanum_allele = allele.replace('*', '').replace(':', '')
+            if not alphanum_allele.isalnum():
+                return False
 
         if not self.is_mac(allele) and \
                 not self.is_serology(allele) and \
@@ -405,10 +418,6 @@ class ARD(object):
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
-            # validate allele without the 'HLA-' prefix
-            if HLA_regex.search(allele):
-                # remove 'HLA-' prefix
-                allele = allele[4:]
             return self._is_valid_allele(allele)
         return True
 
