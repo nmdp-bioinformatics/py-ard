@@ -138,12 +138,12 @@ class ARD(object):
                 return ':'.join(allele.split(':')[0:2])
         elif ars_type == "W":
             # new ars_type which is full WHO expansion
-            if self._is_who_allele(allele):
-                    return allele
             if allele in self.who_group:
                 return self.redux_gl("/".join(self.who_group[allele]), ars_type)
             else:
                 return allele
+            if self._is_who_allele(allele):
+                    return allele
         elif ars_type == "exon":
             if allele in self.ars_mappings.exon_group:
                 return self.ars_mappings.exon_group[allele]
