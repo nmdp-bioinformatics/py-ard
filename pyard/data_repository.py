@@ -79,7 +79,9 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         lg_group = db.load_dict(db_connection, table_name='lg_group', columns=('allele', 'lg'))
         lgx_group = db.load_dict(db_connection, table_name='lgx_group', columns=('allele', 'lgx'))
         exon_group = db.load_dict(db_connection, table_name='exon_group', columns=('allele', 'exon'))
-        return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx, g_group=g_group, lg_group=lg_group, lgx_group=lgx_group, exon_group=exon_group)
+        return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
+                          g_group=g_group, lg_group=lg_group,
+                          lgx_group=lgx_group, exon_group=exon_group)
 
     ars_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
     df = pd.read_csv(ars_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
@@ -146,7 +148,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     ])
     lgx_group = df_lgx.set_index('A')['lgx'].to_dict()
 
-    df_exon = pd.concat([ df[['A', '3d']].rename(columns={'3d': 'exon'}), ])
+    df_exon = pd.concat([df[['A', '3d']].rename(columns={'3d': 'exon'}), ])
     exon_group = df_exon.set_index('A')['exon'].to_dict()
 
     db.save_dict(db_connection, table_name='dup_g', dictionary=dup_g, columns=('allele', 'g_group'))
@@ -157,7 +159,9 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     db.save_dict(db_connection, table_name='lgx_group', dictionary=lgx_group, columns=('allele', 'lgx'))
     db.save_dict(db_connection, table_name='exon_group', dictionary=exon_group, columns=('allele', 'exon'))
 
-    return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx, g_group=g_group, lg_group=lg_group, lgx_group=lgx_group, exon_group=exon_group)
+    return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
+                      g_group=g_group, lg_group=lg_group,
+                      lgx_group=lgx_group, exon_group=exon_group)
 
 
 def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version, ars_mappings):
@@ -192,17 +196,17 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
 
     if db.table_exists(db_connection, 'alleles'):
         valid_alleles = db.load_set(db_connection, 'alleles')
-        who_alleles = db.load_set(db_connection, 'who_alleles')
 
-        who_codes = db.load_dict(db_connection, 'who_group',
-                                ('who', 'allele_list'))
-        who_codes = {k: v.split('/') for k, v in who_codes.items()}
+        who_alleles = db.load_set(db_connection, 'who_alleles')
+        who_group = db.load_dict(db_connection, 'who_group',
+                                 ('who', 'allele_list'))
+        who_group = {k: v.split('/') for k, v in who_group.items()}
 
         xx_codes = db.load_dict(db_connection, 'xx_codes',
                                 ('allele_1d', 'allele_list'))
         xx_codes = {k: v.split('/') for k, v in xx_codes.items()}
 
-        return valid_alleles, who_alleles, xx_codes, who_codes
+        return valid_alleles, who_alleles, xx_codes, who_group
 
     # Create a Pandas DataFrame from the mac_code list file
     # Skip the header (first 6 lines) and use only the Allele column
@@ -231,6 +235,7 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
         .apply(lambda x: list(x['Allele'])) \
         .to_dict()
 
+<<<<<<< HEAD
 
     # Also create a first-field column
     xx_df['1d'] = xx_df['Allele'].apply(lambda x: x.split(":")[0])
@@ -239,6 +244,8 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
         .apply(lambda x: list(x['Allele'])) \
         .to_dict()
 
+=======
+>>>>>>> f3fef392b3a213fac6b69449bbbac4243a309aa2
     # Update xx codes with broads and splits
     for broad, splits in broad_splits_dna_mapping.items():
         for split in splits:
@@ -258,19 +265,17 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
                  ('allele_1d', 'allele_list'))
 
     # W H O
-
-    # Create who mapping from the unique alleles in the 2-field column
-    who_df1 = pd.DataFrame(allele_df['Allele'].unique(), columns=['Allele'])
-    who_df1['1d'] = allele_df['Allele'].apply(lambda x: x.split(":")[0])
-    who_df2 = pd.DataFrame(allele_df['Allele'].unique(), columns=['Allele'])
-    who_df2['2d'] = allele_df['Allele'].apply(get_2field_allele)
-    who_df3 = pd.DataFrame(allele_df['Allele'].unique(), columns=['Allele'])
-    who_df3['3d'] = allele_df['Allele'].apply(get_3field_allele)
-
-    # make one df
-    who_df1.rename(columns = {'1d':'input'}, inplace = True)
-    who_df2.rename(columns = {'2d':'input'}, inplace = True)
-    who_df3.rename(columns = {'3d':'input'}, inplace = True)
+    # Create WHO mapping from the unique alleles in the 1-field column
+    unique_alleles = allele_df['Allele'].unique()
+    who_df1 = pd.DataFrame(unique_alleles, columns=['Allele'])
+    who_df1['nd'] = allele_df['Allele'].apply(lambda x: x.split(":")[0])
+    # Create WHO mapping from the unique alleles in the 2-field column
+    who_df2 = pd.DataFrame(unique_alleles, columns=['Allele'])
+    who_df2['nd'] = allele_df['Allele'].apply(get_2field_allele)
+    # Create WHO mapping from the unique alleles in the 3-field column
+    who_df3 = pd.DataFrame(unique_alleles, columns=['Allele'])
+    who_df3['nd'] = allele_df['Allele'].apply(get_3field_allele)
+    # Combine n-field dataframes in 1
 
     # Create g_codes expansion mapping from the same tables used to reduce to G
     g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','input']) 
@@ -278,24 +283,23 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     who_codes = pd.concat([who_df1, who_df2, who_df3, g_df])
 
     # remove valid alleles from who_codes to avoid recursion
-    # there is a more pythonic way to do this for sure
     for k in who_alleles:
-        if k in who_codes['input']:
-            who_codes.drop(labels=k, axis='index') 
+        if k in who_codes['nd']:
+            who_codes.drop(labels=k, axis='index')
 
     # drop duplicates
     who_codes = who_codes.drop_duplicates()
 
     # who_codes maps a first field name to its 2 field expansion
-    who_group = who_codes.groupby(['input']).apply(lambda x: list(x['Allele'])).to_dict()
+    who_group = who_codes.groupby(['nd']).apply(lambda x: list(x['Allele'])).to_dict()
 
     # dictionary
-    flat_who_group= {k: '/'.join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator))) 
-	for k, v in who_group.items()}
-    db.save_dict(db_connection, table_name='who_group', dictionary=flat_who_group, columns=('who', 'allele_list'))
+    flat_who_group = {k: '/'.join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator)))
+                      for k, v in who_group.items()}
+    db.save_dict(db_connection, 'who_group', flat_who_group,
+                 columns=('who', 'allele_list'))
 
-
-    return valid_alleles, who_alleles, xx_codes, who_codes
+    return valid_alleles, who_alleles, xx_codes, who_group
 
 
 def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
@@ -370,7 +374,7 @@ def to_serological_name(locus_name: str):
     """
     locus, sero_number = locus_name.split('*')
     sero_locus = locus[:2]
-    if (sero_locus == "C"):
+    if sero_locus == "C":
         sero_locus = "Cw"
     sero_name = sero_locus + sero_number
     return sero_name

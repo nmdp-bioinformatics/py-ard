@@ -56,11 +56,16 @@ Example
 
     import pyard
 
+    # The cache size of pre-computed reductions can be changed
+    # from the default of 1000
+    pyard.max_cache_size = 1_000_000
+
     # Initialize ARD object with a version of IMGT HLA database
     ard = pyard.ARD(3290)
 
     # You can specify a data directory for temp files
     # ard = pyard.ARD('3290', data_dir='/tmp/py-ard')
+
 
     # Initialize with latest IMGT HLA database
     ard = pyard.ARD()

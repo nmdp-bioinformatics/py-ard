@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #    py-ard
-#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. 
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program.
 #    All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import functools
+import sys
 import re
 from typing import Iterable
 
@@ -33,6 +34,12 @@ from .db import is_valid_mac_code, mac_code_to_alleles, v2_to_v3_allele
 from .smart_sort import smart_sort_comparator
 
 HLA_regex = re.compile("^HLA-")
+
+# Set the lru cache size with
+# >>> import pyard
+# >>> pyard.max_cache_size = 1_000_000
+# >>> ard = pyard.ARD()
+max_cache_size = 1_000
 
 
 class ARD(object):
@@ -61,6 +68,9 @@ class ARD(object):
 
         # Load MAC codes
         generate_mac_codes(self.db_connection, refresh_mac)
+        # Load Alleles and XX Codes
+        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = \
+            generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version)
         # Load ARS mappings
         self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
@@ -75,6 +85,12 @@ class ARD(object):
         # Close the current read-write db connection
         self.db_connection.close()
 
+        # reference data is read-only and can be frozen
+        # Works only for Python >= 3.9
+        if sys.version_info.major == 3 and sys.version_info.minor >= 9:
+            import gc
+            gc.freeze()
+
         # Re-open the connection in read-only mode as we're not updating it anymore
         self.db_connection = db.create_db_connection(data_dir, imgt_version, ro=True)
 
@@ -85,7 +101,7 @@ class ARD(object):
         """
         self.db_connection.close()
 
-    @functools.lru_cache(maxsize=1000000)
+    @functools.lru_cache(maxsize=max_cache_size)
     def redux(self, allele: str, ars_type: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -139,7 +155,7 @@ class ARD(object):
         elif ars_type == "W":
             # new ars_type which is full WHO expansion
             if self._is_who_allele(allele):
-                    return allele
+                return allele
             if allele in self.who_group:
                 return self.redux_gl("/".join(self.who_group[allele]), ars_type)
             else:
@@ -161,7 +177,7 @@ class ARD(object):
             else:
                 return allele
 
-    @functools.lru_cache(maxsize=1000000)
+    @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: str) -> str:
         """
         Does ARS reduction with gl string and ARS type
@@ -241,7 +257,7 @@ class ARD(object):
         """
         A serology has the locus name (first 2 letters for DRB1, DQB1)
         of the allele followed by numerical antigen.
-        Cw is the serlogical designation for HLA-C 
+        Cw is the serological designation for HLA-C
 
         :param allele: The allele to test for serology
         :return: True if serology
@@ -266,8 +282,8 @@ class ARD(object):
         # TODO: need a more stringent test here
 	# not all strings are MACs e.g. ":THISISNOTAMAC"
         """
-        MAC has there are non-digit characters after the : character,
-        then it's a MAC.
+        MAC has non-digit characters after the : character.
+
         :param gl: glstring to test if it has a MAC code
         :return: True if MAC
         """
@@ -280,11 +296,14 @@ class ARD(object):
         """
         Version 2 of the nomenclature is a single field.
         It does not have any ':' field separator.
-        Eg: A*0104
+            Eg: A*0104
+        Exceptions:
+            DRB3*NNNN is not v2 allele
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return '*' in allele and ':' not in allele
+        return '*' in allele and ':' not in allele \
+               and not allele.endswith('*NNNN')
 
     def _is_who_allele(self, allele):
         """
@@ -392,23 +411,26 @@ class ARD(object):
         :return: allele or empty
         :rtype: bool
         """
-        if allele == '':
+        if allele == '' or allele.endswith('*'):
             return False
 
-        # removed the test for is_v2()
-        # this leads to an infinte recursion if the input matches these patterns
-        # but is not ultimately valid e.g. DRB3*NNNN
+        # validate allele without the 'HLA-' prefix
+        if HLA_regex.search(allele):
+            # remove 'HLA-' prefix
+            allele = allele[4:]
+
+        if '*' in allele:
+            alphanum_allele = allele.replace('*', '').replace(':', '')
+            if not alphanum_allele.isalnum():
+                return False
 
         if not self.is_mac(allele) and \
-                not self.is_serology(allele):
+                not self.is_serology(allele) and \
+                not self.is_v2(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
-            # validate allele without the 'HLA-' prefix
-            if HLA_regex.search(allele):
-                # remove 'HLA-' prefix
-                allele = allele[4:]
             return self._is_valid_allele(allele)
         return True
 
