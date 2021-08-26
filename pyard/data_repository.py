@@ -235,17 +235,6 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
         .apply(lambda x: list(x['Allele'])) \
         .to_dict()
 
-<<<<<<< HEAD
-
-    # Also create a first-field column
-    xx_df['1d'] = xx_df['Allele'].apply(lambda x: x.split(":")[0])
-    # xx_codes maps a first field name to its 2 field expansion
-    xx_codes = xx_df.groupby(['1d']) \
-        .apply(lambda x: list(x['Allele'])) \
-        .to_dict()
-
-=======
->>>>>>> f3fef392b3a213fac6b69449bbbac4243a309aa2
     # Update xx codes with broads and splits
     for broad, splits in broad_splits_dna_mapping.items():
         for split in splits:
