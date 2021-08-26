@@ -68,11 +68,11 @@ class ARD(object):
 
         # Load MAC codes
         generate_mac_codes(self.db_connection, refresh_mac)
-        # Load Alleles and XX Codes
-        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = \
-            generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version)
         # Load ARS mappings
         self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
+        # Load Alleles and XX Codes
+        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = \
+            generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings )
         # Load Alleles and XX Codes
         self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings)
 
