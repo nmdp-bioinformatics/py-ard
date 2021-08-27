@@ -38,7 +38,7 @@ IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
 # List of expression characters
 expression_chars = ['N', 'Q', 'L', 'S']
 
-ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group', 'exon_group']
+ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group', 'exon_group', 'p_group']
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
 
@@ -79,12 +79,13 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         lg_group = db.load_dict(db_connection, table_name='lg_group', columns=('allele', 'lg'))
         lgx_group = db.load_dict(db_connection, table_name='lgx_group', columns=('allele', 'lgx'))
         exon_group = db.load_dict(db_connection, table_name='exon_group', columns=('allele', 'exon'))
+        p_group = db.load_dict(db_connection, table_name='p_group', columns=('allele', 'p'))
         return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
                           g_group=g_group, lg_group=lg_group,
-                          lgx_group=lgx_group, exon_group=exon_group)
+                          lgx_group=lgx_group, exon_group=exon_group, p_group=p_group)
 
-    ars_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
-    df = pd.read_csv(ars_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    ars_G_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
+    df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
 
     df['A'] = df['A'].apply(lambda a: a.split('/'))
     df = df.explode('A')
@@ -148,9 +149,20 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     ])
     lgx_group = df_lgx.set_index('A')['lgx'].to_dict()
 
+    # exon
     df_exon = pd.concat([df[['A', '3d']].rename(columns={'3d': 'exon'}), ])
     exon_group = df_exon.set_index('A')['exon'].to_dict()
 
+    # P groups
+    ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
+    df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
+    df_P['A'] = df_P['A'].apply(lambda a: a.split('/'))
+    df_P      = df_P.explode('A')
+    df_P['A'] = df_P['Locus'] + df_P['A']
+    df_P['P'] = df_P['Locus'] + df_P['P']
+    p_group = df_P.set_index('A')['P'].to_dict()
+
+    # save
     db.save_dict(db_connection, table_name='dup_g', dictionary=dup_g, columns=('allele', 'g_group'))
     db.save_dict(db_connection, table_name='dup_lg', dictionary=dup_lg, columns=('allele', 'lg_group'))
     db.save_dict(db_connection, table_name='dup_lgx', dictionary=dup_lgx, columns=('allele', 'lgx_group'))
@@ -158,10 +170,11 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     db.save_dict(db_connection, table_name='lg_group', dictionary=lg_group, columns=('allele', 'lg'))
     db.save_dict(db_connection, table_name='lgx_group', dictionary=lgx_group, columns=('allele', 'lgx'))
     db.save_dict(db_connection, table_name='exon_group', dictionary=exon_group, columns=('allele', 'exon'))
+    db.save_dict(db_connection, table_name='p_group', dictionary=exon_group, columns=('allele', 'p'))
 
     return ARSMapping(dup_g=dup_g, dup_lg=dup_lg, dup_lgx=dup_lgx,
                       g_group=g_group, lg_group=lg_group,
-                      lgx_group=lgx_group, exon_group=exon_group)
+                      lgx_group=lgx_group, exon_group=exon_group, p_group=p_group)
 
 
 def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version, ars_mappings):
@@ -267,9 +280,12 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # Combine n-field dataframes in 1
 
     # Create g_codes expansion mapping from the same tables used to reduce to G
-    g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','input']) 
+    g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','nd']) 
 
-    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df])
+    # Create p_codes expansion mapping from the p_group table
+    p_df = pd.DataFrame(list(ars_mappings.p_group.items()),columns = ['Allele','nd']) 
+
+    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df, p_df])
 
     # remove valid alleles from who_codes to avoid recursion
     for k in who_alleles:
