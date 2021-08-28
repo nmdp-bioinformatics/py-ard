@@ -287,7 +287,7 @@ class ARD(object):
         :param gl: glstring to test if it has a MAC code
         :return: True if MAC
         """
-        return re.search(r":\D+", gl) is not None
+        return re.search(r":\D\D+", gl) is not None
 
     @staticmethod
     def is_v2(allele: str) -> bool:
@@ -425,8 +425,9 @@ class ARD(object):
                 return False
 
         if not self.is_mac(allele) and \
-                not self.is_serology(allele) and \
-                not self.is_v2(allele):
+                not self.is_serology(allele):
+                # this next line leads to infinite recurson
+                #not self.is_v2(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
