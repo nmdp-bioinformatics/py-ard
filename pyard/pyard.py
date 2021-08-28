@@ -39,7 +39,7 @@ HLA_regex = re.compile("^HLA-")
 # >>> import pyard
 # >>> pyard.max_cache_size = 1_000_000
 # >>> ard = pyard.ARD()
-max_cache_size = 1_000
+max_cache_size = 1_000_000
 
 
 class ARD(object):
@@ -246,6 +246,7 @@ class ARD(object):
                 return ''
         return self.redux(glstring, redux_type)
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
             loc_allele = glstring.split(":")
@@ -253,6 +254,7 @@ class ARD(object):
         return self.is_mac(glstring) and code == "XX" and loc_antigen in self.xx_codes
 
     @staticmethod
+    @functools.lru_cache(maxsize=max_cache_size)
     def is_serology(allele: str) -> bool:
         """
         A serology has the locus name (first 2 letters for DRB1, DQB1)
@@ -278,6 +280,7 @@ class ARD(object):
         return False
 
     @staticmethod
+    @functools.lru_cache(maxsize=max_cache_size)
     def is_mac(gl: str) -> bool:
         # TODO: need a more stringent test here
 	# not all strings are MACs e.g. ":THISISNOTAMAC"
@@ -290,6 +293,7 @@ class ARD(object):
         return re.search(r":\D\D+", gl) is not None
 
     @staticmethod
+    @functools.lru_cache(maxsize=max_cache_size)
     def is_v2(allele: str) -> bool:
         # TODO: need a more stringent test here
         # not all strings with "*" but not ":" are v2 nomenclature e.g. "this s*it"
@@ -305,6 +309,7 @@ class ARD(object):
         return '*' in allele and ':' not in allele \
                and not allele.endswith('*NNNN')
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def _is_who_allele(self, allele):
         """
         Test if allele is a WHO allele in the current imgt database
@@ -323,6 +328,7 @@ class ARD(object):
             return allele in self.valid_alleles
         return True
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
         Look up allele code in database and generate alleles
@@ -346,6 +352,7 @@ class ARD(object):
         else:
             return alleles
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
         if self._remove_invalid:
@@ -402,6 +409,7 @@ class ARD(object):
             v3_allele = self._predict_v3(v2_allele)
         return v3_allele
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def isvalid(self, allele: str) -> bool:
         """
         Determines validity of an allele
@@ -435,6 +443,7 @@ class ARD(object):
             return self._is_valid_allele(allele)
         return True
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def isvalid_gl(self, glstring: str) -> bool:
         """
         Determines validity of glstring
@@ -459,6 +468,7 @@ class ARD(object):
         # what falls through here is an allele
         return self.isvalid(glstring)
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def mac_toG(self, allele: str) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -481,6 +491,7 @@ class ARD(object):
         else:
             return ''
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def toG(self, allele: str) -> str:
         """
         Does ARS reduction to the G group level
@@ -498,6 +509,7 @@ class ARD(object):
         else:
             return "X"
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def expand_mac(self, mac_code: str):
         """
         Expands mac codes
@@ -517,6 +529,7 @@ class ARD(object):
 
         return ''
 
+    @functools.lru_cache(maxsize=max_cache_size)
     def v2_to_v3(self, v2_allele) -> str:
         """
         Convert Version 2 Allele Name to Version 3 Allele Name
