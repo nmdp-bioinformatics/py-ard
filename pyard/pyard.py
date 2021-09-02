@@ -39,7 +39,7 @@ HLA_regex = re.compile("^HLA-")
 # >>> import pyard
 # >>> pyard.max_cache_size = 1_000_000
 # >>> ard = pyard.ARD()
-max_cache_size = 1_000
+max_cache_size = 1_000_000
 
 
 class ARD(object):
@@ -122,7 +122,6 @@ class ARD(object):
             else:
                 return redux_allele
 
-
         # g_group maps alleles to their g_group
         # note: this includes mappings for shortened version of alleles 
         # C*12:02:02:01 => C*12:02:01G 
@@ -170,6 +169,8 @@ class ARD(object):
                 # for 'exon' return allele with only first 3 fields
                 return ':'.join(allele.split(':')[0:3])
         else:
+            if allele.endswith(('P', 'G')):
+                 allele = allele[:-1]
             if self._remove_invalid:
                 if self._is_valid_allele(allele):
                     return allele
@@ -432,6 +433,11 @@ class ARD(object):
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
+                if self._is_valid_allele(allele):
+                    return True
+                else:
+                    # reduce to 2 field for things like DPB1*28:01:01G 
+                    allele = ':'.join(allele.split(':')[0:2])
             return self._is_valid_allele(allele)
         return True
 
