@@ -180,7 +180,9 @@ class ARD(object):
         else:
             if allele.endswith(('P', 'G')):
                  allele = allele[:-1]
+
             if self._is_valid_allele(allele):
+
                 return allele
             else:
                 # TODO: raise error
