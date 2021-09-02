@@ -122,13 +122,15 @@ class ARD(object):
             else:
                 return redux_allele
 
-
         # g_group maps alleles to their g_group
         # note: this includes mappings for shortened version of alleles 
         # C*12:02:02:01 => C*12:02:01G 
         # C*12:02:02    => C*12:02:01G 
         # C*12:02       => C*12:02:01G
 
+        if allele.endswith(('P', 'G')):
+            if ars_type in ["lg", "lgx", "G"]:
+                 allele = allele[:-1]
         if ars_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
                 return self.ars_mappings.dup_g[allele]

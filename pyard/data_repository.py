@@ -450,8 +450,8 @@ def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
         #  deleted alleles as reference.
         # Temporary Example
         v2_to_v3_example = {
-            "A*0104": "A*01:04N",
-            "A*0105N": "A*01:04N",
+            "A*0104": "A*01:04:01:01N",
+            "A*0105N": "A*01:04:01:01N",
             "A*0111": "A*01:11N",
             "A*01123": "A*01:123N",
             "A*0115": "A*01:15N",
