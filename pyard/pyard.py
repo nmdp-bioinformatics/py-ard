@@ -231,8 +231,12 @@ class ARD(object):
             alleles = self._get_alleles_from_serology(glstring)
             return self.redux_gl("/".join(alleles), redux_type)
 
-        loc_allele = glstring.split(":")
-        loc_antigen, code = loc_allele[0], loc_allele[1]
+        if ":" in glstring: 
+            loc_allele = glstring.split(":")
+            loc_antigen, code = loc_allele[0], loc_allele[1]
+        else:
+            # TODO: raise error
+            return ''
 
         # Handle XX codes
         if self._config["reduce_XX"] and self.is_XX(glstring, loc_antigen, code):
