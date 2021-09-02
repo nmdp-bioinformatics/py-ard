@@ -54,7 +54,10 @@ def get_n_field_allele(allele: str, n: int) -> str:
     last_char = allele[-1]
     fields = allele.split(':')
     if last_char in expression_chars and len(fields) > n:
-        return ':'.join(fields[0:n]) + last_char
+
+        # don't actually do this;  it makes things like A*02:01:01L which is invalid
+        #return ':'.join(fields[0:n]) + last_char
+        return ':'.join(fields[0:n])
     else:
         return ':'.join(fields[0:n])
 
@@ -161,7 +164,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
                       lgx_group=lgx_group, exon_group=exon_group)
 
 
-def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version):
+def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, imgt_version, ars_mappings):
     """
     Checks to see if there's already an allele list file for the `imgt_version`
     in the `data_dir` directory. If not, will download the file and create
@@ -262,12 +265,19 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     who_df3 = pd.DataFrame(unique_alleles, columns=['Allele'])
     who_df3['nd'] = allele_df['Allele'].apply(get_3field_allele)
     # Combine n-field dataframes in 1
-    who_codes = pd.concat([who_df1, who_df2, who_df3])
+
+    # Create g_codes expansion mapping from the same tables used to reduce to G
+    g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','input']) 
+
+    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df])
 
     # remove valid alleles from who_codes to avoid recursion
     for k in who_alleles:
         if k in who_codes['nd']:
             who_codes.drop(labels=k, axis='index')
+
+    # drop duplicates
+    who_codes = who_codes.drop_duplicates()
 
     # who_codes maps a first field name to its 2 field expansion
     who_group = who_codes.groupby(['nd']).apply(lambda x: list(x['Allele'])).to_dict()
@@ -424,8 +434,8 @@ def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
         #  deleted alleles as reference.
         # Temporary Example
         v2_to_v3_example = {
-            "A*0104": "A*01:04N",
-            "A*0105N": "A*01:04N",
+            "A*0104": "A*01:04:01:01N",
+            "A*0105N": "A*01:04:01:01N",
             "A*0111": "A*01:11N",
             "A*01123": "A*01:123N",
             "A*0115": "A*01:15N",

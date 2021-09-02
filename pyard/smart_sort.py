@@ -81,8 +81,20 @@ def smart_sort_comparator(a1, a2):
         return 1
 
     # If the second fields are equal, try the 3rd fields
-    a1_f3 = int(a1_fields[2])
-    a2_f3 = int(a2_fields[2])
+    if len(a1_fields) >2: 
+        try:
+            a1_f3 = int(a1_fields[2])
+        except ValueError:
+            a1_f3 = 0
+    else:
+        a1_f3 = 0
+    if len(a2_fields) >2: 
+        try:
+            a2_f3 = int(a2_fields[2])
+        except ValueError:
+            a2_f3 = 0
+    else:
+        a2_f3 = 0
 
     if a1_f3 < a2_f3:
         return -1
@@ -90,8 +102,20 @@ def smart_sort_comparator(a1, a2):
         return 1
 
     # If the third fields are equal, try the 4th fields
-    a1_f4 = int(a1_fields[3])
-    a2_f4 = int(a2_fields[3])
+    if len(a1_fields) >3: 
+        try:
+            a1_f4 = int(a1_fields[3])
+        except ValueError:
+            a1_f4 = 0
+    else:
+        a1_f4 = 0
+    if len(a2_fields) >3: 
+        try:
+            a2_f4 = int(a2_fields[3])
+        except ValueError:
+            a2_f4 = 0
+    else:
+        a2_f4 = 0
 
     if a1_f4 < a2_f4:
         return -1
