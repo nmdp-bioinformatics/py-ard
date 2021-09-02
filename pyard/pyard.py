@@ -70,7 +70,8 @@ class ARD(object):
         """
         self._data_dir = data_dir
         self._config = default_config.copy()
-        self._config.update(config)
+        if config:
+            self._config.update(config)
 
         # Create a database connection for writing
         self.db_connection = db.create_db_connection(data_dir, imgt_version)
