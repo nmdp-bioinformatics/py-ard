@@ -292,7 +292,7 @@ class ARD(object):
         :param gl: glstring to test if it has a MAC code
         :return: True if MAC
         """
-        return re.search(r":\D\D+", gl) is not None
+        return re.search(r":\D+", gl) is not None
 
     @staticmethod
     @functools.lru_cache(maxsize=max_cache_size)
