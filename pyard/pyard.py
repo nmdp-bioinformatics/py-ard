@@ -440,6 +440,11 @@ class ARD(object):
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
+                if self._is_valid_allele(allele):
+                    return True
+                else:
+                    # reduce to 2 field for things like DPB1*28:01:01G 
+                    allele = ':'.join(allele.split(':')[0:2])
             return self._is_valid_allele(allele)
         return True
 
