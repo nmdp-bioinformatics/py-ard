@@ -537,3 +537,10 @@ class ARD(object):
         if self.is_v2(v2_allele):
             return self._map_v2_to_v3(v2_allele)
         return v2_allele
+
+    def refresh_mac_codes(self) -> None:
+        """
+        Refreshes MAC code for the current IMGT db version.
+        :return: None
+        """
+        generate_mac_codes(self.db_connection, True)
