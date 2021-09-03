@@ -45,6 +45,10 @@ def step_impl(context, allele):
 def step_impl(context, level):
     context.expanded_alleles = context.ard.redux_gl(context.allele, level)
 
+@when("expanding to WHO then reducing to the {level} level")
+def step_impl(context, level):
+    context.expanded_alleles = context.ard.redux_gl(context.ard.redux_gl(context.allele,"W"), level)
+
 
 @then("the expanded allele is found to be {expanded_alleles}")
 def step_impl(context, expanded_alleles):
