@@ -70,8 +70,8 @@ Example
     # Initialize with latest IMGT HLA database
     ard = pyard.ARD()
 
-    # You can choose to refresh the MAC code for previously used versions
-    # ard =  pyard.ARD(3290, refresh_mac=True)
+    # You can choose to refresh the MAC code for current ARD db version
+    # ard.refresh_mac_codes()
 
     #
     # Reduce Allele
@@ -109,17 +109,20 @@ Command Line Tools
     Created Latest py-ard database
 
     # Import particular version of IMGT database
-    $ pyard-import --import-db-version 3.29.0
+    $ pyard-import --db-version 3.29.0
     Created py-ard version 3290 database
 
     # Import particular version of IMGT database and
     # replace the v2 to v3 mapping table
-    $ pyard-import --import-db-version 3.29.0 --v2-to-v3-mapping map2to3.csv
+    $ pyard-import --db-version 3.29.0 --v2-to-v3-mapping map2to3.csv
     Created py-ard version 3290 database
     Updated v2_mapping table with 'map2to3.csv' mapping file.
 
     # Replace the Latest IMGT database with V2 mappings
-    $ pyard-import  --v2-to-v3-mapping map2to3.csv
+    $ pyard-import --v2-to-v3-mapping map2to3.csv
+
+    # Refresh the MAC for the specified version
+    $ pyard-import --db-version 3450 --refresh-mac
 
     # Reduce a gl string from command line
     $ pyard --gl 'A*01:AB' -r lgx
