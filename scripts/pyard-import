@@ -25,7 +25,7 @@ import argparse
 import pathlib
 
 import pyard
-from pyard import db
+from pyard import db, data_repository
 import pandas as pd
 
 
@@ -35,7 +35,7 @@ def get_imgt_version(imgt_version):
         if version.isdigit():
             return version
         raise RuntimeError(f"{imgt_version} is not a valid IMGT database version number")
-    return None
+    return 'Latest'
 
 
 def get_data_dir(data_dir):
@@ -58,14 +58,16 @@ def get_v2_v3_mapping(v2_v3_mapping):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        usage="""[--import-db-version <IMGT DB Version>]\
-        [--data-dir <directory for db file>]\
+        usage="""[--db-version <IMGT DB Version>]\n
+        [--data-dir <directory for db file>]\n
         [--v2-to-v3-mapping <V2 to V3 mapping CSV file>]""",
-        description="""py-ard tool to generate reference SQLite database.\
-        Allows updating db with custom mappings."""
+        description="""
+        py-ard tool to generate reference SQLite database.
+        Allows updating db with custom V2 to V3 mappings.
+        """
     )
     parser.add_argument(
-        "--import-db-version",
+        "--db-version",
         dest="imgt_version"
     )
     parser.add_argument(
@@ -75,6 +77,11 @@ if __name__ == '__main__':
     parser.add_argument(
         "--v2-to-v3-mapping",
         dest="v2_v3_mapping"
+    )
+    parser.add_argument(
+        "--refresh-mac",
+        dest="refresh_mac",
+        action="store_true"
     )
     args = parser.parse_args()
 
@@ -87,13 +94,9 @@ if __name__ == '__main__':
     v2_to_v3_dict = get_v2_v3_mapping(args.v2_v3_mapping)
     # print(len(v2_to_v3_dict))
 
-    if imgt_version:
-        ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
-        print(f"Created py-ard version {imgt_version} database")
-    else:
-        ard = pyard.ARD(data_dir=data_dir)
-        imgt_version = 'Latest'
-        print(f"Created Latest py-ard database")
+    print(f"Importing IMGT database version: {imgt_version}")
+    ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+    print(f"Import complete for database version: {imgt_version}")
     del ard
 
     if v2_to_v3_dict:
@@ -101,3 +104,8 @@ if __name__ == '__main__':
         db.save_dict(db_connection, table_name='v2_mapping',
                      dictionary=v2_to_v3_dict, columns=('v2', 'v3'))
         print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database.")
+
+    if args.refresh_mac:
+        db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
+        data_repository.generate_mac_codes(db_connection, True)
+        print(f"Updated MACs for {imgt_version} IMGT database.")
