@@ -39,8 +39,17 @@ HLA_regex = re.compile("^HLA-")
 # >>> import pyard
 # >>> pyard.max_cache_size = 1_000_000
 # >>> ard = pyard.ARD()
-max_cache_size = 1_000_000
 
+max_cache_size = 1_000
+default_config = {
+    "reduce_serology": True,
+    "reduce_v2": True,
+    "reduce_3field": True,
+    "reduce_P": True,
+    "reduce_XX": True,
+    "reduce_MAC": True,
+    "map_drb345_to_drbx": True,
+    "verbose_log": True}
 
 class ARD(object):
     """
@@ -48,26 +57,27 @@ class ARD(object):
     Allows reducing alleles and allele code(MAC) to G, lg and lgx levels.
     """
 
-    def __init__(self, imgt_version: str = 'Latest',
-                 remove_invalid: bool = True,
-                 data_dir: str = None,
-                 refresh_mac: bool = False) -> None:
+    def __init__(self, imgt_version: str = 'Latest', data_dir : str = None, config: dict = None):
+
         """
         ARD will load valid alleles, xx codes and MAC mappings for the given
         version of IMGT database, downloading and generating the database if
         not already present.
 
         :param imgt_version: IMGT HLA database version
-        :param remove_invalid: report only valid alleles for this version
         :param data_dir: directory path to store cached data
+        :param config: directory of configuration options
         """
-        self._remove_invalid = remove_invalid
+        self._data_dir = data_dir
+        self._config = default_config.copy()
+        if config:
+            self._config.update(config)
 
         # Create a database connection for writing
         self.db_connection = db.create_db_connection(data_dir, imgt_version)
 
         # Load MAC codes
-        generate_mac_codes(self.db_connection, refresh_mac)
+        generate_mac_codes(self.db_connection, False)
         # Load ARS mappings
         self.ars_mappings = generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
@@ -171,13 +181,11 @@ class ARD(object):
         else:
             if allele.endswith(('P', 'G')):
                  allele = allele[:-1]
-            if self._remove_invalid:
-                if self._is_valid_allele(allele):
-                    return allele
-                else:
-                    return ''
-            else:
+            if self._is_valid_allele(allele):
                 return allele
+            else:
+                # TODO: raise error
+                return ''
 
     @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: str) -> str:
@@ -215,24 +223,28 @@ class ARD(object):
                                    key=functools.cmp_to_key(smart_sort_comparator)))
 
         # Handle V2 to V3 mapping
-        if self.is_v2(glstring):
+        if self._config["reduce_v2"] and self.is_v2(glstring):
             glstring = self._map_v2_to_v3(glstring)
             return self.redux_gl(glstring, redux_type)
 
         # Handle Serology
-        if self.is_serology(glstring):
+        if self._config["reduce_serology"] and self.is_serology(glstring):
             alleles = self._get_alleles_from_serology(glstring)
             return self.redux_gl("/".join(alleles), redux_type)
 
-        loc_allele = glstring.split(":")
-        loc_antigen, code = loc_allele[0], loc_allele[1]
+        if ":" in glstring: 
+            loc_allele = glstring.split(":")
+            loc_antigen, code = loc_allele[0], loc_allele[1]
+        else:
+            # TODO: raise error
+            return ''
 
         # Handle XX codes
-        if self.is_XX(glstring, loc_antigen, code):
+        if self._config["reduce_XX"] and self.is_XX(glstring, loc_antigen, code):
             return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
-        if self.is_mac(glstring):
+        if self._config["reduce_MAC"] and self.is_mac(glstring):
             if is_valid_mac_code(self.db_connection, code):
                 if HLA_regex.search(glstring):
                     # Remove HLA- prefix
@@ -321,9 +333,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        if self._remove_invalid:
-            return allele in self.valid_alleles
-        return True
+        return allele in self.valid_alleles
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
@@ -343,17 +353,11 @@ class ARD(object):
         else:
             alleles = [f'{locus_antigen}:{a}' for a in alleles]
 
-        if self._remove_invalid:
-            return filter(self._is_valid_allele, alleles)
-        else:
-            return alleles
+        return filter(self._is_valid_allele, alleles)
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
-        if self._remove_invalid:
-            return filter(self._is_valid_allele, alleles)
-        else:
-            return alleles
+        return filter(self._is_valid_allele, alleles)
 
     @staticmethod
     def _combine_with_colon(digits_field):
