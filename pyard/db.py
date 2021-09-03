@@ -25,6 +25,10 @@ import sqlite3
 from typing import Tuple, Dict, Set, List
 
 
+def get_pyard_db_install_directory():
+    return pathlib.Path.home() / ".pyard"
+
+
 def create_db_connection(data_dir, imgt_version, ro=False):
     """
     Create a  connection to a sqlite database in read-only mode
@@ -37,7 +41,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     """
     # Set data directory where all the downloaded files will go
     if data_dir is None:
-        data_dir = pathlib.Path.home() / ".pyard"
+        data_dir = get_pyard_db_install_directory()
 
     db_filename = f'{data_dir}/pyard-{imgt_version}.sqlite3'
 
@@ -75,7 +79,7 @@ def table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
     return result[0] > 0
 
 
-def tables_exists(connection: sqlite3.Connection, table_names: List[str]):
+def tables_exist(connection: sqlite3.Connection, table_names: List[str]):
     """
     Do all the given tables exist in the database ?
 

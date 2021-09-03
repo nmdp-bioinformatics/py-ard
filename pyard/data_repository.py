@@ -41,6 +41,8 @@ expression_chars = ['N', 'Q', 'L', 'S']
 ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group', 'exon_group', 'p_group']
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
+code_mapping_tables = ["alleles", "xx_codes", "who_alleles", "who_group", ]
+
 
 def get_n_field_allele(allele: str, n: int) -> str:
     """
@@ -71,7 +73,7 @@ def get_2field_allele(a: str) -> str:
 
 
 def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
-    if db.tables_exists(db_connection, ars_mapping_tables):
+    if db.tables_exist(db_connection, ars_mapping_tables):
         dup_g = db.load_dict(db_connection, table_name='dup_g', columns=('allele', 'g_group'))
         dup_lg = db.load_dict(db_connection, table_name='dup_lg', columns=('allele', 'lg_group'))
         dup_lgx = db.load_dict(db_connection, table_name='dup_lgx', columns=('allele', 'lgx_group'))
@@ -204,10 +206,10 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
 
     :param db_connection: Database connection to the sqlite database
     :param imgt_version: IMGT database version
+    :param ars_mappings: ARSMapping object to ARS mapping tables
     :return: None, updates self
     """
-
-    if db.table_exists(db_connection, 'alleles'):
+    if db.tables_exist(db_connection, code_mapping_tables):
         valid_alleles = db.load_set(db_connection, 'alleles')
 
         who_alleles = db.load_set(db_connection, 'who_alleles')

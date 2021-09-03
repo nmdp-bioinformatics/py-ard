@@ -43,6 +43,8 @@ def get_data_dir(data_dir):
         path = pathlib.Path(data_dir)
         if not path.exists() or not path.is_dir():
             raise RuntimeError(f"{data_dir} is not a valid directory")
+    else:
+        data_dir = db.get_pyard_db_install_directory()
     return data_dir
 
 
@@ -83,6 +85,11 @@ if __name__ == '__main__':
         dest="refresh_mac",
         action="store_true"
     )
+    parser.add_argument(
+        "--re-install",
+        dest="reinstall",
+        action="store_true"
+    )    
     args = parser.parse_args()
 
     imgt_version = get_imgt_version(args.imgt_version)
@@ -93,6 +100,13 @@ if __name__ == '__main__':
 
     v2_to_v3_dict = get_v2_v3_mapping(args.v2_v3_mapping)
     # print(len(v2_to_v3_dict))
+
+    if args.reinstall:
+        print(f"Reinstalling Version: {imgt_version}")
+        db_fullname = pathlib.Path(f'{data_dir}/pyard-{imgt_version}.sqlite3')
+        if db_fullname.exists():
+            print(f"Removing {db_fullname}")
+            db_fullname.unlink(missing_ok=True)
 
     print(f"Importing IMGT database version: {imgt_version}")
     ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
@@ -106,6 +120,7 @@ if __name__ == '__main__':
         print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database.")
 
     if args.refresh_mac:
+        print(f"Updating MACs")
         db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, True)
         print(f"Updated MACs for {imgt_version} IMGT database.")
