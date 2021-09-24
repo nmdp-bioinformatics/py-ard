@@ -55,6 +55,7 @@ setup(
     scripts=[
         'scripts/pyard',
         'scripts/pyard-import',
+        'scripts/pyard-status',
         'scripts/pyard-reduce-csv'
     ],
     install_requires=requirements,
