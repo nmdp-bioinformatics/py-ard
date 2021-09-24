@@ -73,6 +73,8 @@ Example
     # You can choose to refresh the MAC code for current ARD db version
     # ard.refresh_mac_codes()
 
+    # You can reinstall a particular IMGT database
+    # pyard-import --db-version 3340 --re-install
     #
     # Reduce Allele
     #
