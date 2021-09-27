@@ -90,6 +90,21 @@ def tables_exist(connection: sqlite3.Connection, table_names: List[str]):
     return all([table_exists(connection, table_name) for table_name in table_names])
 
 
+def count_rows(connection: sqlite3.Connection, table_name: str) -> int:
+    """
+    Count number of rows in the table.
+
+    :param connection: db connection of type sqlite.Connection
+    :param table_name: table in the sqlite db
+    :return: bool indicating whether table_name exists as a table
+    """
+    query = f"SELECT count(*) from '{table_name}'"
+    cursor = connection.execute(query)
+    result = cursor.fetchone()
+    cursor.close()
+    return result[0]
+
+
 def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     """
     Look up the MAC code in the database and return corresponding list

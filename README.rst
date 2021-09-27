@@ -135,3 +135,7 @@ Command Line Tools
 
     $ pyard -v 3290 --gl 'A1' -r lgx
     A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
+
+    # Show the status of all py-ard databases
+    $ pyard-status
+

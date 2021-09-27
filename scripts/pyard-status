@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#    py-ard
+#    Copyright (c) 2020 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
+import argparse
+import os
+import pathlib
+import re
+
+from pyard import db, data_repository
+
+
+def get_data_dir(data_dir):
+    if data_dir:
+        path = pathlib.Path(data_dir)
+        if not path.exists() or not path.is_dir():
+            raise RuntimeError(f"{data_dir} is not a valid directory")
+        data_dir = path
+    else:
+        data_dir = db.get_pyard_db_install_directory()
+    return data_dir
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        usage="""
+        [--data-dir <directory for db file>]\n
+        """,
+        description="""
+        py-ard tool to provide a status report for reference SQLite databases.
+        """
+    )
+    parser.add_argument(
+        "--data-dir",
+        dest="data_dir"
+    )
+    args = parser.parse_args()
+    data_dir = get_data_dir(args.data_dir)
+    # print(data_dir)
+
+    imgt_regex = re.compile(r'pyard-(.+)\.sqlite3')
+    for _, _, filenames in os.walk(data_dir):
+        for filename in filenames:
+            # Get imgt version from the filename
+            # eg: get 3440 from 'pyard-3440.sqlite3'
+            match = imgt_regex.match(filename)
+            imgt_version = match.group(1)  # Get first group
+            db_connection = db.create_db_connection(data_dir, imgt_version)
+            print('-' * 43)
+            print(f"IMGT DB Version: {imgt_version}")
+            print('-' * 43)
+            print(f"|{'Table Name':20}|{'Rows':20}|")
+            print(f"|{'-' * 41}|")
+            for table in data_repository.ars_mapping_tables + \
+                         data_repository.code_mapping_tables:
+                if db.table_exists(db_connection, table):
+                    total_rows = db.count_rows(db_connection, table)
+                    print(f"|{table:20}|{total_rows:20}|")
+                else:
+                    print(f"MISSING: {table} table")
+            print('-' * 43)
+            db_connection.close()

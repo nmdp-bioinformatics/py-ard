@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.6.8',
+    version='0.6.9',
     description="ARD reduction for HLA with Python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",
@@ -55,6 +55,7 @@ setup(
     scripts=[
         'scripts/pyard',
         'scripts/pyard-import',
+        'scripts/pyard-status',
         'scripts/pyard-reduce-csv'
     ],
     install_requires=requirements,
