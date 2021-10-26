@@ -32,7 +32,9 @@ import json
 import os
 import unittest
 
+import pyard.pyard
 from pyard import ARD
+from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 
 
 class TestPyArd(unittest.TestCase):
@@ -85,7 +87,8 @@ class TestPyArd(unittest.TestCase):
     def test_mac_G(self):
         self.assertEqual(self.ard.redux("A*01:01:01", 'G'), "A*01:01:01G")
         self.assertEqual(self.ard.redux_gl("HLA-A*01:AB", "G"), "HLA-A*01:01:01G/HLA-A*01:02")
-        self.assertEqual(self.ard.redux("HLA-A*01:AB", "G"), "")
+        with self.assertRaises(InvalidAlleleError):
+            self.ard.redux("HLA-A*01:AB", "G")
 
     def test_xx_code(self):
         expanded_string = """
@@ -110,4 +113,22 @@ class TestPyArd(unittest.TestCase):
     def test_mac_toG(self):
         g_alleles = 'A*01:01:01G/A*01:03:01G'
         self.assertEqual(self.ard.mac_toG('A*01:AC'), g_alleles)
-        self.assertEqual(self.ard.mac_toG('A*01:AB'), '')
+        with self.assertRaises(InvalidMACError):
+            self.ard.mac_toG('A*01:AB')
+
+    def test_redux_types(self):
+        self.assertIsNone(pyard.pyard.validate_reduction_type('G'))
+        self.assertIsNone(pyard.pyard.validate_reduction_type('lg'))
+        self.assertIsNone(pyard.pyard.validate_reduction_type('lgx'))
+        self.assertIsNone(pyard.pyard.validate_reduction_type('W'))
+        self.assertIsNone(pyard.pyard.validate_reduction_type('exon'))
+        with self.assertRaises(ValueError):
+            pyard.pyard.validate_reduction_type('XX')
+
+    def test_empty_allele(self):
+        with self.assertRaises(InvalidTypingError):
+            self.ard.redux_gl('A*', 'lgx')
+
+    def test_fp_allele(self):
+        with self.assertRaises(InvalidTypingError):
+            self.ard.redux_gl('A*0.123', 'lgx')

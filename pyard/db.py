@@ -142,6 +142,19 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
         alleles = []
     return alleles
 
+def is_valid_serology(connection: sqlite3.Connection, serology: str) -> bool:
+    """
+    Check db if the serology exists
+
+    :param connection: db connection of type sqlite.Connection
+    :param serology: serology to test
+    :return: is it serology ?
+    """
+    serology_query = "SELECT count(allele_list) from serology_mapping where serology = ?"
+    cursor = connection.execute(serology_query, (serology,))
+    result = cursor.fetchone()
+    cursor.close()
+    return result[0] > 0
 
 def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
     """
