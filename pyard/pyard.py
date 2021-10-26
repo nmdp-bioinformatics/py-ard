@@ -240,7 +240,7 @@ class ARD(object):
                                    key=functools.cmp_to_key(smart_sort_comparator)))
 
         # Handle V2 to V3 mapping
-        if self._config["reduce_v2"] and self.is_v2(glstring):
+        if self.is_v2(glstring):
             glstring = self._map_v2_to_v3(glstring)
             return self.redux_gl(glstring, redux_type)
 
@@ -320,22 +320,25 @@ class ARD(object):
             return db.is_valid_mac_code(self.db_connection, code)
         return False
 
-    @staticmethod
-    def is_v2(allele: str) -> bool:
-        # TODO: need a more stringent test here
-        # not all strings with "*" but not ":" are v2 nomenclature e.g. "this s*it"
+    def is_v2(self, allele: str) -> bool:
         """
         Version 2 of the nomenclature is a single field.
         It does not have any ':' field separator.
             Eg: A*0104
         Exceptions:
+            Not all strings with "*" but not ":" are v2 nomenclature
             DRB3*NNNN is not v2 allele
+        Stricter Check:
+            if the conversion of v2 to v3 is the same, then
+            it's not a V2 typing
+        Set 'reduce_v2' option to False to skip the check for V2.
+
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return '*' in allele and ':' not in allele \
-               and not allele.endswith('*NNNN') \
-               and not allele.endswith('*XXXX')
+        return self._config["reduce_v2"] \
+               and '*' in allele and ':' not in allele \
+               and allele != self._map_v2_to_v3(allele)
 
     def _is_who_allele(self, allele):
         """
@@ -451,7 +454,7 @@ class ARD(object):
         if not self.is_mac(allele) and \
                 not self.is_XX(allele) and \
                 not self.is_serology(allele) and \
-                not (self._config['reduce_v2'] and self.is_v2(allele)):
+                not self.is_v2(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
