@@ -1,8 +1,7 @@
 # py-ard
+[![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard) 
 
 ARD reduction for HLA with Python
-
-* Free software: LGPL 3.0
 
 ## Install from source
 
