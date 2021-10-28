@@ -132,3 +132,11 @@ class TestPyArd(unittest.TestCase):
     def test_fp_allele(self):
         with self.assertRaises(InvalidTypingError):
             self.ard.redux_gl('A*0.123', 'lgx')
+
+    def test_invalid_serology(self):
+        # Test that A10 works and the first one is 'A*25:01'
+        serology_a10 = self.ard.redux_gl('A10', 'lgx')
+        self.assertEqual(serology_a10.split('/')[0], 'A*25:01')
+        # And A100 isn't a valid typing
+        with self.assertRaises(InvalidTypingError):
+            self.ard.redux_gl('A100', 'lgx')
