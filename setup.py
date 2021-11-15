@@ -25,7 +25,7 @@
 
 from setuptools import setup
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
@@ -42,7 +42,7 @@ test_requirements = [
 
 setup(
     name='py-ard',
-    version='0.6.9',
+    version='0.7.0',
     description="ARD reduction for HLA with Python",
     long_description=readme + '\n\n' + history,
     author="CIBMTR",

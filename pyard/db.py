@@ -124,6 +124,20 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     return alleles
 
 
+def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
+    """
+    Check db if the MAC code exists.
+
+    :param connection: db connection of type sqlite.Connection
+    :param code: MAC code
+    :return: code is MAC code ?
+    """
+    mac_query = "SELECT count(alleles) from mac_codes where code = ?"
+    cursor = connection.execute(mac_query, (code,))
+    result = cursor.fetchone()
+    cursor.close()
+    return result[0] > 0
+
 def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[str]:
     """
     Look up Serology in the database and return corresponding list of alleles.
@@ -142,6 +156,20 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
         alleles = []
     return alleles
 
+def is_valid_serology(connection: sqlite3.Connection, serology: str) -> bool:
+    """
+    Check db if the serology exists
+
+    :param connection: db connection of type sqlite.Connection
+    :param serology: serology to test
+    :return: is it serology ?
+    """
+    serology_query = "SELECT count(allele_list) from serology_mapping where serology = ?"
+    cursor = connection.execute(serology_query, (serology,))
+    result = cursor.fetchone()
+    cursor.close()
+    return result[0] > 0
+
 
 def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
     """
@@ -157,22 +185,7 @@ def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
     cursor.close()
     if result:
         return result[0]
-    return ''
-
-
-def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
-    """
-    Check db if the MAC code exists.
-
-    :param connection: db connection of type sqlite.Connection
-    :param code: MAC code
-    :return: code is MAC code ?
-    """
-    mac_query = "SELECT count(alleles) from mac_codes where code = ?"
-    cursor = connection.execute(mac_query, (code,))
-    result = cursor.fetchone()
-    cursor.close()
-    return result[0] > 0
+    return None
 
 
 def save_dict(connection: sqlite3.Connection, table_name: str,
