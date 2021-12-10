@@ -40,8 +40,7 @@ import pyard.drbx as drbx
 
 
 def is_serology(allele: str) -> bool:
-    if len(allele.split(':')) == 1:
-        return True
+    return ard.is_serology(allele)
 
 
 def is_3field(allele: str) -> bool:
@@ -52,7 +51,11 @@ def is_P(allele: str) -> bool:
     if allele.endswith('P'):
         fields = allele.split(':')
         if len(fields) == 2:  # Ps are 2 fields
-            return fields[0].isdigit() and fields[0].isdigit()
+            # Check both fields are digits only
+            # Eg: A*02:01P
+            # Check last 2 digits of first field: 02 is numeric 
+            # Check digits of seconds field: 01 is numeric
+            return fields[0][-2:].isdigit() and fields[1][:-1].isdigit()
     return False
 
 
@@ -83,6 +86,11 @@ def should_be_reduced(allele, locus_allele):
     return False
 
 
+def remove_locus_name(reduced_allele):
+    return "/".join(map(lambda a: a.split('*')[1],
+                        reduced_allele.split('/')))
+
+
 def reduce(allele, locus, column_name):
     # Does the allele name have the locus in it ?
     if allele == '':
@@ -111,16 +119,23 @@ def reduce(allele, locus, column_name):
             if ard_config["keep_locus_in_allele_name"]:
                 allele = reduced_allele
             else:
-                allele = "/".join(map(lambda a: a.split('*')[1],
-                                      reduced_allele.split('/')))
+                allele = remove_locus_name(reduced_allele)
         else:
             if verbose:
                 print(f"Failed to reduce {locus_allele}")
-
         if verbose:
             print(f"\t{locus_allele} => {allele}")
     else:
-        if ard_config["keep_locus_in_allele_name"]:
+        if ard_config['convert_v2_to_v3']:
+            if ard.is_v2(locus_allele):
+                v3_allele = ard.v2_to_v3(locus_allele)
+                if not ard_config["keep_locus_in_allele_name"]:
+                    allele = remove_locus_name(v3_allele)
+                else:
+                    allele = v3_allele
+                if verbose:
+                    print(f"\t{locus_allele} => {allele}")
+        elif ard_config["keep_locus_in_allele_name"]:
             allele = locus_allele
 
     return allele
