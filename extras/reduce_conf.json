@@ -30,6 +30,7 @@
   "apply_compression": "gzip",
   "reduce_serology": false,
   "reduce_v2": true,
+  "convert_v2_to_v3": false,
   "reduce_3field": true,
   "reduce_P": true,
   "reduce_XX": false,
