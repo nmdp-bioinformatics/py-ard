@@ -1,3 +1,16 @@
+<a name="0.6.10"></a>
+# [Bug fixes for Batch Processing (0.6.10)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.10) - 13 Dec 2021
+
+Batch Reduce Fixes:
+- Fix Instantiation of `pyard.ARD` object.
+- Fix serology check
+- Fix issue with P groups
+- A new flag `convert_v2_to_v3` to convert v2 to v3 but not reduce.
+
+
+[Changes][0.6.10]
+
+
 <a name="0.6.9"></a>
 # [pyard-status command to check the status of all tables in the databases (0.6.9)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.9) - 27 Sep 2021
 
@@ -258,6 +271,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.6.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.8...0.6.9
 [0.6.8]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.6...0.6.8
 [0.6.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.5...0.6.6
