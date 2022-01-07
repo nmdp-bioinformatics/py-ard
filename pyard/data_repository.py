@@ -35,9 +35,6 @@ from pyard.smart_sort import smart_sort_comparator
 
 IMGT_HLA_URL = 'https://raw.githubusercontent.com/ANHIG/IMGTHLA/'
 
-# List of expression characters
-expression_chars = ['N', 'Q', 'L', 'S']
-
 ars_mapping_tables = ['dup_g', 'dup_lg', 'dup_lgx', 'g_group', 'lg_group', 'lgx_group', 'exon_group', 'p_group']
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
@@ -53,16 +50,8 @@ def get_n_field_allele(allele: str, n: int) -> str:
     :param n: n number of fields to reduce to
     :return: trimmed to n fields of the original allele
     """
-    last_char = allele[-1]
     fields = allele.split(':')
-    if last_char in expression_chars and len(fields) > n:
-
-        # don't actually do this;  it makes things like A*02:01:01L which is invalid
-        #return ':'.join(fields[0:n]) + last_char
-        return ':'.join(fields[0:n])
-    else:
-        return ':'.join(fields[0:n])
-
+    return ':'.join(fields[0:n])
 
 def get_3field_allele(a: str) -> str:
     return get_n_field_allele(a, 3)

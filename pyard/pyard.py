@@ -31,6 +31,9 @@ from . import data_repository as dr
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 
+# List of expression characters
+expression_chars = ('N', 'Q', 'L', 'S')
+
 HLA_regex = re.compile("^HLA-")
 
 # Set the lru cache size with
@@ -156,13 +159,21 @@ class ARD(object):
 
         if allele.endswith(('P', 'G')):
             if redux_type in ["lg", "lgx", "G"]:
+                allele = allele[:-1]  # does this test for validity?
+        if redux_type == "G":
+            if allele in self.ars_mappings.g_group:
+                if allele in self.ars_mappings.dup_g:
+                    return self.ars_mappings.dup_g[allele]
+                else:
+                    return self.ars_mappings.g_group[allele]
+            if allele.endswith(expression_chars) and not self._is_valid_allele(allele):
+                # remove the last character
                 allele = allele[:-1]
-        if redux_type == "G" and allele in self.ars_mappings.g_group:
-            if allele in self.ars_mappings.dup_g:
-                return self.ars_mappings.dup_g[allele]
-            else:
-                return self.ars_mappings.g_group[allele]
+                return self.redux(allele, redux_type)
         elif redux_type == "lg":
+            if allele.endswith(expression_chars) and not self._is_valid_allele(allele):
+                # remove the last character
+                allele = allele[:-1]
             if allele in self.ars_mappings.dup_lg:
                 return self.ars_mappings.dup_lg[allele]
             elif allele in self.ars_mappings.lg_group:
@@ -170,8 +181,11 @@ class ARD(object):
             else:
                 # for 'lg' when allele is not in G group,
                 # return allele with only first 2 field
-                return ':'.join(allele.split(':')[0:2]) + 'g'
+                return ':'.join(allele.split(':')[0:2]) + 'g' # test for validity?
         elif redux_type == "lgx":
+            if allele.endswith(expression_chars) and not self._is_valid_allele(allele):
+                # remove the last character
+                allele = allele[:-1]
             if allele in self.ars_mappings.dup_lgx:
                 return self.ars_mappings.dup_lgx[allele]
             elif allele in self.ars_mappings.lgx_group:
@@ -179,18 +193,32 @@ class ARD(object):
             else:
                 # for 'lgx' when allele is not in G group,
                 # return allele with only first 2 field
-                return ':'.join(allele.split(':')[0:2])
+                return ':'.join(allele.split(':')[0:2]) # test for validity
         elif redux_type == "W":
             # new redux_type which is full WHO expansion
             if self._is_who_allele(allele):
                 return allele
             if allele in self.who_group:
                 return self.redux_gl("/".join(self.who_group[allele]), redux_type)
+            elif allele.endswith(expression_chars):
+                ex = allele[-1]
+                wg = self.who_group[allele[:-1]]
+                ea = []
+                for al in wg:
+                    if al.endswith(ex):
+                        ea.append(al) 
+                return self.redux_gl("/".join(ea), redux_type)
             else:
                 return allele
         elif redux_type == "exon":
             if allele in self.ars_mappings.exon_group:
                 return self.ars_mappings.exon_group[allele]
+            elif allele.endswith(expression_chars) and not self._is_valid_allele(allele):
+                # remove the last character
+                allele = allele[:-1]
+                # in order to get the full list of exon level alleles
+                # need to expand to the full W level and then reduce
+                return self.redux_gl(self.redux(allele, "W"), redux_type)
             else:
                 # for 'exon' return allele with only first 3 fields
                 return ':'.join(allele.split(':')[0:3])
@@ -464,6 +492,12 @@ class ARD(object):
                 else:
                     # reduce to 2 field for things like DPB1*28:01:01G
                     allele = ':'.join(allele.split(':')[0:2])
+            # handle registry use of movable expression characters
+            # TODO: more strictly require the expression character 
+            # in a longer named variant
+            if not self._is_valid_allele(allele) and allele.endswith(expression_chars):
+                # remove the last character
+                allele = allele[:-1]
             return self._is_valid_allele(allele)
         return True
 
