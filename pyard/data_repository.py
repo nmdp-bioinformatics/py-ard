@@ -192,7 +192,7 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # date: 2017-07-10
     # version: IPD-IMGT/HLA 3.29.0
     # origin: https://github.com/ANHIG/IMGTHLA/Allelelist.3290.txt
-    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3290.txt
+    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/allelelist/Allelelist.3290.txt
     # author: WHO, Steven G. E. Marsh (steven.marsh@ucl.ac.uk)
     AlleleID,Allele
     HLA00001,A*01:01:01:01
@@ -228,7 +228,7 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     if imgt_version == "Latest":
         allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.txt'
     else:
-        allele_list_url = f'{IMGT_HLA_URL}Latest/Allelelist.{imgt_version}.txt'
+        allele_list_url = f'{IMGT_HLA_URL}Latest/allelelist/Allelelist.{imgt_version}.txt'
     allele_df = pd.read_csv(allele_list_url, header=6, usecols=['Allele'])
 
     # Create a set of valid alleles
