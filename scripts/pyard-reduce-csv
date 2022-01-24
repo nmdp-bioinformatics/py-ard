@@ -176,13 +176,14 @@ if __name__ == '__main__':
     verbose = ard_config["verbose_log"]
     white_space_regex = re.compile(r"\s+")
 
-    try:
-        import openpyxl
-    except ImportError:
-        print("For Excel output, openpyxl library needs to be installed. "
-              "Install with:")
-        print("  pip install openpyxl")
-        sys.exit(1)
+    if ard_config["output_file_format"] == 'xlsx':
+        try:
+            import openpyxl
+        except ImportError:
+            print("For Excel output, openpyxl library needs to be installed. "
+                  "Install with:")
+            print("  pip install openpyxl")
+            sys.exit(1)
 
     # Instantiate py-ard object with the latest
     ard = pyard.ARD()
