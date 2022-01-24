@@ -30,7 +30,6 @@ from . import db
 from . import data_repository as dr
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import get_n_field_allele
 
 # List of expression characters
 expression_chars = ('N', 'Q', 'L', 'S')
