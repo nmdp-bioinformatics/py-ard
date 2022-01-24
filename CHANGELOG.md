@@ -1,3 +1,11 @@
+<a name="0.6.11"></a>
+# [Fix for IMGT URL Change (0.6.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.11) - 24 Jan 2022
+
+Fixes a breaking change where all allele lists in IMGTHLA repo have been moved to `/allelelist/` subdirectory.
+
+[Changes][0.6.11]
+
+
 <a name="0.6.10"></a>
 # [Bug fixes for Batch Processing (0.6.10)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.10) - 13 Dec 2021
 
@@ -271,6 +279,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.6.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.8...0.6.9
 [0.6.8]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.6...0.6.8
