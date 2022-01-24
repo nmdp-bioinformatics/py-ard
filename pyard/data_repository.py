@@ -43,23 +43,6 @@ ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 code_mapping_tables = ["alleles", "xx_codes", "who_alleles", "who_group", ]
 
 
-def expression_reduce(df):
-    """
-    For each group of expression alleles, check if __all__ of
-    them have the same expression character. If so, the second field
-    with the expression character is a valid allele.
-    Rule:
-        The general rule is that expression characters can propagate up to two
-        field level if all three-field and/or four-field alleles have the same
-        expression character.
-
-    :param df: dataframe with Allele column that is all expression characters
-    :return: 2 field allele or None
-    """
-<<<<<<< HEAD
-    fields = allele.split(':')
-    return ':'.join(fields[0:n])
-
 def get_3field_allele(a: str) -> str:
     return get_n_field_allele(a, 3)
 
@@ -233,7 +216,6 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # For all Alleles with expression characters, find 2-field valid alleles
     exp_alleles = allele_df[allele_df['Allele'].apply(
         lambda a: a[-1] in expression_chars and number_of_fields(a) > 2)]
-    exp_alleles = exp_alleles.groupby('2d').apply(expression_reduce).dropna()
     # Create valid set of alleles:
     # All full length alleles
     # All 3rd and 2nd field versions of longer alleles
