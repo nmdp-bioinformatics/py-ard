@@ -52,7 +52,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "-r",
-        choices=['G', 'lg', 'lgx', 'W', 'exon'],
+        choices=pyard.pyard.reduction_types,
         required=True,
         dest="redux_type"
     )

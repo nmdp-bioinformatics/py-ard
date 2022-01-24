@@ -30,6 +30,7 @@ from . import db
 from . import data_repository as dr
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
+from .misc import get_n_field_allele
 
 # List of expression characters
 expression_chars = ('N', 'Q', 'L', 'S')
@@ -58,11 +59,12 @@ reduction_types = (
     'lg',
     'lgx',
     'W',
-    'exon'
+    'exon',
+    'U2'  # Unambiguous Reduction to 2 fields
 )
 
 # Typing information
-VALID_REDUCTION_TYPES = Literal['G', 'lg', 'lgx', 'W', 'exon']
+VALID_REDUCTION_TYPES = Literal['G', 'lg', 'lgx', 'W', 'exon', 'U2']
 
 
 def validate_reduction_type(ars_type):
@@ -73,7 +75,8 @@ def validate_reduction_type(ars_type):
 class ARD(object):
     """
     ARD reduction for HLA
-    Allows reducing alleles and allele code(MAC) to G, lg and lgx levels.
+    Allows reducing alleles, allele code(MAC), Serology to
+    G, lg, lgx, W, exon and U2 levels.
     """
 
     def __init__(self, imgt_version: str = 'Latest', data_dir: str = None, config: dict = None):
@@ -222,6 +225,18 @@ class ARD(object):
             else:
                 # for 'exon' return allele with only first 3 fields
                 return ':'.join(allele.split(':')[0:3])
+        elif redux_type == "U2":
+            allele_fields = allele.split(":")
+            # If resolved out to second field leave alone
+            if len(allele_fields) == 2:
+                return allele
+            # If the 2 field reduction is unambiguous, reduce to 2 field level
+            allele_2_fields = get_n_field_allele(allele, 2, preserve_expression=True)
+            if self._is_valid_allele(allele_2_fields):
+                return allele_2_fields
+            else:
+                # If ambiguous, reduce to G group level
+                return self.redux(allele, 'lgx')
         else:
             if allele.endswith(('P', 'G')):
                 allele = allele[:-1]

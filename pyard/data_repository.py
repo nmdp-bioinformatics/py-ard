@@ -26,9 +26,11 @@ import sqlite3
 
 import pandas as pd
 
-from pyard import db
-from pyard.broad_splits import broad_splits_dna_mapping
-from pyard.broad_splits import broad_splits_ser_mapping
+from . import db
+from .broad_splits import broad_splits_dna_mapping
+from .broad_splits import broad_splits_ser_mapping
+from .misc import get_2field_allele, get_3field_allele, number_of_fields
+from .misc import expression_chars
 
 # GitHub URL where IMGT HLA files are downloaded.
 from pyard.smart_sort import smart_sort_comparator
@@ -41,15 +43,20 @@ ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 code_mapping_tables = ["alleles", "xx_codes", "who_alleles", "who_group", ]
 
 
-def get_n_field_allele(allele: str, n: int) -> str:
+def expression_reduce(df):
     """
-    Given an HLA allele of >= n field, return n field allele.
-    Preserve the expression character if it exists
+    For each group of expression alleles, check if __all__ of
+    them have the same expression character. If so, the second field
+    with the expression character is a valid allele.
+    Rule:
+        The general rule is that expression characters can propagate up to two
+        field level if all three-field and/or four-field alleles have the same
+        expression character.
 
-    :param allele: Original allele
-    :param n: n number of fields to reduce to
-    :return: trimmed to n fields of the original allele
+    :param df: dataframe with Allele column that is all expression characters
+    :return: 2 field allele or None
     """
+<<<<<<< HEAD
     fields = allele.split(':')
     return ':'.join(fields[0:n])
 
@@ -59,7 +66,6 @@ def get_3field_allele(a: str) -> str:
 
 def get_2field_allele(a: str) -> str:
     return get_n_field_allele(a, 2)
-
 
 def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     if db.tables_exist(db_connection, ars_mapping_tables):
@@ -148,7 +154,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
     df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
     df_P['A'] = df_P['A'].apply(lambda a: a.split('/'))
-    df_P      = df_P.explode('A')
+    df_P = df_P.explode('A')
     df_P['A'] = df_P['Locus'] + df_P['A']
     df_P['P'] = df_P['Locus'] + df_P['P']
     p_group = df_P.set_index('A')['P'].to_dict()
@@ -224,11 +230,18 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # All 2-field, 3-field and the original Alleles are considered valid alleles
     allele_df['2d'] = allele_df['Allele'].apply(get_2field_allele)
     allele_df['3d'] = allele_df['Allele'].apply(get_3field_allele)
-    # this says all 3rd and 2nd field versions of longer alleles are valid
-    who_alleles = set(allele_df['Allele'])
+    # For all Alleles with expression characters, find 2-field valid alleles
+    exp_alleles = allele_df[allele_df['Allele'].apply(
+        lambda a: a[-1] in expression_chars and number_of_fields(a) > 2)]
+    exp_alleles = exp_alleles.groupby('2d').apply(expression_reduce).dropna()
+    # Create valid set of alleles:
+    # All full length alleles
+    # All 3rd and 2nd field versions of longer alleles
+    # All 2-field version of alleles with expression that can be reduced
     valid_alleles = set(allele_df['Allele']). \
         union(set(allele_df['2d'])). \
-        union(set(allele_df['3d']))
+        union(set(allele_df['3d'])). \
+        union(set(exp_alleles))
 
     # Create xx_codes mapping from the unique alleles in 2-field column
     xx_df = pd.DataFrame(allele_df['2d'].unique(), columns=['Allele'])
@@ -249,8 +262,6 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
 
     # Save this version of the valid alleles
     db.save_set(db_connection, 'alleles', valid_alleles, 'allele')
-    # Save this version of the who alleles
-    db.save_set(db_connection, 'who_alleles', who_alleles, 'allele')
     # Save this version of xx codes
     flat_xx_codes = {k: '/'.join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator)))
                      for k, v in xx_codes.items()}
@@ -258,6 +269,9 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
                  ('allele_1d', 'allele_list'))
 
     # W H O
+    who_alleles = set(allele_df['Allele'])
+    # Save this version of the who alleles
+    db.save_set(db_connection, 'who_alleles', who_alleles, 'allele')
     # Create WHO mapping from the unique alleles in the 1-field column
     unique_alleles = allele_df['Allele'].unique()
     who_df1 = pd.DataFrame(unique_alleles, columns=['Allele'])
@@ -271,10 +285,10 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # Combine n-field dataframes in 1
 
     # Create g_codes expansion mapping from the same tables used to reduce to G
-    g_df = pd.DataFrame(list(ars_mappings.g_group.items()),columns = ['Allele','nd']) 
+    g_df = pd.DataFrame(list(ars_mappings.g_group.items()), columns=['Allele', 'nd'])
 
     # Create p_codes expansion mapping from the p_group table
-    p_df = pd.DataFrame(list(ars_mappings.p_group.items()),columns = ['Allele','nd']) 
+    p_df = pd.DataFrame(list(ars_mappings.p_group.items()), columns=['Allele', 'nd'])
 
     who_codes = pd.concat([who_df1, who_df2, who_df3, g_df, p_df])
 
@@ -384,8 +398,8 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
                               names=['Locus', 'Allele', 'USA', 'PSA', 'ASA'],
                               index_col=False)
 
-        # Remove 0 and ?
-        df_sero = df_sero[(df_sero != '0') & (df_sero != '?')]
+        # Remove 0 and ? from USA
+        df_sero = df_sero[(df_sero['USA'] != '0') & (df_sero['USA'] != '?')]
         df_sero['Allele'] = df_sero['Locus'] + df_sero['Allele']
 
         usa = df_sero[['Locus', 'Allele', 'USA']].dropna()
@@ -394,13 +408,13 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
         psa = df_sero[['Locus', 'Allele', 'PSA']].dropna()
         psa['PSA'] = psa['PSA'].apply(lambda row: row.split('/'))
         psa = psa.explode('PSA')
-        psa = psa[(psa != '0') & (psa != '?')].dropna()
+        psa = psa[(psa['PSA'] != '0') & (psa['PSA'] != '?')].dropna()
         psa['Sero'] = psa['Locus'] + psa['PSA']
 
         asa = df_sero[['Locus', 'Allele', 'ASA']].dropna()
         asa['ASA'] = asa['ASA'].apply(lambda x: x.split('/'))
         asa = asa.explode('ASA')
-        asa = asa[(asa != '0') & (asa != '?')].dropna()
+        asa = asa[(asa['ASA'] != '0') & (asa['ASA'] != '?')].dropna()
         asa['Sero'] = asa['Locus'] + asa['ASA']
 
         sero_mapping_combined = pd.concat([usa[['Sero', 'Allele']],
