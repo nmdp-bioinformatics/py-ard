@@ -230,7 +230,7 @@ class ARD(object):
             if len(allele_fields) == 2:
                 return allele
             # If the 2 field reduction is unambiguous, reduce to 2 field level
-            allele_2_fields = get_n_field_allele(allele, 2, preserve_expression=True)
+            allele_2_fields = dr.get_n_field_allele(allele, 2)
             if self._is_valid_allele(allele_2_fields):
                 return allele_2_fields
             else:
