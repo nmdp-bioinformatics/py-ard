@@ -41,13 +41,6 @@ ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 code_mapping_tables = ["alleles", "xx_codes", "who_alleles", "who_group", ]
 
 
-def get_3field_allele(a: str) -> str:
-    return get_n_field_allele(a, 3)
-
-
-def get_2field_allele(a: str) -> str:
-    return get_n_field_allele(a, 2)
-
 def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     if db.tables_exist(db_connection, ars_mapping_tables):
         dup_g = db.load_dict(db_connection, table_name='dup_g', columns=('allele', 'g_group'))
@@ -454,17 +447,21 @@ def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
 expression_chars = ['N', 'Q', 'L', 'S']
 
 
-def get_n_field_allele(allele: str, n: int) -> str:
+def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
     """
     Given an HLA allele of >= n field, return n field allele.
     Preserve the expression character if it exists
-
     :param allele: Original allele
     :param n: n number of fields to reduce to
     :return: trimmed to n fields of the original allele
     """
     last_char = allele[-1]
     fields = allele.split(':')
+    if preserve_expression and \
+            last_char in expression_chars and len(fields) > n:
+        return ':'.join(fields[0:n]) + last_char
+    else:
+        return ':'.join(fields[0:n])
 
 def get_3field_allele(a: str) -> str:
     return get_n_field_allele(a, 3)

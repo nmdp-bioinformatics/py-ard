@@ -252,8 +252,14 @@ class ARD(object):
             if len(allele_fields) == 2:
                 return allele
             # If the 2 field reduction is unambiguous, reduce to 2 field level
-            allele_2_fields = dr.get_n_field_allele(allele, 2)
+            allele_2_fields = dr.get_n_field_allele(allele, 2, preserve_expression=True)
+            # this will return false for A*01:04N
+            # because it is not valid WHO
+            # py-ard should not output invalid WHO
             if self._is_valid_allele(allele_2_fields):
+                return allele_2_fields
+            # for U2 redux allow it if it is valid without the expr char
+            elif self._is_valid_allele(allele_2_fields[:-1]):
                 return allele_2_fields
             else:
                 # If ambiguous, reduce to G group level
@@ -293,8 +299,8 @@ class ARD(object):
                                    key=functools.cmp_to_key(smart_sort_comparator)),"|"))
 
         if re.search(r"\+", glstring):
-            return "+".join(uniq(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")],
-                                   key=functools.cmp_to_key(smart_sort_comparator)),"+"))
+            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")],
+                                   key=functools.cmp_to_key(smart_sort_comparator)))
 
         if re.search("~", glstring):
             return "~".join(uniq([self.redux_gl(a, redux_type) for a in glstring.split("~")],"~"))
