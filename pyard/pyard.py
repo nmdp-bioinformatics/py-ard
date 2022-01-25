@@ -24,7 +24,7 @@
 import functools
 import sys
 import re
-from typing import Iterable, Literal
+from typing import Iterable
 
 from . import db
 from . import data_repository as dr
@@ -61,7 +61,8 @@ reduction_types = (
 )
 
 # Typing information
-VALID_REDUCTION_TYPES = Literal['G', 'lg', 'lgx', 'W', 'exon', 'U2']
+# Removing since Literal not supported for Python < 3.8
+# VALID_REDUCTION_TYPES = Literal['G', 'lg', 'lgx', 'W', 'exon', 'U2']
 
 
 def validate_reduction_type(ars_type):
@@ -128,7 +129,7 @@ class ARD(object):
         self.db_connection.close()
 
     @functools.lru_cache(maxsize=max_cache_size)
-    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux(self, allele: str, redux_type) -> str:
         """
         Does ARS reduction with allele and ARS type
 
@@ -218,7 +219,7 @@ class ARD(object):
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
     @functools.lru_cache(maxsize=max_cache_size)
-    def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux_gl(self, glstring: str, redux_type) -> str:
         """
         Does ARS reduction with gl string and ARS type
 
