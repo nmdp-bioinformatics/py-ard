@@ -163,15 +163,24 @@ class ARD(object):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]  # does this test for validity?
         if redux_type == "G":
+            # if this allele is in a G-group, return it
+            # otherwise pass through
             if allele in self.ars_mappings.g_group:
                 if allele in self.ars_mappings.dup_g:
                     return self.ars_mappings.dup_g[allele]
                 else:
                     return self.ars_mappings.g_group[allele]
-            if allele.endswith(expression_chars) and not self._is_valid_allele(allele):
-                # remove the last character
-                allele = allele[:-1]
-                return self.redux(allele, redux_type)
+                # handle shortnulls
+            elif allele.endswith(expression_chars) and not self._is_valid_allele(allele):
+                ex = allele[-1]
+                wg = self.who_group[allele[:-1]]
+                ea = []
+                for al in wg:
+                    if al.endswith(ex):
+                        ea.append(al) 
+                return self.redux_gl("/".join(ea), redux_type)
+            else:
+                return allele
         elif redux_type == "lg":
             if allele.endswith(expression_chars) and not self._is_valid_allele(allele):
                 # remove the last character
@@ -216,11 +225,14 @@ class ARD(object):
             if allele in self.ars_mappings.exon_group:
                 return self.ars_mappings.exon_group[allele]
             elif allele.endswith(expression_chars) and not self._is_valid_allele(allele):
-                # remove the last character
-                allele = allele[:-1]
-                # in order to get the full list of exon level alleles
                 # need to expand to the full W level and then reduce
-                return self.redux_gl(self.redux(allele, "W"), redux_type)
+                ex = allele[-1]
+                wg = self.who_group[allele[:-1]]
+                ea = []
+                for al in wg:
+                    if al.endswith(ex):
+                        ea.append(al) 
+                return self.redux_gl("/".join(ea), redux_type)
             else:
                 # for 'exon' return allele with only first 3 fields
                 return ':'.join(allele.split(':')[0:3])
@@ -507,8 +519,6 @@ class ARD(object):
                     # reduce to 2 field for things like DPB1*28:01:01G
                     allele = ':'.join(allele.split(':')[0:2])
             # handle registry use of movable expression characters
-            # TODO: more strictly require the expression character 
-            # in a longer named variant
             if not self._is_valid_allele(allele) and allele.endswith(expression_chars):
                 # remove the last character
                 allele = allele[:-1]
