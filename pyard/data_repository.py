@@ -204,17 +204,13 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # All 2-field, 3-field and the original Alleles are considered valid alleles
     allele_df['2d'] = allele_df['Allele'].apply(get_2field_allele)
     allele_df['3d'] = allele_df['Allele'].apply(get_3field_allele)
-    # For all Alleles with expression characters, find 2-field valid alleles
-    exp_alleles = allele_df[allele_df['Allele'].apply(
-        lambda a: a[-1] in expression_chars and number_of_fields(a) > 2)]
     # Create valid set of alleles:
     # All full length alleles
     # All 3rd and 2nd field versions of longer alleles
     # All 2-field version of alleles with expression that can be reduced
     valid_alleles = set(allele_df['Allele']). \
         union(set(allele_df['2d'])). \
-        union(set(allele_df['3d'])). \
-        union(set(exp_alleles))
+        union(set(allele_df['3d']))
 
     # Create xx_codes mapping from the unique alleles in 2-field column
     xx_df = pd.DataFrame(allele_df['2d'].unique(), columns=['Allele'])
