@@ -70,6 +70,16 @@ def validate_reduction_type(ars_type):
     if ars_type not in reduction_types:
         raise ValueError(f'Reduction type needs to be one of {reduction_types}')
 
+# generate a unique list over a delimiter
+# e.g. [A, A/B] => [ A, B ]
+def uniq(input, delim):
+    output = []
+    for x in input:
+        for xl in x.split(delim):
+            if xl not in output:
+                output.append(xl)
+    return output
+
 
 class ARD(object):
     """
@@ -275,23 +285,23 @@ class ARD(object):
             raise InvalidTypingError(f"{glstring} is not a valid typing.")
 
         if re.search(r"\^", glstring):
-            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return "^".join(uniq(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]),
+                                   key=functools.cmp_to_key(smart_sort_comparator)), "^"))
 
         if re.search(r"\|", glstring):
-            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return "|".join(uniq(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]),
+                                   key=functools.cmp_to_key(smart_sort_comparator)),"|"))
 
         if re.search(r"\+", glstring):
-            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")],
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return "+".join(uniq(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")],
+                                   key=functools.cmp_to_key(smart_sort_comparator)),"+"))
 
         if re.search("~", glstring):
-            return "~".join([self.redux_gl(a, redux_type) for a in glstring.split("~")])
+            return "~".join(uniq([self.redux_gl(a, redux_type) for a in glstring.split("~")],"~"))
 
         if re.search("/", glstring):
-            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return "/".join(uniq(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]),
+                                   key=functools.cmp_to_key(smart_sort_comparator)),"/"))
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
