@@ -217,7 +217,7 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
-    def sorted_unique_gl(self, gl: List[str], delim: str) -> str:
+    def sorted_unique_gl(self, gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
@@ -229,19 +229,19 @@ class ARD(object):
         """
         if delim == '~':
             # No need to sort
-            return delim.join(gl)
+            return delim.join(gls)
         
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
-            return delim.join(sorted(gl, key=functools.cmp_to_key(smart_sort_comparator)))
+            return delim.join(sorted(gls, key=functools.cmp_to_key(smart_sort_comparator)))
 
         # generate a unique list over a delimiter
         # e.g. [A, A/B] => [ A, B ] for / delimiter
-        uniq_gls = []
-        for g in gl:
-            uniq_gls += g.split(delim)
-        uniq_gls = set(uniq_gls)
-        return delim.join(sorted(uniq_gls, key=functools.cmp_to_key(smart_sort_comparator)))
+        all_gls = []
+        for gl in gls:
+            all_gls += gl.split(delim)
+        unique_gls = set(all_gls)
+        return delim.join(sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator)))
 
     @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
