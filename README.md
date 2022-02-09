@@ -3,6 +3,14 @@
 
 ARD reduction for HLA with Python
 
+`py-ard` works with Python 3.8 and higher.
+
+## Install from PyPi
+
+```shell
+pip install py-ard
+```
+
 ## Install from source
 
 ```shell
@@ -11,13 +19,6 @@ source venv/bin/activate
 
 python setup.py install
 ```
-
-## Install from PyPi
-
-```shell
-pip install py-ard
-```
-
 ## Testing
 
 To run behavior-driven development (BDD) tests locally via the behave framework, you'll need to set up a virtual
@@ -30,9 +31,14 @@ pip install -r test-requirements.txt
 
 # Running Behave and all BDD tests
 behave
+
+# Run unit-tests
+python -m unittest tests.test_pyard
 ```
 
 ## Using `py-ard` from Python code
+
+`py-ard` can be used in a program to reduce/expand HLA GL String representation. If pyard discovers an invalid Allele, it'll throw an Invalid Exception, not silently return an empty result.
 
 ### Initialize `py-ard`
 
@@ -42,8 +48,7 @@ Import `pyard` package.
 import pyard
 ```
 
-The cache size of pre-computed reductions can be changed from the default of 1000
-
+The cache size of pre-computed reductions can be changed from the default of 1000 (_not working_: will be fixed in a later release.)
 ```python
 pyard.max_cache_size = 1_000_000
 ```
@@ -74,7 +79,7 @@ ard = pyard.ARD()
 
 ### Reduce Typings
 
-Reduce a single locus HLA Typing
+Reduce a single locus HLA Typing.
 
 ```python
 allele = "A*01:01:01"
@@ -107,13 +112,13 @@ ard.redux_gl('B14', 'lg')
 
 ## Valid Reduction Types
 
-|Reduction Type | Description |
-|-------------- |-------------|
-| `G` | Reduce to G Group Level |
-| `lg` | Reduce to 2 field ARD level (append `g`) |
-| `lgx` | Reduce to 2 field ARD level |
-| `W` | Reduce/Expand to 3 field WHO nomenclature level|
-| `exon` | Reduce/Expand to exon level |
+| Reduction Type | Description                                     |
+|----------------|-------------------------------------------------|
+| `G`            | Reduce to G Group Level                         |
+| `lg`           | Reduce to 2 field ARD level (append `g`)        |
+| `lgx`          | Reduce to 2 field ARD level                     |
+| `W`            | Reduce/Expand to 3 field WHO nomenclature level |
+| `exon`         | Reduce/Expand to exon level                     |
 
 # Command Line Tools
 
@@ -160,6 +165,12 @@ $ pyard-import --v2-to-v3-mapping map2to3.csv
 $ pyard-import --db-version 3450 --refresh-mac
 ```
 
+### Show the status of all `py-ard` databases
+
+```shell
+$ pyard-status
+```
+
 ### Reduce a GL String from command line
 
 ```shell
@@ -172,10 +183,6 @@ DRB1*08:01:01G/DRB1*08:02:01G/DRB1*08:03:02G/DRB1*08:04:01G/DRB1*08:05/ ...
 $ pyard -v 3290 --gl 'A1' -r lgx # For a particular version of DB
 A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
 ```
+### Batch Reduce a CSV file
 
-### Show the status of all `py-ard` databases
-
-```shell
-$ pyard-status
-```
-
+`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run. 
