@@ -24,7 +24,7 @@
 import functools
 import sys
 import re
-from typing import Iterable, Literal
+from typing import Iterable, Literal, List
 
 from . import db
 from . import data_repository as dr
@@ -217,6 +217,32 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
+    def sorted_unique_gl(self, gl: List[str], delim: str) -> str:
+        """
+        Make a list of sorted unique GL Strings separated by delim.
+        As the list may itself contains elements that are separated by the
+        delimiter, split the elements first and then make them unique.
+
+        :param gl: List of gl strings that need to be joined by delim
+        :param delim: Delimiter of concern
+        :return: a GL string sorted and made of unique GL
+        """
+        if delim == '~':
+            # No need to sort
+            return delim.join(gl)
+        
+        if delim == "+":
+            # No need to make unique. eg. homozygous cases are valid for SLUGs
+            return delim.join(sorted(gl, key=functools.cmp_to_key(smart_sort_comparator)))
+
+        # generate a unique list over a delimiter
+        # e.g. [A, A/B] => [ A, B ] for / delimiter
+        uniq_gls = []
+        for g in gl:
+            uniq_gls += g.split(delim)
+        uniq_gls = set(uniq_gls)
+        return delim.join(sorted(uniq_gls, key=functools.cmp_to_key(smart_sort_comparator)))
+
     @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
@@ -236,23 +262,19 @@ class ARD(object):
             raise InvalidTypingError(f"{glstring} is not a valid typing.")
 
         if re.search(r"\^", glstring):
-            return "^".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("^")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("^")], "^")
 
         if re.search(r"\|", glstring):
-            return "|".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("|")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("|")], "|")
 
         if re.search(r"\+", glstring):
-            return "+".join(sorted([self.redux_gl(a, redux_type) for a in glstring.split("+")],
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("+")], "+")
 
         if re.search("~", glstring):
-            return "~".join([self.redux_gl(a, redux_type) for a in glstring.split("~")])
+            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("~")], "~")
 
         if re.search("/", glstring):
-            return "/".join(sorted(set([self.redux_gl(a, redux_type) for a in glstring.split("/")]),
-                                   key=functools.cmp_to_key(smart_sort_comparator)))
+            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("/")], "/")
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
