@@ -387,15 +387,28 @@ def to_serological_name(locus_name: str):
 
 def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
     if not db.table_exists(db_connection, 'serology_mapping'):
-        # Load WMDA serology mapping data
+        """
+        Read `rel_dna_ser.txt` file that contains alleles and their serological equivalents.
+         
+        The fields of the Alleles->Serological mapping file are:
+           Locus - HLA Locus
+           Allele - HLA Allele Name
+           USA - Unambiguous Serological Antigen associated with allele
+           PSA - Possible Serological Antigen associated with allele
+           ASA - Assumed Serological Antigen associated with allele
+           EAE - Expert Assigned Exceptions in search determinants of some registries
+        
+        EAE is ignored when generating the serology map.
+        """
         rel_dna_ser_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/rel_dna_ser.txt'
+        # Load WMDA serology mapping data from URL
         df_sero = pd.read_csv(rel_dna_ser_url, sep=';', skiprows=6,
-                              names=['Locus', 'Allele', 'USA', 'PSA', 'ASA'],
+                              names=['Locus', 'Allele', 'USA', 'PSA', 'ASA', 'EAE'],
                               index_col=False)
 
         # Remove 0 and ? from USA
         df_sero = df_sero[(df_sero['USA'] != '0') & (df_sero['USA'] != '?')]
-        df_sero['Allele'] = df_sero['Locus'] + df_sero['Allele']
+        df_sero['Allele'] = df_sero.loc[:, 'Locus'] + df_sero.loc[:, 'Allele']
 
         usa = df_sero[['Locus', 'Allele', 'USA']].dropna()
         usa['Sero'] = usa['Locus'] + usa['USA']
