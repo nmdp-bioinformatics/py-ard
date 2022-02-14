@@ -45,6 +45,7 @@ setup(
     version='0.7.0',
     description="ARD reduction for HLA with Python",
     long_description=readme + '\n\n' + history,
+    long_description_content_type="text/markdown",
     author="CIBMTR",
     author_email='cibmtr-pypi@nmdp.org',
     url='https://github.com/nmdp-bioinformatics/py-ard',
