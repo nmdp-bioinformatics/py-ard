@@ -1,3 +1,14 @@
+<a name="0.7.0"></a>
+# [Stricter Data Validation (0.7.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.0) - 14 Feb 2022
+
+Version `0.7.0` has stricter data validation. It will not silently fail by returning an empty `''` string. It'll return of the  `Invalid` exceptions in `pyard.exceptions` when calling `redux_gl` method with invalid GL String. 
+
+See [CHANGELOG.md](https://github.com/nmdp-bioinformatics/py-ard/blob/master/CHANGELOG.md) for full changelog.
+
+
+[Changes][0.7.0]
+
+
 <a name="0.6.11"></a>
 # [Fix for IMGT URL Change (0.6.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.11) - 24 Jan 2022
 
@@ -279,6 +290,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.7.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.0
 [0.6.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.8...0.6.9
