@@ -27,7 +27,6 @@
     "r_dpb1_typ2"
   ],
   "redux_type": "lgx",
-  "apply_compression": "gzip",
   "reduce_serology": false,
   "reduce_v2": true,
   "convert_v2_to_v3": false,
@@ -40,5 +39,6 @@
   "output_file_format": "csv",
   "new_column_for_redux": false,
   "map_drb345_to_drbx": false,
+  "apply_compression": "gzip",
   "verbose_log": true
 }
