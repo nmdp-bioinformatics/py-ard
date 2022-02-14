@@ -1,10 +1,7 @@
 <a name="0.7.0"></a>
 # [Stricter Data Validation (0.7.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.0) - 14 Feb 2022
 
-Version `0.7.0` has stricter data validation. It will not silently fail by returning an empty `''` string. It'll return of the  `Invalid` exceptions in `pyard.exceptions` when calling `redux_gl` method with invalid GL String. 
-
-See [CHANGELOG.md](https://github.com/nmdp-bioinformatics/py-ard/blob/master/CHANGELOG.md) for full changelog.
-
+Stricter Validation of Data
 
 [Changes][0.7.0]
 
