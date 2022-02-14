@@ -1,9 +1,9 @@
-<a name="0.7.0"></a>
-# [Stricter Data Validation (0.7.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.0) - 14 Feb 2022
+<a name="0.7.1"></a>
+# [Stricter Data Validation (0.7.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.1) - 14 Feb 2022
 
-Stricter Validation of Data
+Stricter Data Validation
 
-[Changes][0.7.0]
+[Changes][0.7.1]
 
 
 <a name="0.6.11"></a>
@@ -287,7 +287,7 @@ yes
 [Changes][0.0.14]
 
 
-[0.7.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.0
+[0.7.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.1
 [0.6.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.8...0.6.9
