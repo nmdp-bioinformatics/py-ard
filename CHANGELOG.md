@@ -1,3 +1,11 @@
+<a name="0.7.1.1"></a>
+# [Add reduce_2field reduce option (0.7.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.1.1) - 23 Feb 2022
+
+Batch csv `pyard-reduce-csv` takes in `reduce_2field` option to reduce 2 fields alleles like `B*15:220`, `DPB1*104:01` and `A*02:642`
+
+[Changes][0.7.1.1]
+
+
 <a name="0.7.2"></a>
 # [Stricter Data Validation (0.7.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.2) - 14 Feb 2022
 
@@ -289,6 +297,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.7.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.2...0.7.1.1
 [0.7.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.2
 [0.6.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.9...0.6.10
