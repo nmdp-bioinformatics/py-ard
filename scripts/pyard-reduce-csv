@@ -49,7 +49,9 @@ def is_3field(allele: str) -> bool:
 
 
 def is_2field(allele: str) -> bool:
-    return len(allele.split(':')) == 2
+    fields = allele.split(':')
+    # Check to see the 2 fields are digits to distinguish from MAC.
+    return len(fields) == 2 and fields[0].isdigit() and fields[1].isdigit()
 
 
 def is_P(allele: str) -> bool:
