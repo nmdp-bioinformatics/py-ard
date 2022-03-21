@@ -1,3 +1,11 @@
+<a name="0.7.3"></a>
+# [ Fix batch regression error  (0.7.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.3) - 21 Mar 2022
+
+ Fix regression error for MAC reduction #152 
+
+[Changes][0.7.3]
+
+
 <a name="0.7.1.1"></a>
 # [Add reduce_2field reduce option (0.7.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.1.1) - 23 Feb 2022
 
@@ -297,6 +305,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.7.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.1.1...0.7.3
 [0.7.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.2...0.7.1.1
 [0.7.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.2
 [0.6.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.10...0.6.11
