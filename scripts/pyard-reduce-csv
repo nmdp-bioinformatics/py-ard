@@ -125,7 +125,7 @@ def reduce(allele, locus, column_name):
                 print(e)
             message = f"Failed reducing '{locus_allele}' in column {column_name}"
             print(message)
-            failure_summary_messages.append(message)
+            failed_to_reduce_alleles.append((column_name, locus_allele))
             return allele
         # print(f"reduced to '{reduced_allele}'")
         if reduced_allele:
@@ -210,7 +210,7 @@ if __name__ == '__main__':
                      header=0, dtype=str,
                      keep_default_na=False)
 
-    failure_summary_messages = []
+    failed_to_reduce_alleles = []
     # Reduce each of the specified columns
     for column in ard_config["columns_to_reduce_in_csv"]:
         if verbose:
@@ -245,12 +245,20 @@ if __name__ == '__main__':
         out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
         df.to_csv(out_file_name, index=False, compression=ard_config["apply_compression"])
 
-    if len(failure_summary_messages) == 0:
+    if len(failed_to_reduce_alleles) == 0:
         print("No Errors", file=sys.stderr)
     else:
         print("Summary", file=sys.stderr)
         print("-------", file=sys.stderr)
-        for message in failure_summary_messages:
-            print("\t", message, file=sys.stderr)
+        print(f"{len(failed_to_reduce_alleles)} alleles failed to reduce.", file=sys.stderr)
+        print("| Column  Name    |      Allele      |      Did you mean ?       ", file=sys.stderr)
+        print("| --------------- | ---------------- | ------------------------- ", file=sys.stderr)
+        for column_name, locus_allele in failed_to_reduce_alleles:
+            similar_allele_names = pyard.db.similar_alleles(ard.db_connection, locus_allele)
+            if similar_allele_names:
+                similar_allele_names = ",".join(sorted(similar_allele_names, reverse=True))
+            else:
+                similar_allele_names = 'NA'
+            print(f"| {column_name:15} | {locus_allele:16} | {similar_allele_names} ", file=sys.stderr)
     # Done
     print(f"Saved result to file:{out_file_name}")

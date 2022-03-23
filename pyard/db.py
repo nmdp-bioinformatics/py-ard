@@ -138,6 +138,7 @@ def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
     cursor.close()
     return result[0] > 0
 
+
 def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[str]:
     """
     Look up Serology in the database and return corresponding list of alleles.
@@ -155,6 +156,7 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     else:
         alleles = []
     return alleles
+
 
 def is_valid_serology(connection: sqlite3.Connection, serology: str) -> bool:
     """
@@ -287,3 +289,21 @@ def load_dict(connection: sqlite3.Connection, table_name: str, columns: Tuple[st
     table_as_dict = {k: v for k, v in cursor.fetchall()}
     cursor.close()
     return table_as_dict
+
+
+def similar_alleles(connection: sqlite3.Connection, allele_name: str) -> Set[str]:
+    """
+    Find similar alleles starting with the provided allele_name.
+
+    :param connection: db connection of type sqlite.Connection
+    :param allele_name: Allele name to use as a prefix to find similar alleles
+    :return: list of similar alleles
+    """
+    query = f"SELECT allele FROM alleles WHERE allele LIKE ?"
+    cursor = connection.execute(query, (f"{allele_name}%",))
+    result = cursor.fetchall()
+    # fetchall() returns a list of tuples of results
+    # e.g. [('C*04:09N',)]
+    # Get out the first value of the tuple from the result list
+    alleles = set(map(lambda t: t[0], result))
+    return alleles
