@@ -1,3 +1,23 @@
+<a name="0.7.4"></a>
+# [Summary Table for Batch (0.7.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.4) - 23 Mar 2022
+
+Show summary table for failed alleles.
+```
+Summary
+-------
+35 alleles failed to reduce.
+| Column  Name    |      Allele      |      Did you mean ?
+| --------------- | ---------------- | -------------------------
+| r_A_TYPE1       | A*24:09          | A*24:09N
+| r_A_TYPE1       | A*33:157         | A*33:157N
+| r_A_TYPE1       | A*26:25          | A*26:25N
+| r_A_TYPE1       | A*23:19          | A*23:19N
+| r_A_TYPE1       | A*24:02:01:02    | A*24:02:01:02L
+```
+
+[Changes][0.7.4]
+
+
 <a name="0.7.3"></a>
 # [ Fix batch regression error  (0.7.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.3) - 21 Mar 2022
 
@@ -305,6 +325,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.7.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.1.1...0.7.3
 [0.7.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.2...0.7.1.1
 [0.7.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.6.11...0.7.2
