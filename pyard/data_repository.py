@@ -331,12 +331,10 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
             for an_allele in who_group[who]:
                 # if an allele in a who_group has an expression character but the group allele doesnt, 
                 # add it to shortnulls
-                if an_allele[-1] in expression_chars:
+                last_char = an_allele[-1]
+                if last_char in expression_chars:
                     # e.g. DRB4*01:03:01:02N
-                    exp_char = an_allele[-1]
-                    if exp_char not in expression_chars_found:
-                        expression_chars_found.add(exp_char)
-                            
+                    expression_chars_found.add(exp_char)
                     # e.g. DRB4*01:03N 
                     a_shortnull = who+exp_char
                     # add this allele to the set that this short null exapands to 
