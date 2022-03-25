@@ -211,7 +211,15 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
                                 ('allele_1d', 'allele_list'))
         xx_codes = {k: v.split('/') for k, v in xx_codes.items()}
 
-        return valid_alleles, who_alleles, xx_codes, who_group
+        shortnulls = db.load_dict(db_connection, 'shortnulls', 
+                                ('shortnull', 'allele_list'))
+        shortnulls = {k: v.split('/') for k, v in shortnulls.items()}
+
+        exp_alleles = db.load_dict(db_connection, 'exp_alleles', 
+                                ('exp_allele', 'allele_list'))
+        exp_alleles = {k: v.split('/') for k, v in exp_alleles.items()}
+
+        return valid_alleles, who_alleles, xx_codes, who_group, shortnulls, exp_alleles
 
     # Create a Pandas DataFrame from the mac_code list file
     # Skip the header (first 6 lines) and use only the Allele column
@@ -229,6 +237,12 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     exp_alleles = allele_df[allele_df['Allele'].apply(
         lambda a: a[-1] in expression_chars and number_of_fields(a) > 2)]
     exp_alleles = exp_alleles.groupby('2d').apply(expression_reduce).dropna()
+
+    #flat_exp_alleles = {k: '/'.join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator)))
+    #                 for k, v in exp_alleles.items()}
+    db.save_dict(db_connection, 'exp_alleles', exp_alleles,
+                 ('exp_allele', 'allele_list'))
+
     # Create valid set of alleles:
     # All full length alleles
     # All 3rd and 2nd field versions of longer alleles
@@ -304,7 +318,37 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     db.save_dict(db_connection, 'who_group', flat_who_group,
                  columns=('who', 'allele_list'))
 
-    return valid_alleles, who_alleles, xx_codes, who_group
+    # shortnulls
+    # scan WHO alleles for those with expression characters and make shortnull mappings 
+    # DRB4*01:03N | DRB4*01:03:01:02N/DRB4*01:03:01:13N 
+    # DRB5*01:08N | DRB5*01:08:01N/DRB5*01:08:02N 
+    shortnulls = dict()
+    for k in who_group:
+        # e.g. DRB4*01:03
+        ea=[]
+        expression_chars_found = dict()
+        for al in who_group[k]:
+            # if an allele in a who_group has an expression character but the group allele doesnt, 
+            # add it to shortnulls
+            if al[-1] in expression_chars and k[-1] not in expression_chars and k[-1] not in ['G', 'P'] and ":" in k:
+                # e.g. DRB4*01:03:01:02N
+                ex = al[-1]
+                if ex not in expression_chars_found:
+                    expression_chars_found[ex]=1
+                        
+                # e.g. DRB4*01:03N 
+                ek = k+ex
+                # add this allele to the set that this short null exapands to 
+                ea.append(al) 
+        # only create a shortnull if there is one expression character in this who_group
+        # there is nothing to be done for who_groups that have both Q and L for example
+        if ea and len(expression_chars_found.keys()) ==1:    
+            shortnulls[ek] = "/".join(ea)
+
+    db.save_dict(db_connection, 'shortnulls', shortnulls,
+                 ('shortnull', 'allele_list'))
+
+    return valid_alleles, who_alleles, xx_codes, who_group, shortnulls, exp_alleles
 
 
 def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):

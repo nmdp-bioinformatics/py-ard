@@ -47,6 +47,7 @@ default_config = {
     "reduce_P": True,
     "reduce_XX": True,
     "reduce_MAC": True,
+    "reduce_shortnull": False,
     "map_drb345_to_drbx": True,
     "verbose_log": True
 }
@@ -100,7 +101,7 @@ class ARD(object):
         # Load ARS mappings
         self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
-        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group = \
+        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group, self.shortnulls, self.exp_alleles = \
             dr.generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings)
 
         # Load Serology mappings
@@ -210,6 +211,8 @@ class ARD(object):
                 # If ambiguous, reduce to G group level
                 return self.redux(allele, 'lgx')
         else:
+            # TODO: make this an explicit lookup to the g_group or p_group table
+            # just having a shorter name be valid is not stringent enough
             if allele.endswith(('P', 'G')):
                 allele = allele[:-1]
             if self._is_valid_allele(allele):
@@ -311,6 +314,14 @@ class ARD(object):
             else:
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
 
+        # Handle shortnulls
+        if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
+            return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
+
+        # Handle exp_alleles
+        #if self.is_exp_allele(glstring):
+        #    return self.redux_gl("/".join(self.exp_alleles[glstring]), redux_type)
+
         return self.redux(glstring, redux_type)
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
@@ -392,6 +403,23 @@ class ARD(object):
         :return: bool to indicate if allele is valid
         """
         return allele in self.valid_alleles
+
+    def is_shortnull(self, allele):
+        """
+        Test if allele is valid in list of shortnull alleles and 
+        the reduce_shortnull is configured to True (WMDA rules)
+        :param allele: Allele to test
+        :return: bool to indicate if allele is valid
+        """
+        return allele in self.shortnulls and self._config["reduce_shortnull"]
+
+    def is_exp_allele(self, allele):
+        """
+        Test if allele is valid as a shortening (WHO rules)
+        :param allele: Allele to test
+        :return: bool to indicate if allele is valid
+        """
+        return allele in self.exp_alleles
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
@@ -491,16 +519,15 @@ class ARD(object):
         if not self.is_mac(allele) and \
                 not self.is_XX(allele) and \
                 not self.is_serology(allele) and \
-                not self.is_v2(allele):
+                not self.is_v2(allele) and \
+                not self.is_exp_allele(allele) and \
+                not self.is_shortnull(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
                 # remove the last character
                 allele = allele[:-1]
                 if self._is_valid_allele(allele):
                     return True
-                else:
-                    # reduce to 2 field for things like DPB1*28:01:01G
-                    allele = ':'.join(allele.split(':')[0:2])
             return self._is_valid_allele(allele)
         return True
 
