@@ -30,7 +30,7 @@ from . import db
 from . import data_repository as dr
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import get_n_field_allele
+from .misc import get_n_field_allele, get_2field_allele
 
 HLA_regex = re.compile("^HLA-")
 
@@ -47,7 +47,7 @@ default_config = {
     "reduce_P": True,
     "reduce_XX": True,
     "reduce_MAC": True,
-    "reduce_shortnull": False,
+    "reduce_shortnull": True,
     "map_drb345_to_drbx": True,
     "verbose_log": True
 }
@@ -319,8 +319,8 @@ class ARD(object):
             return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
 
         # Handle exp_alleles
-        #if self.is_exp_allele(glstring):
-        #    return self.redux_gl("/".join(self.exp_alleles[glstring]), redux_type)
+        if self.is_exp_allele(glstring):
+            return self.redux_gl("/".join(self.exp_alleles[glstring]), redux_type)
 
         return self.redux(glstring, redux_type)
 
@@ -528,6 +528,11 @@ class ARD(object):
                 allele = allele[:-1]
                 if self._is_valid_allele(allele):
                     return True
+                else: 
+                    allele = get_2field_allele(allele)
+                    if self._is_valid_allele(allele):
+                        return True
+
             return self._is_valid_allele(allele)
         return True
 
