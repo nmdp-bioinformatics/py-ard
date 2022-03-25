@@ -316,11 +316,11 @@ class ARD(object):
 
         # Handle shortnulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
-            return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
+            return self.redux_gl(self.shortnulls[glstring], redux_type)
 
         # Handle exp_alleles
         if self.is_exp_allele(glstring):
-            return self.redux_gl("/".join(self.exp_alleles[glstring]), redux_type)
+            return self.redux_gl(self.exp_alleles[glstring], redux_type)
 
         return self.redux(glstring, redux_type)
 
