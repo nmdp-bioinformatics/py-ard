@@ -323,32 +323,32 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     # DRB4*01:03N | DRB4*01:03:01:02N/DRB4*01:03:01:13N 
     # DRB5*01:08N | DRB5*01:08:01N/DRB5*01:08:02N 
     shortnulls = dict()
-    for k in who_group:
-        if k[-1] not in expression_chars and k[-1] not in ['G', 'P'] and ":" in k:
-            continue
+    for who in who_group:
         # e.g. DRB4*01:03
         expression_alleles=[]
         expression_chars_found = set()
-        for an_allele in who_group[k]:
-            # if an allele in a who_group has an expression character but the group allele doesnt, 
-            # add it to shortnulls
-            if an_allele[-1] in expression_chars:
-                # e.g. DRB4*01:03:01:02N
-                exp_char = an_allele[-1]
-                if exp_char not in expression_chars_found:
-                    expression_chars_found.add(exp_char)
-                        
-                # e.g. DRB4*01:03N 
-                a_shortnull = k+exp_char
-                # add this allele to the set that this short null exapands to 
-                expression_alleles.append(an_allele) 
-        # only create a shortnull if there is one expression character in this who_group
-        # there is nothing to be done for who_groups that have both Q and L for example
-        if expression_alleles and expression_chars_found:
-            shortnulls[a_shortnull] = "/".join(expression_alleles)
+        if who[-1] not in expression_chars and who[-1] not in ['G', 'P'] and ":" in who:
+            for an_allele in who_group[who]:
+                # if an allele in a who_group has an expression character but the group allele doesnt, 
+                # add it to shortnulls
+                if an_allele[-1] in expression_chars:
+                    # e.g. DRB4*01:03:01:02N
+                    exp_char = an_allele[-1]
+                    if exp_char not in expression_chars_found:
+                        expression_chars_found.add(exp_char)
+                            
+                    # e.g. DRB4*01:03N 
+                    a_shortnull = who+exp_char
+                    # add this allele to the set that this short null exapands to 
+                    expression_alleles.append(an_allele) 
+            # only create a shortnull if there is one expression character in this who_group
+            # there is nothing to be done for who_groups that have both Q and L for example
+            if expression_alleles:
+                if len(expression_chars_found) ==1:
+                    shortnulls[a_shortnull] = "/".join(expression_alleles)
 
-    db.save_dict(db_connection, 'shortnulls', shortnulls,
-                 ('shortnull', 'allele_list'))
+    db.save_dict(db_connection, 'shortnulls', shortnulls, ('shortnull', 'allele_list'))
+    shortnulls = {k: v.split('/') for k, v in shortnulls.items()}
 
     return valid_alleles, who_alleles, xx_codes, who_group, shortnulls, exp_alleles
 

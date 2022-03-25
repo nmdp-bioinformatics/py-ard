@@ -316,11 +316,8 @@ class ARD(object):
 
         # Handle shortnulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
-            return self.redux_gl(self.shortnulls[glstring], redux_type)
-
-        # Handle exp_alleles
-        if self.is_exp_allele(glstring):
-            return self.redux_gl(self.exp_alleles[glstring], redux_type)
+            return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
+            #return self.redux_gl(self.shortnulls[glstring], redux_type)
 
         return self.redux(glstring, redux_type)
 
@@ -439,7 +436,7 @@ class ARD(object):
         else:
             alleles = [f'{locus_antigen}:{a}' for a in alleles]
 
-        return filter(self._is_valid_allele, alleles)
+        return list(filter(self._is_valid_allele, alleles))
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
@@ -520,7 +517,6 @@ class ARD(object):
                 not self.is_XX(allele) and \
                 not self.is_serology(allele) and \
                 not self.is_v2(allele) and \
-                not self.is_exp_allele(allele) and \
                 not self.is_shortnull(allele):
             # Alleles ending with P or G are valid_alleles
             if allele.endswith(('P', 'G')):
