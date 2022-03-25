@@ -334,15 +334,15 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
                 last_char = an_allele[-1]
                 if last_char in expression_chars:
                     # e.g. DRB4*01:03:01:02N
-                    expression_chars_found.add(exp_char)
-                    # e.g. DRB4*01:03N 
-                    a_shortnull = who+exp_char
+                    expression_chars_found.add(last_char)
                     # add this allele to the set that this short null exapands to 
                     expression_alleles.append(an_allele) 
             # only create a shortnull if there is one expression character in this who_group
             # there is nothing to be done for who_groups that have both Q and L for example
             if expression_alleles:
                 if len(expression_chars_found) ==1:
+                    # e.g. DRB4*01:03N 
+                    a_shortnull = who + list(expression_chars_found)[0]
                     shortnulls[a_shortnull] = "/".join(expression_alleles)
 
     db.save_dict(db_connection, 'shortnulls', shortnulls, ('shortnull', 'allele_list'))
