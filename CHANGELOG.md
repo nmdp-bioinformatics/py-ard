@@ -1,3 +1,16 @@
+<a name="0.7.5"></a>
+# [Support shortnull (0.7.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.5) - 26 Mar 2022
+
+Implements **shortnulls** behavior with new config variable set to `True` by default.
+
+This will address things like `DRB4*01:03N` and `DRB5*01:08N` both in terms of accepting them as valid and also by expanding them as appropriate to the list of longer alleles that have the same expression character.
+
+`DRB5*01:08N` is acceptable by **WHO** rules since all suballeles have N.
+`DRB4*01:03N` is acceptable by **WMDA** (but not WHO) rules but this needs to be handled for things like HF analysis by expansion to something valid (vs rejection) to avoid bias
+
+[Changes][0.7.5]
+
+
 <a name="0.7.4"></a>
 # [Summary Table for Batch (0.7.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.4) - 23 Mar 2022
 
@@ -325,6 +338,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.7.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.4...0.7.5
 [0.7.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.1.1...0.7.3
 [0.7.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.2...0.7.1.1
