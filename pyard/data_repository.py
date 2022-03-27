@@ -402,7 +402,8 @@ def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
         # Load the MAC file to a DataFrame
         mac_url = 'https://hml.nmdp.org/mac/files/numer.v3.zip'
         df_mac = pd.read_csv(mac_url, sep='\t', compression='zip',
-                             skiprows=3, names=['Code', 'Alleles'])
+                             skiprows=3, names=['Code', 'Alleles'],
+                             keep_default_na=False, na_values=['_'])
         # Create a dict from code to alleles
         mac = df_mac.set_index("Code")["Alleles"].to_dict()
         # Save the mac dict to db
