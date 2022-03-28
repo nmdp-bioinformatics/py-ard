@@ -23,3 +23,4 @@ Feature: MAC (Multiple Allele Code)
       | A*01:AC+A*01:AB | G     | A*01:01:01G/A*01:02+A*01:01:01G/A*01:03:01G |
       | A*01:01+A*01:AB | G     | A*01:01:01G+A*01:01:01G/A*01:02             |
       | C*05:APUF       | lg    | X                                           |
+      | DRB1*13:NA      | lgx   | DRB1*13:01/DRB1*13:02/DRB1*13:06/DRB1*13:08/DRB1*13:09/DRB1*13:10  |
