@@ -325,8 +325,7 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
     shortnulls = dict()
     for who in who_group:
         # e.g. DRB4*01:03
-        expression_alleles=[]
-        expression_chars_found = set()
+        expression_alleles = dict()
         if who[-1] not in expression_chars and who[-1] not in ['G', 'P'] and ":" in who:
             for an_allele in who_group[who]:
                 # if an allele in a who_group has an expression character but the group allele doesnt, 
@@ -334,16 +333,15 @@ def generate_alleles_and_xx_codes_and_who(db_connection: sqlite3.Connection, img
                 last_char = an_allele[-1]
                 if last_char in expression_chars:
                     # e.g. DRB4*01:03:01:02N
-                    expression_chars_found.add(last_char)
-                    # add this allele to the set that this short null exapands to 
-                    expression_alleles.append(an_allele) 
+                    a_shortnull = who + last_char
+                    if a_shortnull not in expression_alleles:
+                        expression_alleles[a_shortnull] = []
+                    expression_alleles[a_shortnull].append(an_allele)
             # only create a shortnull if there is one expression character in this who_group
             # there is nothing to be done for who_groups that have both Q and L for example
-            if expression_alleles:
-                if len(expression_chars_found) ==1:
-                    # e.g. DRB4*01:03N 
-                    a_shortnull = who + list(expression_chars_found)[0]
-                    shortnulls[a_shortnull] = "/".join(expression_alleles)
+            for a_shortnull in expression_alleles:
+                # e.g. DRB4*01:03N 
+                shortnulls[a_shortnull] = "/".join(expression_alleles[a_shortnull])
 
     db.save_dict(db_connection, 'shortnulls', shortnulls, ('shortnull', 'allele_list'))
     shortnulls = {k: v.split('/') for k, v in shortnulls.items()}

@@ -317,7 +317,6 @@ class ARD(object):
         # Handle shortnulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
             return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
-            #return self.redux_gl(self.shortnulls[glstring], redux_type)
 
         return self.redux(glstring, redux_type)
 
