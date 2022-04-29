@@ -233,7 +233,7 @@ class ARD(object):
         if delim == '~':
             # No need to sort
             return delim.join(gls)
-        
+
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
             return delim.join(sorted(gls, key=functools.cmp_to_key(smart_sort_comparator)))
@@ -296,8 +296,16 @@ class ARD(object):
             raise InvalidTypingError(f"{glstring} is not a valid V2 or Serology typing.")
 
         # Handle XX codes
-        if self._config["reduce_XX"] and self.is_XX(glstring, loc_antigen, code):
-            return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
+        if self._config["reduce_XX"]:
+            is_hla_prefix = HLA_regex.search(loc_antigen)
+            if is_hla_prefix:
+                loc_antigen = loc_antigen.split('-')[1]
+            if self.is_XX(glstring, loc_antigen, code):
+                if is_hla_prefix:
+                    reduced_alleles = self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
+                    return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
+                else:
+                    return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -523,7 +531,7 @@ class ARD(object):
                 allele = allele[:-1]
                 if self._is_valid_allele(allele):
                     return True
-                else: 
+                else:
                     allele = get_2field_allele(allele)
                     if self._is_valid_allele(allele):
                         return True
