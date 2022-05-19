@@ -24,8 +24,8 @@
 import functools
 import re
 
-expr_regex = re.compile('[NQLSGg]')
-glstring_chars = re.compile('[/|+^~]')
+expr_regex = re.compile("[NQLSGg]")
+glstring_chars = re.compile("[/|+^~]")
 
 
 @functools.lru_cache(maxsize=1000)
@@ -52,24 +52,24 @@ def smart_sort_comparator(a1, a2):
             return -1
 
     # remove any non-numerics
-    a1 = re.sub(expr_regex, '', a1)
-    a2 = re.sub(expr_regex, '', a2)
+    a1 = re.sub(expr_regex, "", a1)
+    a2 = re.sub(expr_regex, "", a2)
 
     # Check to see if they are still the same alleles
     if a1 == a2:
         return 0
 
     # Extract and Compare first fields first
-    a1_f1 = int(a1[a1.find('*') + 1:a1.find(':')])
-    a2_f1 = int(a2[a2.find('*') + 1:a2.find(':')])
+    a1_f1 = int(a1[a1.find("*") + 1 : a1.find(":")])
+    a2_f1 = int(a2[a2.find("*") + 1 : a2.find(":")])
 
     if a1_f1 < a2_f1:
         return -1
     if a1_f1 > a2_f1:
         return 1
 
-    a1_fields = a1.split(':')
-    a2_fields = a2.split(':')
+    a1_fields = a1.split(":")
+    a2_fields = a2.split(":")
 
     # If the first fields are equal, try the 2nd fields
     a1_f2 = int(a1_fields[1])
@@ -81,14 +81,14 @@ def smart_sort_comparator(a1, a2):
         return 1
 
     # If the second fields are equal, try the 3rd fields
-    if len(a1_fields) >2: 
+    if len(a1_fields) > 2:
         try:
             a1_f3 = int(a1_fields[2])
         except ValueError:
             a1_f3 = 0
     else:
         a1_f3 = 0
-    if len(a2_fields) >2: 
+    if len(a2_fields) > 2:
         try:
             a2_f3 = int(a2_fields[2])
         except ValueError:
@@ -102,14 +102,14 @@ def smart_sort_comparator(a1, a2):
         return 1
 
     # If the third fields are equal, try the 4th fields
-    if len(a1_fields) >3: 
+    if len(a1_fields) > 3:
         try:
             a1_f4 = int(a1_fields[3])
         except ValueError:
             a1_f4 = 0
     else:
         a1_f4 = 0
-    if len(a2_fields) >3: 
+    if len(a2_fields) > 3:
         try:
             a2_f4 = int(a2_fields[3])
         except ValueError:

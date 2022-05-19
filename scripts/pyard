@@ -28,33 +28,24 @@ import pyard
 
 def get_imgt_version(imgt_version):
     if imgt_version:
-        version = imgt_version.replace('.', '')
+        version = imgt_version.replace(".", "")
         if version.isdigit():
             return version
-        raise RuntimeError(f"{imgt_version} is not a valid IMGT database version number")
+        raise RuntimeError(
+            f"{imgt_version} is not a valid IMGT database version number"
+        )
     return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         usage="""[-v <IMGT DB Version>] [gl-string redux_type]""",
-        description="""py-ard tool to redux GL String"""
+        description="""py-ard tool to redux GL String""",
     )
+    parser.add_argument("-v", "--imgt-version", dest="imgt_version")
+    parser.add_argument("--gl", required=True, dest="gl_string")
     parser.add_argument(
-        "-v",
-        "--imgt-version",
-        dest="imgt_version"
-    )
-    parser.add_argument(
-        "--gl",
-        required=True,
-        dest="gl_string"
-    )
-    parser.add_argument(
-        "-r",
-        choices=pyard.pyard.reduction_types,
-        required=True,
-        dest="redux_type"
+        "-r", choices=pyard.pyard.reduction_types, required=True, dest="redux_type"
     )
 
     args = parser.parse_args()

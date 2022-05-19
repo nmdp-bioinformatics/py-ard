@@ -1,5 +1,5 @@
 # List of expression characters
-expression_chars = ['N', 'Q', 'L', 'S']
+expression_chars = ["N", "Q", "L", "S"]
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -12,12 +12,11 @@ def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
     :return: trimmed to n fields of the original allele
     """
     last_char = allele[-1]
-    fields = allele.split(':')
-    if preserve_expression and \
-            last_char in expression_chars and len(fields) > n:
-        return ':'.join(fields[0:n]) + last_char
+    fields = allele.split(":")
+    if preserve_expression and last_char in expression_chars and len(fields) > n:
+        return ":".join(fields[0:n]) + last_char
     else:
-        return ':'.join(fields[0:n])
+        return ":".join(fields[0:n])
 
 
 def get_3field_allele(a: str) -> str:
@@ -29,4 +28,4 @@ def get_2field_allele(a: str) -> str:
 
 
 def number_of_fields(allele: str) -> int:
-    return len(allele.split(':'))
+    return len(allele.split(":"))
