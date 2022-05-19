@@ -101,7 +101,6 @@ ENV/
 .mypy_cache/
 
 # downloaded
-*.txt 
 *.pickle
 *.zip
 
@@ -114,4 +113,6 @@ pretty.output
 tags
 .swp
 *.patch
+.direnv/
+.envrc
 .idea/

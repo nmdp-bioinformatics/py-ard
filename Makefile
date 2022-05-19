@@ -21,6 +21,7 @@ for line in sys.stdin:
 		print("%-20s %s" % (target, help))
 endef
 export PRINT_HELP_PYSCRIPT
+
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 help:
@@ -46,24 +47,32 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .tox/
 	rm -f .coverage
 	rm -fr htmlcov/
+	rm -fr .pytest_cache
+	rm -fr allure_report
 
 lint: ## check style with flake8
-	flake8 pyars tests
+    # stop the build if there are Python syntax errors or undefined names \
+	  exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+	flake8 $(PACKAGE_NAME) tests --count --select=E9,F63,F7,F82 --show-source --statistics
+	flake8 $(PACKAGE_NAME) --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	pre-commit
 
-test: ## run tests quickly with the default Python
-	
-		python setup.py test
+behave: clean-test ## run the behave tests, generate and serve report
+	- behave -f allure_behave.formatter:AllureFormatter -o allure_report
+	allure serve allure_report
 
-test-all: ## run tests on every Python version with tox
-	tox
+pytest: clean-test ## run tests quickly with the default Python
+	PYTHONPATH=. pytest
+
+test: clean-test ## run all(BDD and unit) tests
+	PYTHONPATH=. pytest
+	behave
 
 coverage: ## check code coverage quickly with the default Python
-	
-		coverage run --source pyars setup.py test
-	
-		coverage report -m
-		coverage html
-		$(BROWSER) htmlcov/index.html
+	coverage run --source pyard -m pytest
+	coverage report -m
+	coverage html
+	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/pyars.rst
@@ -85,17 +94,28 @@ dist: clean ## builds source and wheel package
 	python setup.py bdist_wheel
 	ls -l dist
 
+docker-build: ## build a docker image for the service
+	docker build -t my-project-template-service:0.0.1 .
+
+docker: docker-build ## build a docker image and run the service
+	docker run --name my-project-template -p 8080:8080 my-project-template-service:0.0.1
+
 install: clean ## install the package to the active Python's site-packages
+	pip install --upgrade pip
 	python setup.py install
+	pip install -r requirements.txt
+	pip install -r requirements-tests.txt
+	pip install -r requirements-dev.txt
+	pip install -r requirements-deploy.txt
+	pre-commit install
 
 venv: ## creates a Python3 virtualenv environment in venv
-	virtualenv -p python3 venv
+	python3 -m venv venv --prompt $(PROJECT_NAME)-venv
 	@echo "====================================================================="
-	@echo "To activate the new virtualenv, execute the following from your shell"
-	@echo "source $(PWD)/venv/bin/activate"
+	@echo "To activate the new virtual environment, execute the following from your shell"
+	@echo "source venv/bin/activate"
 
 activate: ## activate a virtual environment. Run `make venv` before activating.
 	@echo "====================================================================="
-	@echo "To activate the new virtualenv, execute the following from your shell"
-	@echo "source $(PWD)/venv/bin/activate"
-
+	@echo "To activate the new virtual environment, execute the following from your shell"
+	@echo "source venv/bin/activate"
