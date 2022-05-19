@@ -108,6 +108,7 @@ ENV/
 testing/
 !test-requirements.txt
 pretty.output
+allure_report/
 
 # Misc
 tags

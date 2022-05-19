@@ -2,6 +2,7 @@ class PyArdError(Exception):
     """
     Base Class for All py-ard Errors
     """
+
     pass
 
 

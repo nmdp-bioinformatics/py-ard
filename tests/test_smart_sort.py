@@ -4,7 +4,6 @@ from pyard.smart_sort import smart_sort_comparator
 
 
 class TestSmartSort(unittest.TestCase):
-
     def setUp(self) -> None:
         super().setUp()
 
@@ -85,5 +84,5 @@ class TestSmartSort(unittest.TestCase):
         self.assertEqual(smart_sort_comparator(allele1, allele2), 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

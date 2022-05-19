@@ -45,20 +45,20 @@ def is_serology(allele: str) -> bool:
 
 
 def is_3field(allele: str) -> bool:
-    return len(allele.split(':')) > 2
+    return len(allele.split(":")) > 2
 
 
 def is_2field(allele: str) -> bool:
-    if '*' in allele:
-        allele = allele.split('*')[1]
-    fields = allele.split(':')
+    if "*" in allele:
+        allele = allele.split("*")[1]
+    fields = allele.split(":")
     # Check to see the 2 fields are digits to distinguish from MAC.
     return len(fields) == 2 and fields[0].isdigit() and fields[1].isdigit()
 
 
 def is_P(allele: str) -> bool:
-    if allele.endswith('P'):
-        fields = allele.split(':')
+    if allele.endswith("P"):
+        fields = allele.split(":")
         if len(fields) == 2:  # Ps are 2 fields
             # Check both fields are digits only
             # Eg: A*02:01P
@@ -100,15 +100,14 @@ def should_be_reduced(allele, locus_allele):
 
 
 def remove_locus_name(reduced_allele):
-    return "/".join(map(lambda a: a.split('*')[1],
-                        reduced_allele.split('/')))
+    return "/".join(map(lambda a: a.split("*")[1], reduced_allele.split("/")))
 
 
 def reduce(allele, locus, column_name):
     # Does the allele name have the locus in it ?
-    if allele == '':
+    if allele == "":
         return allele
-    if '*' in allele:
+    if "*" in allele:
         locus_allele = allele
     elif ard_config["locus_in_allele_name"]:
         locus_allele = allele
@@ -139,7 +138,7 @@ def reduce(allele, locus, column_name):
         if verbose:
             print(f"\t{locus_allele} => {allele}")
     else:
-        if ard_config['convert_v2_to_v3']:
+        if ard_config["convert_v2_to_v3"]:
             if ard.is_v2(locus_allele):
                 v3_allele = ard.v2_to_v3(locus_allele)
                 if not ard_config["keep_locus_in_allele_name"]:
@@ -154,14 +153,14 @@ def reduce(allele, locus, column_name):
     return allele
 
 
-def clean_locus(allele: str, column_name: str = 'Unknown') -> str:
+def clean_locus(allele: str, column_name: str = "Unknown") -> str:
     if allele:
         # Remove all white spaces
-        allele = white_space_regex.sub('', allele)
-        locus = column_name.split('_')[1].upper()
+        allele = white_space_regex.sub("", allele)
+        locus = column_name.split("_")[1].upper()
         # If the allele comes in as an allele list, apply reduce to all alleles
-        if '/' in allele:
-            return "/".join(map(reduce, allele.split('/'), locus, column_name))
+        if "/" in allele:
+            return "/".join(map(reduce, allele.split("/"), locus, column_name))
         else:
             return reduce(allele, locus, column_name)
     return allele
@@ -171,13 +170,11 @@ def create_drbx(row, locus_in_allele_name):
     return drbx.map_drbx(row.values, locus_in_allele_name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # config is specified with a -c parameter
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config',
-                        help="JSON Configuration file",
-                        required=True)
+    parser.add_argument("-c", "--config", help="JSON Configuration file", required=True)
 
     args = parser.parse_args()
     config_filename = args.config
@@ -189,12 +186,14 @@ if __name__ == '__main__':
     verbose = ard_config["verbose_log"]
     white_space_regex = re.compile(r"\s+")
 
-    if ard_config["output_file_format"] == 'xlsx':
+    if ard_config["output_file_format"] == "xlsx":
         try:
             import openpyxl
         except ImportError:
-            print("For Excel output, openpyxl library needs to be installed. "
-                  "Install with:")
+            print(
+                "For Excel output, openpyxl library needs to be installed. "
+                "Install with:"
+            )
             print("  pip install openpyxl")
             sys.exit(1)
 
@@ -205,10 +204,13 @@ if __name__ == '__main__':
     # Read only the columns to be saved.
     # Header is the first row
     # Don't convert to NAs
-    df = pd.read_csv(ard_config["in_csv_filename"],
-                     usecols=ard_config["columns_from_csv"],
-                     header=0, dtype=str,
-                     keep_default_na=False)
+    df = pd.read_csv(
+        ard_config["in_csv_filename"],
+        usecols=ard_config["columns_from_csv"],
+        header=0,
+        dtype=str,
+        keep_default_na=False,
+    )
 
     failed_to_reduce_alleles = []
     # Reduce each of the specified columns
@@ -220,45 +222,70 @@ if __name__ == '__main__':
             new_column_name = f"reduced_{column}"
             new_column_index = df.columns.get_loc(column) + 1
             # Apply clean_locus function to the column and insert as a new column
-            df.insert(new_column_index, new_column_name,
-                      df[column].apply(clean_locus, column_name=column))
+            df.insert(
+                new_column_index,
+                new_column_name,
+                df[column].apply(clean_locus, column_name=column),
+            )
         else:
             # Apply clean_locus function to the column and replace the column
             df[column] = df[column].apply(clean_locus, column_name=column)
 
     # Map DRB3,DRB4,DRB5 to DRBX if specified
     # New columns DRBX_1 and DRBX_2 are created
-    if ard_config['map_drb345_to_drbx']:
-        drbx_loci = ['DRB3', 'DRB4', 'DRB5']
-        drbx_columns = [col_name for col_name in df.columns if col_name.split('_')[1] in drbx_loci]
+    if ard_config["map_drb345_to_drbx"]:
+        drbx_loci = ["DRB3", "DRB4", "DRB5"]
+        drbx_columns = [
+            col_name for col_name in df.columns if col_name.split("_")[1] in drbx_loci
+        ]
         if len(drbx_columns) == len(drbx_loci) * 2:  # For Type1/Type2
             locus_in_allele_name = ard_config["keep_locus_in_allele_name"]
-            df_drbx = df[drbx_columns].apply(create_drbx, axis=1, args=(locus_in_allele_name,))
-            df['DRBX_1'], df['DRBX_2'] = zip(*df_drbx)
+            df_drbx = df[drbx_columns].apply(
+                create_drbx, axis=1, args=(locus_in_allele_name,)
+            )
+            df["DRBX_1"], df["DRBX_2"] = zip(*df_drbx)
 
     # Save as XLSX if specified
-    if ard_config["output_file_format"] == 'xlsx':
+    if ard_config["output_file_format"] == "xlsx":
         out_file_name = f"{ard_config['out_csv_filename']}.xlsx"
         df.to_excel(out_file_name, index=False)
     else:
         # Save as compressed CSV
         out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
-        df.to_csv(out_file_name, index=False, compression=ard_config["apply_compression"])
+        df.to_csv(
+            out_file_name, index=False, compression=ard_config["apply_compression"]
+        )
 
     if len(failed_to_reduce_alleles) == 0:
         print("No Errors", file=sys.stderr)
     else:
         print("Summary", file=sys.stderr)
         print("-------", file=sys.stderr)
-        print(f"{len(failed_to_reduce_alleles)} alleles failed to reduce.", file=sys.stderr)
-        print("| Column  Name    |      Allele      |      Did you mean ?       ", file=sys.stderr)
-        print("| --------------- | ---------------- | ------------------------- ", file=sys.stderr)
+        print(
+            f"{len(failed_to_reduce_alleles)} alleles failed to reduce.",
+            file=sys.stderr,
+        )
+        print(
+            "| Column  Name    |      Allele      |      Did you mean ?       ",
+            file=sys.stderr,
+        )
+        print(
+            "| --------------- | ---------------- | ------------------------- ",
+            file=sys.stderr,
+        )
         for column_name, locus_allele in failed_to_reduce_alleles:
-            similar_allele_names = pyard.db.similar_alleles(ard.db_connection, locus_allele)
+            similar_allele_names = pyard.db.similar_alleles(
+                ard.db_connection, locus_allele
+            )
             if similar_allele_names:
-                similar_allele_names = ",".join(sorted(similar_allele_names, reverse=True))
+                similar_allele_names = ",".join(
+                    sorted(similar_allele_names, reverse=True)
+                )
             else:
-                similar_allele_names = 'NA'
-            print(f"| {column_name:15} | {locus_allele:16} | {similar_allele_names} ", file=sys.stderr)
+                similar_allele_names = "NA"
+            print(
+                f"| {column_name:15} | {locus_allele:16} | {similar_allele_names} ",
+                file=sys.stderr,
+            )
     # Done
     print(f"Saved result to file:{out_file_name}")

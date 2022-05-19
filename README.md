@@ -1,5 +1,5 @@
 # py-ard
-[![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard) 
+[![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard)
 
 ARD reduction for HLA with Python
 
@@ -138,7 +138,7 @@ $ pyard-import --db-version 3.29.0
 Created py-ard version 3290 database
 ```
 
-Import particular version of IMGT database and replace the v2 to v3 mapping 
+Import particular version of IMGT database and replace the v2 to v3 mapping
 table from a CSV file.
 
 ```shell
@@ -185,4 +185,4 @@ A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
 ```
 ### Batch Reduce a CSV file
 
-`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run. 
+`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run.

@@ -31,11 +31,13 @@ import pandas as pd
 
 def get_imgt_version(imgt_version):
     if imgt_version:
-        version = imgt_version.replace('.', '')
+        version = imgt_version.replace(".", "")
         if version.isdigit():
             return version
-        raise RuntimeError(f"{imgt_version} is not a valid IMGT database version number")
-    return 'Latest'
+        raise RuntimeError(
+            f"{imgt_version} is not a valid IMGT database version number"
+        )
+    return "Latest"
 
 
 def get_data_dir(data_dir):
@@ -53,12 +55,12 @@ def get_v2_v3_mapping(v2_v3_mapping):
         path = pathlib.Path(v2_v3_mapping)
         if not path.exists() or not path.is_file():
             raise RuntimeError(f"{data_dir} is not a valid file")
-        df = pd.read_csv(path, names=['v2', 'v3'])
-        return df.set_index('v2')['v3'].to_dict()
+        df = pd.read_csv(path, names=["v2", "v3"])
+        return df.set_index("v2")["v3"].to_dict()
     return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         usage="""[--db-version <IMGT DB Version>]\n
         [--data-dir <directory for db file>]\n
@@ -66,30 +68,13 @@ if __name__ == '__main__':
         description="""
         py-ard tool to generate reference SQLite database.
         Allows updating db with custom V2 to V3 mappings.
-        """
+        """,
     )
-    parser.add_argument(
-        "--db-version",
-        dest="imgt_version"
-    )
-    parser.add_argument(
-        "--data-dir",
-        dest="data_dir"
-    )
-    parser.add_argument(
-        "--v2-to-v3-mapping",
-        dest="v2_v3_mapping"
-    )
-    parser.add_argument(
-        "--refresh-mac",
-        dest="refresh_mac",
-        action="store_true"
-    )
-    parser.add_argument(
-        "--re-install",
-        dest="reinstall",
-        action="store_true"
-    )    
+    parser.add_argument("--db-version", dest="imgt_version")
+    parser.add_argument("--data-dir", dest="data_dir")
+    parser.add_argument("--v2-to-v3-mapping", dest="v2_v3_mapping")
+    parser.add_argument("--refresh-mac", dest="refresh_mac", action="store_true")
+    parser.add_argument("--re-install", dest="reinstall", action="store_true")
     args = parser.parse_args()
 
     imgt_version = get_imgt_version(args.imgt_version)
@@ -103,7 +88,7 @@ if __name__ == '__main__':
 
     if args.reinstall:
         print(f"Reinstalling Version: {imgt_version}")
-        db_fullname = pathlib.Path(f'{data_dir}/pyard-{imgt_version}.sqlite3')
+        db_fullname = pathlib.Path(f"{data_dir}/pyard-{imgt_version}.sqlite3")
         if db_fullname.exists():
             print(f"Removing {db_fullname}")
             db_fullname.unlink(missing_ok=True)
@@ -115,9 +100,15 @@ if __name__ == '__main__':
 
     if v2_to_v3_dict:
         db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
-        db.save_dict(db_connection, table_name='v2_mapping',
-                     dictionary=v2_to_v3_dict, columns=('v2', 'v3'))
-        print(f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database.")
+        db.save_dict(
+            db_connection,
+            table_name="v2_mapping",
+            dictionary=v2_to_v3_dict,
+            columns=("v2", "v3"),
+        )
+        print(
+            f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database."
+        )
 
     if args.refresh_mac:
         print(f"Updating MACs")
