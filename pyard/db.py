@@ -57,10 +57,11 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     if ro:
         # Open the database in read-only mode
         file_uri = f"file:{db_filename}?mode=ro"
-    else:
-        # Open the database in read-only mode
-        file_uri = f"file:{db_filename}"
+        # Multiple threads can access the same connection since it's only ro
+        return sqlite3.connect(file_uri, check_same_thread=False, uri=True)
 
+    # Open the database for read/write
+    file_uri = f"file:{db_filename}"
     return sqlite3.connect(file_uri, uri=True)
 
 
