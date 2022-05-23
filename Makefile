@@ -95,18 +95,18 @@ dist: clean ## builds source and wheel package
 	ls -l dist
 
 docker-build: ## build a docker image for the service
-	docker build -t my-project-template-service:0.0.1 .
+	docker build -t pyard-service:latest .
 
 docker: docker-build ## build a docker image and run the service
-	docker run --name my-project-template -p 8080:8080 my-project-template-service:0.0.1
+	docker run --name pyard-service -p 8080:8080 pyard-service:latest
 
 install: clean ## install the package to the active Python's site-packages
 	pip install --upgrade pip
-	python setup.py install
 	pip install -r requirements.txt
 	pip install -r requirements-tests.txt
 	pip install -r requirements-dev.txt
 	pip install -r requirements-deploy.txt
+	python setup.py install
 	pre-commit install
 
 venv: ## creates a Python3 virtualenv environment in venv
