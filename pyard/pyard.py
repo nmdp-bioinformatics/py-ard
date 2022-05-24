@@ -276,12 +276,7 @@ class ARD(object):
 
         validate_reduction_type(redux_type)
 
-        try:
-            self.isvalid_gl(glstring)
-        except InvalidAlleleError as e:
-            raise InvalidTypingError(
-                f"{glstring} is not valid GL String. \n {e.message}", e
-            )
+        self.validate(glstring)
 
         if re.search(r"\^", glstring):
             return self.sorted_unique_gl(
@@ -362,6 +357,21 @@ class ARD(object):
             return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
 
         return self.redux(glstring, redux_type)
+
+    def validate(self, glstring):
+        """
+        Validates GL String
+        Raise an exception if not valid.
+
+        :param glstring: GL String to validate
+        :return: boolean indicating success
+        """
+        try:
+            return self.isvalid_gl(glstring)
+        except InvalidAlleleError as e:
+            raise InvalidTypingError(
+                f"{glstring} is not valid GL String. \n {e.message}", e
+            )
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
