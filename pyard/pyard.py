@@ -48,6 +48,7 @@ default_config = {
     "reduce_XX": True,
     "reduce_MAC": True,
     "reduce_shortnull": True,
+    "ping": False,
     "map_drb345_to_drbx": True,
     "verbose_log": True
 }
@@ -99,7 +100,7 @@ class ARD(object):
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, False)
         # Load ARS mappings
-        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
+        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version, self._config['ping'])
         # Load Alleles and XX Codes
         self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group, self.shortnulls, self.exp_alleles = \
             dr.generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings)

@@ -1,5 +1,6 @@
 # List of expression characters
 expression_chars = ['N', 'Q', 'L', 'S']
+PandG_chars = ['P', 'G']
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -21,10 +22,17 @@ def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
 
 
 def get_3field_allele(a: str) -> str:
+    last_char = a[-1]
+    if last_char in PandG_chars:
+        a = a[:-1]
+    
     return get_n_field_allele(a, 3)
 
 
 def get_2field_allele(a: str) -> str:
+    last_char = a[-1]
+    if last_char in PandG_chars:
+        a = a[:-1]
     return get_n_field_allele(a, 2)
 
 

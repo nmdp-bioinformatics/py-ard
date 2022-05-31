@@ -62,7 +62,7 @@ def expression_reduce(df):
     return None
 
 
-def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
+def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
     if db.tables_exist(db_connection, ars_mapping_tables):
         dup_g = db.load_dict(db_connection, table_name='dup_g', columns=('allele', 'g_group'))
         dup_lg = db.load_dict(db_connection, table_name='dup_lg', columns=('allele', 'lg_group'))
@@ -76,8 +76,24 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
                           g_group=g_group, lg_group=lg_group,
                           lgx_group=lgx_group, exon_group=exon_group, p_group=p_group)
 
+    # P groups
+    ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
+    df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
+    df_P['A'] = df_P['A'].apply(lambda a: a.split('/'))
+    df_P = df_P.explode('A')
+    df_P['A'] = df_P['Locus'] + df_P['A']
+    df_P['P'] = df_P['Locus'] + df_P['P']
+    p_group = df_P.set_index('A')['P'].to_dict()
+
+
     ars_G_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
-    df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    df_G = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    if ping:
+        # put the P codes in the G-codes early to catch C*06:17 -> C*06:02
+        df_PinG = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+        df = pd.concat([df_PinG, df_G])
+    else:
+        df = df_G
 
     df['A'] = df['A'].apply(lambda a: a.split('/'))
     df = df.explode('A')
@@ -86,8 +102,10 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 
     df['2d'] = df['A'].apply(get_2field_allele)
     df['3d'] = df['A'].apply(get_3field_allele)
-    df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
-    df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
+    #df['lg'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
+    df['lg'] = df['G'].apply(lambda a: get_2field_allele(a) + "g")
+    #df['lgx'] = df['G'].apply(lambda a: ":".join(a.split(":")[0:2]))
+    df['lgx'] = df['G'].apply(get_2field_allele)
 
     # multiple Gs
     mg = df.drop_duplicates(['2d', 'G'])['2d'].value_counts()
@@ -144,15 +162,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     # exon
     df_exon = pd.concat([df[['A', '3d']].rename(columns={'3d': 'exon'}), ])
     exon_group = df_exon.set_index('A')['exon'].to_dict()
-
-    # P groups
-    ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
-    df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
-    df_P['A'] = df_P['A'].apply(lambda a: a.split('/'))
-    df_P = df_P.explode('A')
-    df_P['A'] = df_P['Locus'] + df_P['A']
-    df_P['P'] = df_P['Locus'] + df_P['P']
-    p_group = df_P.set_index('A')['P'].to_dict()
 
     # save
     db.save_dict(db_connection, table_name='dup_g', dictionary=dup_g, columns=('allele', 'g_group'))
