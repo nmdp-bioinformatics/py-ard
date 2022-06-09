@@ -103,7 +103,7 @@ Valid options: `true` or `false`
 
 `output_file_format` Format of the output file
 
-Valid options: `csv` or `xlsx` 
+Valid options: `csv` or `xlsx`
 
 For Excel output, `openpyxl` library needs to be installed. Install with:
 ```shell
@@ -113,7 +113,7 @@ For Excel output, `openpyxl` library needs to be installed. Install with:
 
 ### Create New Column
 
-`new_column_for_redux` Add a separate column for processed column or replace the current column. Creates a `reduced_` version of the column. Otherwise, the same column is replaced with the reduced version. 
+`new_column_for_redux` Add a separate column for processed column or replace the current column. Creates a `reduced_` version of the column. Otherwise, the same column is replaced with the reduced version.
 
 Valid options: `true`, `false`
 

@@ -1,5 +1,5 @@
 # py-ard
-[![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard) 
+[![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard)
 
 ARD reduction for HLA with Python
 
@@ -119,6 +119,7 @@ ard.redux_gl('B14', 'lg')
 | `lgx`          | Reduce to 2 field ARD level                     |
 | `W`            | Reduce/Expand to 3 field WHO nomenclature level |
 | `exon`         | Reduce/Expand to exon level                     |
+| `U2`           | Reduce to 2 field unambiguous level             |
 
 # Command Line Tools
 
@@ -138,7 +139,7 @@ $ pyard-import --db-version 3.29.0
 Created py-ard version 3290 database
 ```
 
-Import particular version of IMGT database and replace the v2 to v3 mapping 
+Import particular version of IMGT database and replace the v2 to v3 mapping
 table from a CSV file.
 
 ```shell
@@ -185,4 +186,20 @@ A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
 ```
 ### Batch Reduce a CSV file
 
-`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run. 
+`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run.
+
+## py-ard REST Service
+
+Run `py-ard` as a service so that it can be accessed as a REST service endpoint.
+
+Build the docker image:
+```shell
+make docker-build
+```
+
+Build the docker and run it with:
+```shell
+make docker
+```
+
+The endpoint should then be available at [localhost:8080](http://0.0.0.0:8080)

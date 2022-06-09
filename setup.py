@@ -25,53 +25,50 @@
 
 from setuptools import setup
 
-with open('README.md') as readme_file:
+with open("README.md") as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = [
-    'pandas>=1.1.4'
-]
+with open("requirements.txt") as requirements_file:
+    requirements = requirements_file.read().split("\n")
 
-test_requirements = [
-    'behave==1.2.6',
-    'PyHamcrest==2.0.2'
-]
+with open("requirements-tests.txt") as requirements_file:
+    test_requirements = requirements_file.read().split("\n")
 
 setup(
-    name='py-ard',
-    version='0.7.6',
+    name="py-ard",
+    version="0.8.0",
     description="ARD reduction for HLA with Python",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + "\n\n" + history,
     long_description_content_type="text/markdown",
     author="CIBMTR",
-    author_email='cibmtr-pypi@nmdp.org',
-    url='https://github.com/nmdp-bioinformatics/py-ard',
+    author_email="cibmtr-pypi@nmdp.org",
+    url="https://github.com/nmdp-bioinformatics/py-ard",
     packages=[
-        'pyard',
+        "pyard",
     ],
-    provides=['pyard'],
+    provides=["pyard"],
     scripts=[
-        'scripts/pyard',
-        'scripts/pyard-import',
-        'scripts/pyard-status',
-        'scripts/pyard-reduce-csv'
+        "scripts/pyard",
+        "scripts/pyard-import",
+        "scripts/pyard-status",
+        "scripts/pyard-reduce-csv",
     ],
     install_requires=requirements,
     license="LGPL 3.0",
     zip_safe=False,
-    keywords='pyard',
+    keywords="pyard",
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
-    test_suite='tests',
+    test_suite="tests",
     tests_require=test_requirements,
-    include_package_data=True
+    include_package_data=True,
 )

@@ -18,12 +18,14 @@ def map_drbx(drb_alleles: List, locus_in_allele_name: bool) -> Tuple:
     :return: Tuple of DRBX type1/type2
     """
 
-    nnnn = 'NNNN'
+    nnnn = "NNNN"
     if locus_in_allele_name:
-        nnnn = 'DRBX*NNNN'
+        nnnn = "DRBX*NNNN"
 
     # Get the ones DRBs without NNNNs
-    drbx_non_nns = list(filter(lambda x: x != '' and not x.endswith('NNNN'), drb_alleles))
+    drbx_non_nns = list(
+        filter(lambda x: x != "" and not x.endswith("NNNN"), drb_alleles)
+    )
     if len(drbx_non_nns) == 0:
         return nnnn, nnnn
 
@@ -31,7 +33,7 @@ def map_drbx(drb_alleles: List, locus_in_allele_name: bool) -> Tuple:
     if len(drbx_non_nns) == 2:
         # If they are homozygous, return a single DRBn only
         if drbx_non_nns[0] == drbx_non_nns[1]:
-            return drbx_non_nns[0], ''
+            return drbx_non_nns[0], ""
         # Else return drbx_1 and drbx_2
         return tuple(drbx_non_nns)
 

@@ -43,12 +43,12 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     if data_dir is None:
         data_dir = get_pyard_db_install_directory()
 
-    db_filename = f'{data_dir}/pyard-{imgt_version}.sqlite3'
+    db_filename = f"{data_dir}/pyard-{imgt_version}.sqlite3"
 
     if ro:
         # If in read-only mode, make sure the db file exists
         if not pathlib.Path(db_filename).exists():
-            raise RuntimeError(f'Reference Database {db_filename}  not available.')
+            raise RuntimeError(f"Reference Database {db_filename}  not available.")
 
     # Create the data directory if it doesn't exist
     if not pathlib.Path(data_dir).exists():
@@ -56,11 +56,12 @@ def create_db_connection(data_dir, imgt_version, ro=False):
 
     if ro:
         # Open the database in read-only mode
-        file_uri = f'file:{db_filename}?mode=ro'
-    else:
-        # Open the database in read-only mode
-        file_uri = f'file:{db_filename}'
+        file_uri = f"file:{db_filename}?mode=ro"
+        # Multiple threads can access the same connection since it's only ro
+        return sqlite3.connect(file_uri, check_same_thread=False, uri=True)
 
+    # Open the database for read/write
+    file_uri = f"file:{db_filename}"
     return sqlite3.connect(file_uri, uri=True)
 
 
@@ -118,7 +119,7 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     result = cursor.fetchone()
     cursor.close()
     if result:
-        alleles = result[0].split('/')
+        alleles = result[0].split("/")
     else:
         alleles = []
     return alleles
@@ -152,7 +153,7 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     result = cursor.fetchone()
     cursor.close()
     if result:
-        alleles = result[0].split('/')
+        alleles = result[0].split("/")
     else:
         alleles = []
     return alleles
@@ -166,7 +167,9 @@ def is_valid_serology(connection: sqlite3.Connection, serology: str) -> bool:
     :param serology: serology to test
     :return: is it serology ?
     """
-    serology_query = "SELECT count(allele_list) from serology_mapping where serology = ?"
+    serology_query = (
+        "SELECT count(allele_list) from serology_mapping where serology = ?"
+    )
     cursor = connection.execute(serology_query, (serology,))
     result = cursor.fetchone()
     cursor.close()
@@ -190,8 +193,12 @@ def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
     return None
 
 
-def save_dict(connection: sqlite3.Connection, table_name: str,
-              dictionary: Dict[str, str], columns=Tuple[str, str]) -> bool:
+def save_dict(
+    connection: sqlite3.Connection,
+    table_name: str,
+    dictionary: Dict[str, str],
+    columns=Tuple[str, str],
+) -> bool:
     """
     Save the dictionary as a table with column names from columns Tuple.
 
@@ -225,7 +232,9 @@ def save_dict(connection: sqlite3.Connection, table_name: str,
     return True
 
 
-def save_set(connection: sqlite3.Connection, table_name: str, rows: Set, column: str) -> bool:
+def save_set(
+    connection: sqlite3.Connection, table_name: str, rows: Set, column: str
+) -> bool:
     """
     Save the set rows to the table table_name in the column
 
@@ -248,7 +257,12 @@ def save_set(connection: sqlite3.Connection, table_name: str, rows: Set, column:
     cursor.execute(create_table_sql)
 
     # insert
-    cursor.executemany(f"INSERT INTO {table_name} VALUES (?)", zip(rows, ))
+    cursor.executemany(
+        f"INSERT INTO {table_name} VALUES (?)",
+        zip(
+            rows,
+        ),
+    )
 
     # commit transaction - writes to the db
     connection.commit()
@@ -274,7 +288,9 @@ def load_set(connection: sqlite3.Connection, table_name: str) -> Set:
     return table_as_set
 
 
-def load_dict(connection: sqlite3.Connection, table_name: str, columns: Tuple[str, str]) -> Dict[str, str]:
+def load_dict(
+    connection: sqlite3.Connection, table_name: str, columns: Tuple[str, str]
+) -> Dict[str, str]:
     """
     Retrieve the values in columns as a name, value pair and create a dict.
 

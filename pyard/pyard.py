@@ -50,25 +50,25 @@ default_config = {
     "reduce_shortnull": True,
     "ping": False,
     "map_drb345_to_drbx": True,
-    "verbose_log": True
+    "verbose_log": True,
 }
 
 reduction_types = (
-    'G',
-    'lg',
-    'lgx',
-    'W',
-    'exon',
-    'U2'  # Unambiguous Reduction to 2 fields
+    "G",
+    "lg",
+    "lgx",
+    "W",
+    "exon",
+    "U2",  # Unambiguous Reduction to 2 fields
 )
 
 # Typing information
-VALID_REDUCTION_TYPES = Literal['G', 'lg', 'lgx', 'W', 'exon', 'U2']
+VALID_REDUCTION_TYPES = Literal["G", "lg", "lgx", "W", "exon", "U2"]
 
 
 def validate_reduction_type(ars_type):
     if ars_type not in reduction_types:
-        raise ValueError(f'Reduction type needs to be one of {reduction_types}')
+        raise ValueError(f"Reduction type needs to be one of {reduction_types}")
 
 
 class ARD(object):
@@ -78,7 +78,9 @@ class ARD(object):
     G, lg, lgx, W, exon and U2 levels.
     """
 
-    def __init__(self, imgt_version: str = 'Latest', data_dir: str = None, config: dict = None):
+    def __init__(
+        self, imgt_version: str = "Latest", data_dir: str = None, config: dict = None
+    ):
 
         """
         ARD will load valid alleles, xx codes and MAC mappings for the given
@@ -102,8 +104,16 @@ class ARD(object):
         # Load ARS mappings
         self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version, self._config['ping'])
         # Load Alleles and XX Codes
-        self.valid_alleles, self.who_alleles, self.xx_codes, self.who_group, self.shortnulls, self.exp_alleles = \
-            dr.generate_alleles_and_xx_codes_and_who(self.db_connection, imgt_version, self.ars_mappings)
+        (
+            self.valid_alleles,
+            self.who_alleles,
+            self.xx_codes,
+            self.who_group,
+            self.shortnulls,
+            self.exp_alleles,
+        ) = dr.generate_alleles_and_xx_codes_and_who(
+            self.db_connection, imgt_version, self.ars_mappings
+        )
 
         # Load Serology mappings
         dr.generate_serology_mapping(self.db_connection, imgt_version)
@@ -117,6 +127,7 @@ class ARD(object):
         # Works only for Python >= 3.9
         if sys.version_info.major == 3 and sys.version_info.minor >= 9:
             import gc
+
             gc.freeze()
 
         # Re-open the connection in read-only mode as we're not updating it anymore
@@ -154,12 +165,12 @@ class ARD(object):
                 return redux_allele
 
         # g_group maps alleles to their g_group
-        # note: this includes mappings for shortened version of alleles 
-        # C*12:02:02:01 => C*12:02:01G 
-        # C*12:02:02    => C*12:02:01G 
+        # note: this includes mappings for shortened version of alleles
+        # C*12:02:02:01 => C*12:02:01G
+        # C*12:02:02    => C*12:02:01G
         # C*12:02       => C*12:02:01G
 
-        if allele.endswith(('P', 'G')):
+        if allele.endswith(("P", "G")):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
         if redux_type == "G" and allele in self.ars_mappings.g_group:
@@ -175,7 +186,7 @@ class ARD(object):
             else:
                 # for 'lg' when allele is not in G group,
                 # return allele with only first 2 field
-                return ':'.join(allele.split(':')[0:2]) + 'g'
+                return ":".join(allele.split(":")[0:2]) + "g"
         elif redux_type == "lgx":
             if allele in self.ars_mappings.dup_lgx:
                 return self.ars_mappings.dup_lgx[allele]
@@ -184,7 +195,7 @@ class ARD(object):
             else:
                 # for 'lgx' when allele is not in G group,
                 # return allele with only first 2 field
-                return ':'.join(allele.split(':')[0:2])
+                return ":".join(allele.split(":")[0:2])
         elif redux_type == "W":
             # new redux_type which is full WHO expansion
             if self._is_who_allele(allele):
@@ -198,7 +209,7 @@ class ARD(object):
                 return self.ars_mappings.exon_group[allele]
             else:
                 # for 'exon' return allele with only first 3 fields
-                return ':'.join(allele.split(':')[0:3])
+                return ":".join(allele.split(":")[0:3])
         elif redux_type == "U2":
             allele_fields = allele.split(":")
             # If resolved out to second field leave alone
@@ -210,11 +221,11 @@ class ARD(object):
                 return allele_2_fields
             else:
                 # If ambiguous, reduce to G group level
-                return self.redux(allele, 'lgx')
+                return self.redux(allele, "lgx")
         else:
             # TODO: make this an explicit lookup to the g_group or p_group table
             # just having a shorter name be valid is not stringent enough
-            if allele.endswith(('P', 'G')):
+            if allele.endswith(("P", "G")):
                 allele = allele[:-1]
             if self._is_valid_allele(allele):
                 return allele
@@ -231,13 +242,15 @@ class ARD(object):
         :param delim: Delimiter of concern
         :return: a GL string sorted and made of unique GL
         """
-        if delim == '~':
+        if delim == "~":
             # No need to sort
             return delim.join(gls)
-        
+
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
-            return delim.join(sorted(gls, key=functools.cmp_to_key(smart_sort_comparator)))
+            return delim.join(
+                sorted(gls, key=functools.cmp_to_key(smart_sort_comparator))
+            )
 
         # generate a unique list over a delimiter
         # e.g. [A, A/B] => [ A, B ] for / delimiter
@@ -245,7 +258,9 @@ class ARD(object):
         for gl in gls:
             all_gls += gl.split(delim)
         unique_gls = set(all_gls)
-        return delim.join(sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator)))
+        return delim.join(
+            sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
+        )
 
     @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
@@ -262,23 +277,32 @@ class ARD(object):
 
         validate_reduction_type(redux_type)
 
-        if not self.isvalid_gl(glstring):
-            raise InvalidTypingError(f"{glstring} is not a valid typing.")
+        self.validate(glstring)
 
         if re.search(r"\^", glstring):
-            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("^")], "^")
+            return self.sorted_unique_gl(
+                [self.redux_gl(a, redux_type) for a in glstring.split("^")], "^"
+            )
 
         if re.search(r"\|", glstring):
-            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("|")], "|")
+            return self.sorted_unique_gl(
+                [self.redux_gl(a, redux_type) for a in glstring.split("|")], "|"
+            )
 
         if re.search(r"\+", glstring):
-            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("+")], "+")
+            return self.sorted_unique_gl(
+                [self.redux_gl(a, redux_type) for a in glstring.split("+")], "+"
+            )
 
         if re.search("~", glstring):
-            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("~")], "~")
+            return self.sorted_unique_gl(
+                [self.redux_gl(a, redux_type) for a in glstring.split("~")], "~"
+            )
 
         if re.search("/", glstring):
-            return self.sorted_unique_gl([self.redux_gl(a, redux_type) for a in glstring.split("/")], "/")
+            return self.sorted_unique_gl(
+                [self.redux_gl(a, redux_type) for a in glstring.split("/")], "/"
+            )
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
@@ -294,11 +318,25 @@ class ARD(object):
             loc_allele = glstring.split(":")
             loc_antigen, code = loc_allele[0], loc_allele[1]
         else:
-            raise InvalidTypingError(f"{glstring} is not a valid V2 or Serology typing.")
+            raise InvalidTypingError(
+                f"{glstring} is not a valid V2 or Serology typing."
+            )
 
         # Handle XX codes
-        if self._config["reduce_XX"] and self.is_XX(glstring, loc_antigen, code):
-            return self.redux_gl("/".join(self.xx_codes[loc_antigen]), redux_type)
+        if self._config["reduce_XX"]:
+            is_hla_prefix = HLA_regex.search(loc_antigen)
+            if is_hla_prefix:
+                loc_antigen = loc_antigen.split("-")[1]
+            if self.is_XX(glstring, loc_antigen, code):
+                if is_hla_prefix:
+                    reduced_alleles = self.redux_gl(
+                        "/".join(self.xx_codes[loc_antigen]), redux_type
+                    )
+                    return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
+                else:
+                    return self.redux_gl(
+                        "/".join(self.xx_codes[loc_antigen]), redux_type
+                    )
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -321,9 +359,24 @@ class ARD(object):
 
         return self.redux(glstring, redux_type)
 
+    def validate(self, glstring):
+        """
+        Validates GL String
+        Raise an exception if not valid.
+
+        :param glstring: GL String to validate
+        :return: boolean indicating success
+        """
+        try:
+            return self.isvalid_gl(glstring)
+        except InvalidAlleleError as e:
+            raise InvalidTypingError(
+                f"{glstring} is not valid GL String. \n {e.message}", e
+            )
+
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
-            if ':' in glstring:
+            if ":" in glstring:
                 loc_allele = glstring.split(":")
                 loc_antigen, code = loc_allele[0], loc_allele[1]
             else:
@@ -344,7 +397,7 @@ class ARD(object):
         :param allele: The allele to test for serology
         :return: True if serology
         """
-        if '*' in allele or ':' in allele:
+        if "*" in allele or ":" in allele:
             return False
 
         return db.is_valid_serology(self.db_connection, allele)
@@ -360,7 +413,7 @@ class ARD(object):
         :param allele: test if it is a MAC code
         :return: True if MAC
         """
-        if ':' in allele:
+        if ":" in allele:
             code = allele.split(":")[1]
             return db.is_valid_mac_code(self.db_connection, code)
         return False
@@ -381,9 +434,12 @@ class ARD(object):
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return self._config["reduce_v2"] \
-               and '*' in allele and ':' not in allele \
-               and allele != self._map_v2_to_v3(allele)
+        return (
+            self._config["reduce_v2"]
+            and "*" in allele
+            and ":" not in allele
+            and allele != self._map_v2_to_v3(allele)
+        )
 
     def _is_who_allele(self, allele):
         """
@@ -403,7 +459,7 @@ class ARD(object):
 
     def is_shortnull(self, allele):
         """
-        Test if allele is valid in list of shortnull alleles and 
+        Test if allele is valid in list of shortnull alleles and
         the reduce_shortnull is configured to True (WMDA rules)
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
@@ -429,12 +485,12 @@ class ARD(object):
 
         # It's an allelic expansion if any of the alleles have a `:`
         # else it's a group expansion
-        is_allelic_expansion = any([':' in allele for allele in alleles])
+        is_allelic_expansion = any([":" in allele for allele in alleles])
         if is_allelic_expansion:
-            locus = locus_antigen.split('*')[0]  # Just keep the locus name
-            alleles = [f'{locus}*{a}' for a in alleles]
+            locus = locus_antigen.split("*")[0]  # Just keep the locus name
+            alleles = [f"{locus}*{a}" for a in alleles]
         else:
-            alleles = [f'{locus_antigen}:{a}' for a in alleles]
+            alleles = [f"{locus_antigen}:{a}" for a in alleles]
 
         return list(filter(self._is_valid_allele, alleles))
 
@@ -445,7 +501,7 @@ class ARD(object):
     @staticmethod
     def _combine_with_colon(digits_field):
         num_of_digits = len(digits_field)
-        return ':'.join(digits_field[i:i + 2] for i in range(0, num_of_digits, 2))
+        return ":".join(digits_field[i : i + 2] for i in range(0, num_of_digits, 2))
 
     def _predict_v3(self, v2_allele: str) -> str:
         """
@@ -455,9 +511,9 @@ class ARD(object):
         :return: V3 format of V2 allele
         """
         # Separate out the locus and the allele name part
-        locus, allele_name = v2_allele.split('*')
+        locus, allele_name = v2_allele.split("*")
         # Separate out the numeric and non-numeric components
-        components = re.findall(r'^(\d+)(.*)', allele_name)
+        components = re.findall(r"^(\d+)(.*)", allele_name)
         if not components:
             return v2_allele
         digits_field, non_digits_field = components.pop()
@@ -467,16 +523,22 @@ class ARD(object):
         if num_of_digits == 1:
             return v2_allele
         if num_of_digits > 2:
-            if locus.startswith('DP') and num_of_digits == 5:  # covers DPs with 5 digits
-                final_allele = digits_field[:3] + ':' + (digits_field[3:]) + non_digits_field
+            if (
+                locus.startswith("DP") and num_of_digits == 5
+            ):  # covers DPs with 5 digits
+                final_allele = (
+                    digits_field[:3] + ":" + (digits_field[3:]) + non_digits_field
+                )
             elif num_of_digits % 2 == 0:  # covers digits with 2, 4, 6, 8
                 final_allele = self._combine_with_colon(digits_field) + non_digits_field
             else:
-                final_allele = digits_field[:2] + ':' + (digits_field[2:]) + non_digits_field
+                final_allele = (
+                    digits_field[:2] + ":" + (digits_field[2:]) + non_digits_field
+                )
         else:
             if non_digits_field:
-                final_allele = digits_field + ':' + non_digits_field
-        return locus + '*' + final_allele
+                final_allele = digits_field + ":" + non_digits_field
+        return locus + "*" + final_allele
 
     def _map_v2_to_v3(self, v2_allele):
         """
@@ -500,7 +562,7 @@ class ARD(object):
         :return: allele or empty
         :rtype: bool
         """
-        if allele == '' or allele.endswith('*'):
+        if allele == "" or allele.endswith("*"):
             return False
 
         # validate allele without the 'HLA-' prefix
@@ -508,23 +570,25 @@ class ARD(object):
             # remove 'HLA-' prefix
             allele = allele[4:]
 
-        if '*' in allele:
-            alphanum_allele = allele.replace('*', '').replace(':', '')
+        if "*" in allele:
+            alphanum_allele = allele.replace("*", "").replace(":", "")
             if not alphanum_allele.isalnum():
                 return False
 
-        if not self.is_mac(allele) and \
-                not self.is_XX(allele) and \
-                not self.is_serology(allele) and \
-                not self.is_v2(allele) and \
-                not self.is_shortnull(allele):
+        if (
+            not self.is_mac(allele)
+            and not self.is_XX(allele)
+            and not self.is_serology(allele)
+            and not self.is_v2(allele)
+            and not self.is_shortnull(allele)
+        ):
             # Alleles ending with P or G are valid_alleles
-            if allele.endswith(('P', 'G')):
+            if allele.endswith(("P", "G")):
                 # remove the last character
                 allele = allele[:-1]
                 if self._is_valid_allele(allele):
                     return True
-                else: 
+                else:
                     allele = get_2field_allele(allele)
                     if self._is_valid_allele(allele):
                         return True
@@ -554,7 +618,10 @@ class ARD(object):
             return all(map(self.isvalid_gl, glstring.split("/")))
 
         # what falls through here is an allele
-        return self.isvalid(glstring)
+        is_valid_allele = self.isvalid(glstring)
+        if not is_valid_allele:
+            raise InvalidAlleleError(f"{glstring} is not a valid Allele")
+        return is_valid_allele
 
     def mac_toG(self, allele: str) -> str:
         """
@@ -608,7 +675,7 @@ class ARD(object):
         if db.is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
-                return ['HLA-' + a for a in self._get_alleles(code, locus_antigen)]
+                return ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
             else:
                 return list(self._get_alleles(code, locus_antigen))
 
