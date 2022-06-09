@@ -45,3 +45,18 @@ def redux_controller():
 
     # if no data is sent
     return {"message": "No input data provided"}, 404
+
+
+def mac_expand_controller(allele_code: str):
+    try:
+        if ard.is_mac(allele_code):
+            alleles = ard.expand_mac(allele_code)
+            return {
+                "mac": allele_code,
+                "alleles": alleles,
+                "gl_string": "/".join(alleles),
+            }, 200
+        else:
+            return {"message": f"{allele_code} is not a valid MAC"}, 404
+    except PyArdError as e:
+        return {"message": e.message}, 400
