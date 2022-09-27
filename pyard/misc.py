@@ -45,7 +45,7 @@ def get_G_name(a: str) -> str:
     if last_char in PandG_chars + expression_chars:
         a = a[:-1]
     if len(a.split(':')) ==2:
-      return ':'.join([a,"01"])
+      return ':'.join([a,"01"]) + "G"
     else:
       return ':'.join(a.split(':')[0:3]) + "G"
       
