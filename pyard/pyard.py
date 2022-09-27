@@ -102,7 +102,7 @@ class ARD(object):
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, False)
         # Load ARS mappings
-        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version, self._config['ping'])
+        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
         (
             self.valid_alleles,
@@ -141,7 +141,7 @@ class ARD(object):
         self.db_connection.close()
 
     @functools.lru_cache(maxsize=max_cache_size)
-    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
         """
         Does ARS reduction with allele and ARS type
 
@@ -173,6 +173,15 @@ class ARD(object):
         if allele.endswith(("P", "G")):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
+        if self._config["ping"] and reping:
+            if redux_type in ("lg", "lgx", "U2"):
+                if allele in self.ars_mappings.p_not_g:
+                    # return a joined
+                    return self.ars_mappings.p_not_g[allele]
+                else: 
+                    return self.redux(allele, redux_type, False)
+          
+            
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
                 return self.ars_mappings.dup_g[allele]

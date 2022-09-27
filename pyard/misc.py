@@ -37,3 +37,27 @@ def get_2field_allele(a: str) -> str:
 
 def number_of_fields(allele: str) -> int:
     return len(allele.split(":"))
+
+# computes a valid G name based on the ambiguity string
+def get_G_name(a: str) -> str:
+    a = a.split('/')[0]
+    last_char = a[-1]
+    if last_char in PandG_chars + expression_chars:
+        a = a[:-1]
+    if len(a.split(':')) ==2:
+      return ':'.join([a,"01"])
+    else:
+      return ':'.join(a.split(':')[0:3]) + "G"
+      
+# computes a valid P name based on the ambiguity string
+def get_P_name(a: str) -> str:
+    a = a.split('/')[0]
+    last_char = a[-1]
+    if last_char in PandG_chars + expression_chars:
+        a = a[:-1]
+    return ':'.join(a.split(':')[0:2]) + "P"
+
+
+def number_of_fields(allele: str) -> int:
+    return len(allele.split(":"))
+

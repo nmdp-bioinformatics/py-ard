@@ -30,7 +30,7 @@ from . import db
 from .broad_splits import broad_splits_dna_mapping
 from .broad_splits import broad_splits_ser_mapping
 from .misc import get_2field_allele, get_3field_allele, number_of_fields
-from .misc import expression_chars
+from .misc import expression_chars, get_G_name, get_P_name
 
 # GitHub URL where IMGT HLA files are downloaded.
 from pyard.smart_sort import smart_sort_comparator
@@ -46,6 +46,7 @@ ars_mapping_tables = [
     "lgx_group",
     "exon_group",
     "p_group",
+    "p_not_g",
 ]
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 
@@ -76,7 +77,7 @@ def expression_reduce(df):
     return None
 
 
-def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
+def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     if db.tables_exist(db_connection, ars_mapping_tables):
         dup_g = db.load_dict(
             db_connection, table_name="dup_g", columns=("allele", "g_group")
@@ -102,6 +103,9 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
         p_group = db.load_dict(
             db_connection, table_name="p_group", columns=("allele", "p")
         )
+        p_not_g = db.load_dict(
+            db_connection, table_name="p_not_g", columns=("allele", "lgx")
+        )
         return ARSMapping(
             dup_g=dup_g,
             dup_lg=dup_lg,
@@ -111,28 +115,45 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
             lgx_group=lgx_group,
             exon_group=exon_group,
             p_group=p_group,
+            p_not_g=p_not_g,
         )
 
-    # P groups
+
+    # load the hla_nom_g.txt
+    ars_G_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
+    df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+
+    # the G-group is named for its first allele
+    df["G"] = df["A"].apply(lambda a: get_G_name(a)) 
+
+    # load the hla_nom_p.txt
     ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
+    # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
     df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
-    df_P['A'] = df_P['A'].apply(lambda a: a.split('/'))
-    df_P = df_P.explode('A')
+
+    # the P-group is named for its first allele
+    df_P["P"] = df_P["A"].apply(lambda a: get_P_name(a)) 
+
+    # convert slash delimited string to a list
+    df_P["A"] = df_P["A"].apply(lambda a: a.split("/"))
+    df_P = df_P.explode("A")
+    # C* 06:06:01:01/06:06:01:02/06:271 06:06P
     df_P['A'] = df_P['Locus'] + df_P['A']
     df_P['P'] = df_P['Locus'] + df_P['P']
+    # C* 06:06:01:01 06:06P
+    # C* 06:06:01:02 06:06P
+    # C* 06:271 06:06P
     p_group = df_P.set_index('A')['P'].to_dict()
+    df_P["2d"] = df_P["A"].apply(get_2field_allele)
+    # lgx has the P-group name without the P for comparison 
+    df_P["lgx"] = df_P["P"].apply(get_2field_allele)
 
-    ars_G_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
-    df_G = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
-    if ping:
-        # put the P codes in the G-codes early to catch C*06:17 -> C*06:02
-        df_PinG = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
-        df = pd.concat([df_PinG, df_G])
-    else:
-        df = df_G
-
+    # convert slash delimited string to a list
     df["A"] = df["A"].apply(lambda a: a.split("/"))
+    # convert the list into separate rows for each element
     df = df.explode("A")
+
+    #  A*   + 02:01   = A*02:01
     df["A"] = df["Locus"] + df["A"]
     df["G"] = df["Locus"] + df["G"]
 
@@ -141,8 +162,25 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
     df["lg"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
     df["lgx"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]))
 
+    # compare df_P["2d"] with df["2d"] to find 2-field alleles in the 
+    # P-group that aren't in the G-group
+    PnotinG = set(df_P["2d"]) - set(df["2d"])
+
+    # filter to find these 2-field alleles (2d) in the P-group data frame
+    df_PnotG = df_P[df_P["2d"].isin(PnotinG)]
+
+    # dictionary which will define the table
+    p_not_g = df_PnotG.set_index("A")["lgx"].to_dict()
+
+
     # multiple Gs
+    # goal: identify 2-field alleles that are in multiple G-groups
+
+    # group by 2d and G, and select the 2d column and count the columns
     mg = df.drop_duplicates(["2d", "G"])["2d"].value_counts()
+    # filter out the mg with count > 1, leaving only duplicates
+    # take the index from the 2d version the data frame, make that a column
+    # and turn that into a list
     multiple_g_list = mg[mg > 1].reset_index()["index"].to_list()
 
     # Keep only the alleles that have more than 1 mapping
@@ -220,6 +258,12 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
     # save
     db.save_dict(
         db_connection,
+        table_name="p_not_g",
+        dictionary=p_not_g,
+        columns=("allele", "lgx"),
+    )
+    db.save_dict(
+        db_connection,
         table_name="dup_g",
         dictionary=dup_g,
         columns=("allele", "g_group"),
@@ -260,7 +304,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
     db.save_dict(
         db_connection,
         table_name="p_group",
-        dictionary=exon_group,
+        dictionary=p_group,
         columns=("allele", "p"),
     )
 
@@ -273,6 +317,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version, ping):
         lgx_group=lgx_group,
         exon_group=exon_group,
         p_group=p_group,
+        p_not_g=p_not_g,
     )
 
 
