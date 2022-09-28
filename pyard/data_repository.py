@@ -124,7 +124,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
 
     # the G-group is named for its first allele
-    df["G"] = df["A"].apply(lambda a: get_G_name(a)) 
+    df["G"] = df["A"].apply(get_G_name) 
 
     # load the hla_nom_p.txt
     ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
@@ -132,7 +132,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
 
     # the P-group is named for its first allele
-    df_P["P"] = df_P["A"].apply(lambda a: get_P_name(a)) 
+    df_P["P"] = df_P["A"].apply(get_P_name) 
 
     # convert slash delimited string to a list
     df_P["A"] = df_P["A"].apply(lambda a: a.split("/"))

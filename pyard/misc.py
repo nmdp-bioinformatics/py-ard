@@ -1,5 +1,6 @@
 # List of expression characters
 expression_chars = ['N', 'Q', 'L', 'S']
+# List of P and G characters
 PandG_chars = ['P', 'G']
 
 

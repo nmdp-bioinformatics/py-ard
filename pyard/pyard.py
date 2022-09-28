@@ -176,7 +176,6 @@ class ARD(object):
         if self._config["ping"] and reping:
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
-                    # return a joined
                     return self.ars_mappings.p_not_g[allele]
                 else: 
                     return self.redux(allele, redux_type, False)
