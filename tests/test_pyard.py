@@ -156,4 +156,4 @@ class TestPyArd(unittest.TestCase):
         # https://github.com/nmdp-bioinformatics/py-ard/issues/135
         allele_code = "C*02:ACMGS"
         allele_code_rx = self.ard.redux_gl(allele_code, "lgx")
-        self.assertEqual(allele_code_rx, "C*02:02/C*02:10")
+        self.assertEqual(allele_code_rx, "C*02:02")
