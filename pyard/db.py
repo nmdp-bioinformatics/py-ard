@@ -315,7 +315,7 @@ def similar_alleles(connection: sqlite3.Connection, allele_name: str) -> Set[str
     :param allele_name: Allele name to use as a prefix to find similar alleles
     :return: list of similar alleles
     """
-    query = f"SELECT allele FROM alleles WHERE allele LIKE ?"
+    query = "SELECT allele FROM alleles WHERE allele LIKE ?"
     cursor = connection.execute(query, (f"{allele_name}%",))
     result = cursor.fetchall()
     # fetchall() returns a list of tuples of results

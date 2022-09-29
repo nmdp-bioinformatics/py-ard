@@ -121,6 +121,14 @@ ard.redux_gl('B14', 'lg')
 | `exon`         | Reduce/Expand to exon level                     |
 | `U2`           | Reduce to 2 field unambiguous level             |
 
+## Perform DRB1 blending with DRB3, DRB4 and DRB5
+
+```python
+import pyard
+
+pyard.dr_blender(drb1='HLA-DRB1*03:01+DRB1*04:01', drb3='DRB3*01:01', drb4='DRB4*01:03')
+# >>> 'DRB3*01:01+DRB4*01:03'
+```
 # Command Line Tools
 
 ## Using `py-ard` from the command line

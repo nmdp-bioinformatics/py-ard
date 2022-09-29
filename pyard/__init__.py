@@ -22,6 +22,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 from .pyard import ARD
+from .blender import blender as dr_blender
 
 __author__ = """NMDP Bioinformatics"""
 __version__ = "0.8.0"
