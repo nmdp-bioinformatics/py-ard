@@ -48,6 +48,7 @@ default_config = {
     "reduce_XX": True,
     "reduce_MAC": True,
     "reduce_shortnull": True,
+    "ping": False,
     "map_drb345_to_drbx": True,
     "verbose_log": True,
 }
@@ -140,7 +141,7 @@ class ARD(object):
         self.db_connection.close()
 
     @functools.lru_cache(maxsize=max_cache_size)
-    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
         """
         Does ARS reduction with allele and ARS type
 
@@ -172,6 +173,13 @@ class ARD(object):
         if allele.endswith(("P", "G")):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
+        if self._config["ping"] and reping:
+            if redux_type in ("lg", "lgx", "U2"):
+                if allele in self.ars_mappings.p_not_g:
+                    return self.ars_mappings.p_not_g[allele]
+                else:
+                    return self.redux(allele, redux_type, False)
+
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
                 return self.ars_mappings.dup_g[allele]
