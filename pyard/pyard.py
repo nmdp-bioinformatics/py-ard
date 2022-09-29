@@ -177,10 +177,9 @@ class ARD(object):
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
                     return self.ars_mappings.p_not_g[allele]
-                else: 
+                else:
                     return self.redux(allele, redux_type, False)
-          
-            
+
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
                 return self.ars_mappings.dup_g[allele]

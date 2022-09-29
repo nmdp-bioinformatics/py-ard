@@ -23,7 +23,6 @@
 from collections import namedtuple
 import functools
 import sqlite3
-
 import pandas as pd
 
 from . import db
@@ -118,34 +117,35 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
             p_not_g=p_not_g,
         )
 
-
     # load the hla_nom_g.txt
-    ars_G_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt'
+    ars_G_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt"
     df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
 
     # the G-group is named for its first allele
-    df["G"] = df["A"].apply(get_G_name) 
+    df["G"] = df["A"].apply(get_G_name)
 
     # load the hla_nom_p.txt
-    ars_P_url = f'{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt'
+    ars_P_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt"
     # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
-    df_P = pd.read_csv(ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";").dropna()
+    df_P = pd.read_csv(
+        ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";"
+    ).dropna()
 
     # the P-group is named for its first allele
-    df_P["P"] = df_P["A"].apply(get_P_name) 
+    df_P["P"] = df_P["A"].apply(get_P_name)
 
     # convert slash delimited string to a list
     df_P["A"] = df_P["A"].apply(lambda a: a.split("/"))
     df_P = df_P.explode("A")
     # C* 06:06:01:01/06:06:01:02/06:271 06:06P
-    df_P['A'] = df_P['Locus'] + df_P['A']
-    df_P['P'] = df_P['Locus'] + df_P['P']
+    df_P["A"] = df_P["Locus"] + df_P["A"]
+    df_P["P"] = df_P["Locus"] + df_P["P"]
     # C* 06:06:01:01 06:06P
     # C* 06:06:01:02 06:06P
     # C* 06:271 06:06P
-    p_group = df_P.set_index('A')['P'].to_dict()
+    p_group = df_P.set_index("A")["P"].to_dict()
     df_P["2d"] = df_P["A"].apply(get_2field_allele)
-    # lgx has the P-group name without the P for comparison 
+    # lgx has the P-group name without the P for comparison
     df_P["lgx"] = df_P["P"].apply(get_2field_allele)
 
     # convert slash delimited string to a list
@@ -162,7 +162,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     df["lg"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
     df["lgx"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]))
 
-    # compare df_P["2d"] with df["2d"] to find 2-field alleles in the 
+    # compare df_P["2d"] with df["2d"] to find 2-field alleles in the
     # P-group that aren't in the G-group
     PnotinG = set(df_P["2d"]) - set(df["2d"])
 
@@ -171,7 +171,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 
     # dictionary which will define the table
     p_not_g = df_PnotG.set_index("A")["lgx"].to_dict()
-
 
     # multiple Gs
     # goal: identify 2-field alleles that are in multiple G-groups
