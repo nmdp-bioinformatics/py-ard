@@ -15,6 +15,12 @@ def step_impl(context, level):
     context.redux_allele = context.ard.redux(context.allele, level)
 
 
+@when("reducing on the {level} level with ping")
+def step_impl(context, level):
+    context.level = level
+    context.redux_allele = context.ard_ping.redux(context.allele, level)
+
+
 @when("reducing on the {level} level (ambiguous)")
 def step_impl(context, level):
     context.level = level

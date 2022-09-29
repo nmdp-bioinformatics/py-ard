@@ -1,6 +1,20 @@
 Feature: Alleles
 
-  Scenario Outline:
+  Scenario Outline: allele reduction with ping
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level with ping
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele         | Level | Redux Allele      |
+      | C*02:02        | lg    | C*02:02g          |
+      | C*02:02        | lgx   | C*02:02           |
+      | C*02:10        | lg    | C*02:02g          |
+      | C*02:10        | lgx   | C*02:02           |
+      | C*06:17        | lgx   | C*06:02           |
+
+  Scenario Outline: allele reduction
 
     Given the allele as <Allele>
     When reducing on the <Level> level
@@ -25,3 +39,4 @@ Feature: Alleles
       | C*02:02        | lgx   | C*02:02           |
       | C*02:10        | lg    | C*02:02g          |
       | C*02:10        | lgx   | C*02:02           |
+      | C*06:17        | lgx   | C*06:17           |
