@@ -3,7 +3,7 @@ Feature: DRB1 blends with DRB3, DRB4, DRB5
   Scenario Outline: DRB1 blends
 
     Given a subject has <DRB1_SLUG> DRB1 SLUG
-    Given a subject has <DRB3> DRB3 allele
+    And a subject has <DRB3> DRB3 allele
     And a subject has <DRB4> DRB4 allele
     And a subject has <DRB5> DRB5 allele
     When I blend the DRBX alleles with DRB1 allele
@@ -24,7 +24,7 @@ Feature: DRB1 blends with DRB3, DRB4, DRB5
   Scenario Outline: DRB1 doesn't blend
 
     Given a subject has <DRB1_SLUG> DRB1 SLUG
-    Given a subject has <DRB3> DRB3 allele
+    And a subject has <DRB3> DRB3 allele
     And a subject has <DRB4> DRB4 allele
     And a subject has <DRB5> DRB5 allele
     When I blend the DRBX alleles with DRB1 allele, it shouldn't blend
