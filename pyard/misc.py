@@ -59,7 +59,3 @@ def get_P_name(a: str) -> str:
     if last_char in PandG_chars + expression_chars:
         a = a[:-1]
     return ":".join(a.split(":")[0:2]) + "P"
-
-
-def number_of_fields(allele: str) -> int:
-    return len(allele.split(":"))
