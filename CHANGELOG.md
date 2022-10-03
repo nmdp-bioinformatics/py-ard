@@ -1,3 +1,16 @@
+<a name="0.8.1"></a>
+# [Ping! Mode and DR Blending (0.8.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.1) - 03 Oct 2022
+
+PING mode
+ - When `ping=True` alleles in P-groups are included in addition to the alleles in G-groups in the corresponding lg/lgx groups.
+
+DR Blending
+ - Support DRBX Blending from DRB1
+ 
+
+[Changes][0.8.1]
+
+
 <a name="0.8.0"></a>
 # [`py-ard` REST Service (0.8.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.0) - 10 Jun 2022
 
@@ -386,6 +399,7 @@ yes
 [Changes][0.0.14]
 
 
+[0.8.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.7...0.8.0
 [0.7.7]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.6...0.7.7
 [0.7.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.7.5...0.7.6
