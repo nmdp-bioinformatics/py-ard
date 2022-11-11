@@ -30,7 +30,7 @@ from . import db
 from . import data_repository as dr
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import get_n_field_allele, get_2field_allele
+from .misc import get_n_field_allele, get_2field_allele, expression_chars
 
 HLA_regex = re.compile("^HLA-")
 
@@ -109,11 +109,13 @@ class ARD(object):
             self.who_alleles,
             self.xx_codes,
             self.who_group,
-            self.shortnulls,
             self.exp_alleles,
         ) = dr.generate_alleles_and_xx_codes_and_who(
             self.db_connection, imgt_version, self.ars_mappings
         )
+
+        # Generate short nulls from WHO mapping
+        self.shortnulls = dr.generate_short_nulls(self.db_connection, self.who_group)
 
         # Load Serology mappings
         dr.generate_serology_mapping(self.db_connection, imgt_version)
@@ -213,7 +215,16 @@ class ARD(object):
                 return allele
         elif redux_type == "exon":
             if allele in self.ars_mappings.exon_group:
-                return self.ars_mappings.exon_group[allele]
+                exon_group_allele = self.ars_mappings.exon_group[allele]
+                # Check if the 3 field exon allele has a 4 field alleles
+                # that all have the same expression characters
+                last_char = allele[-1]
+                if last_char in expression_chars:
+                    exon_short_null_allele = exon_group_allele + last_char
+                    if self.is_shortnull(exon_short_null_allele):
+                        return exon_short_null_allele
+
+                return exon_group_allele
             else:
                 # for 'exon' return allele with only first 3 fields
                 return ":".join(allele.split(":")[0:3])
@@ -360,7 +371,7 @@ class ARD(object):
             else:
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
 
-        # Handle shortnulls
+        # Handle short nulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
             return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
 
