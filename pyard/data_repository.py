@@ -362,17 +362,12 @@ def generate_alleles_and_xx_codes_and_who(
         xx_codes = db.load_dict(db_connection, "xx_codes", ("allele_1d", "allele_list"))
         xx_codes = {k: v.split("/") for k, v in xx_codes.items()}
 
-        shortnulls = db.load_dict(
-            db_connection, "shortnulls", ("shortnull", "allele_list")
-        )
-        shortnulls = {k: v.split("/") for k, v in shortnulls.items()}
-
         exp_alleles = db.load_dict(
             db_connection, "exp_alleles", ("exp_allele", "allele_list")
         )
         exp_alleles = {k: v.split("/") for k, v in exp_alleles.items()}
 
-        return valid_alleles, who_alleles, xx_codes, who_group, shortnulls, exp_alleles
+        return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
 
     # Create a Pandas DataFrame from the mac_code list file
     # Skip the header (first 6 lines) and use only the Allele column
@@ -481,6 +476,17 @@ def generate_alleles_and_xx_codes_and_who(
         db_connection, "who_group", flat_who_group, columns=("who", "allele_list")
     )
 
+    return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
+
+
+def generate_short_nulls(db_connection, who_group):
+    if db.table_exists(db_connection, "shortnulls"):
+        shortnulls = db.load_dict(
+            db_connection, "shortnulls", ("shortnull", "allele_list")
+        )
+        shortnulls = {k: v.split("/") for k, v in shortnulls.items()}
+        return shortnulls
+
     # shortnulls
     # scan WHO alleles for those with expression characters and make shortnull mappings
     # DRB4*01:03N | DRB4*01:03:01:02N/DRB4*01:03:01:13N
@@ -508,8 +514,7 @@ def generate_alleles_and_xx_codes_and_who(
 
     db.save_dict(db_connection, "shortnulls", shortnulls, ("shortnull", "allele_list"))
     shortnulls = {k: v.split("/") for k, v in shortnulls.items()}
-
-    return valid_alleles, who_alleles, xx_codes, who_group, shortnulls, exp_alleles
+    return shortnulls
 
 
 def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
