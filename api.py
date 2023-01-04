@@ -1,6 +1,8 @@
 from flask import request
 
+import pyard
 from pyard import ARD
+from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
 
 # Globally accessible for all endpoints
@@ -60,3 +62,20 @@ def mac_expand_controller(allele_code: str):
             return {"message": f"{allele_code} is not a valid MAC"}, 404
     except PyArdError as e:
         return {"message": e.message}, 400
+
+
+def drbx_blender_controller():
+    if request.json:
+        try:
+            drb1_slug = request.json["DRB1_SLUG"]
+            drb3 = request.json["DRB3"]
+            drb4 = request.json["DRB4"]
+            drb5 = request.json["DRB5"]
+        except KeyError:
+            return {"message", "All of DRB1_SLUG, DRB3, DRB4, DRB5 values not provided"}
+
+        try:
+            blended_drbx = pyard.dr_blender(drb1_slug, drb3, drb4, drb5)
+            return {"DRBX_blend": blended_drbx}
+        except DRBXBlenderError as e:
+            return {"found": e.found, "expected": e.expected}

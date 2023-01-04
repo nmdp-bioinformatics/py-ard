@@ -5,24 +5,24 @@ import pyard
 from pyard.blender import DRBXBlenderError
 
 
-@given("a subject has {DRB1_SLUG} DRB1 SLUG")
-def step_impl(context, DRB1_SLUG):
-    context.drb1_slug = DRB1_SLUG
+@given("a subject has {drb1_slug} DRB1 SLUG")
+def step_impl(context, drb1_slug):
+    context.drb1_slug = drb1_slug
 
 
-@given("a subject has {DRB3} DRB3 allele")
-def step_impl(context, DRB3):
-    context.drb3 = DRB3 if DRB3 != "no" else ""
+@given("a subject has {drb3} DRB3 allele")
+def step_impl(context, drb3):
+    context.drb3 = drb3 if drb3 != "no" else ""
 
 
-@step("a subject has {DRB4} DRB4 allele")
-def step_impl(context, DRB4):
-    context.drb4 = DRB4 if DRB4 != "no" else ""
+@step("a subject has {drb4} DRB4 allele")
+def step_impl(context, drb4):
+    context.drb4 = drb4 if drb4 != "no" else ""
 
 
-@step("a subject has {DRB5} DRB5 allele")
-def step_impl(context, DRB5):
-    context.drb5 = DRB5 if DRB5 != "no" else ""
+@step("a subject has {drb5} DRB5 allele")
+def step_impl(context, drb5):
+    context.drb5 = drb5 if drb5 != "no" else ""
 
 
 @when("I blend the DRBX alleles with DRB1 allele")
@@ -32,10 +32,10 @@ def step_impl(context):
     )
 
 
-@then("it should blend as {DRBX_BLEND}")
-def step_impl(context, DRBX_BLEND):
-    DRBX_BLEND = DRBX_BLEND if DRBX_BLEND != "nothing" else ""
-    assert_that(context.blended_drbx, is_(DRBX_BLEND))
+@then("it should blend as {drbx_blend}")
+def step_impl(context, drbx_blend):
+    drbx_blend = drbx_blend if drbx_blend != "nothing" else ""
+    assert_that(context.blended_drbx, is_(drbx_blend))
 
 
 @when("I blend the DRBX alleles with DRB1 allele, it shouldn't blend")

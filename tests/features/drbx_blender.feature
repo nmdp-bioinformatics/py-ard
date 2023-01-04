@@ -10,16 +10,16 @@ Feature: DRB1 blends with DRB3, DRB4, DRB5
     Then it should blend as <DRBX_BLEND>
 
     Examples: All blends with DRB1
-      | DRB1_SLUG                 | DRB3       | DRB4       | DRB5       | DRBX_BLEND            |
-      | HLA-DRB1*03:01+DRB1*04:01 | DRB3*01:01 | DRB4*01:03 | no         | DRB3*01:01+DRB4*01:03 |
-      | HLA-DRB1*03:01+DRB1*04:01 | DRB3*01:01 | DRB4*01:03 | no         | DRB3*01:01+DRB4*01:03 |
-      | HLA-DRB1*03:01+DRB1*04:01 | no         | DRB4*01:03 | no         | DRB4*01:03            |
-      | HLA-DRB1*03:01+DRB1*04:01 | DRB3*01:03 | no         | no         | DRB3*01:03            |
-      | HLA-DRB1*01:01+DRB1*08:01 | no         | no         | no         | nothing               |
-      | HLA-DRB1*01:01+DRB1*03:01 | no         | no         | no         | nothing               |
-      | HLA-DRB1*01:01+DRB1*04:01 | no         | no         | no         | nothing               |
-      | HLA-DRB1*03:01+DRB1*13:01 | DRB3*01:01 | no         | no         | DRB3*01:01            |
-      | HLA-DRB1*15:01+DRB1*16:01 | no         | no         | DRB5*01:03 | DRB5*01:03            |
+      | DRB1_SLUG                     | DRB3           | DRB4           | DRB5       | DRBX_BLEND                    |
+      | HLA-DRB1*03:01+HLA-DRB1*04:01 | HLA-DRB3*01:01 | HLA-DRB4*01:03 | no         | HLA-DRB3*01:01+HLA-DRB4*01:03 |
+      | HLA-DRB1*03:01+HLA-DRB1*04:01 | DRB3*01:01     | DRB4*01:03     | no         | DRB3*01:01+DRB4*01:03         |
+      | HLA-DRB1*03:01+HLA-DRB1*04:01 | no             | DRB4*01:03     | no         | DRB4*01:03                    |
+      | HLA-DRB1*03:01+HLA-DRB1*04:01 | DRB3*01:03     | no             | no         | DRB3*01:03                    |
+      | HLA-DRB1*01:01+HLA-DRB1*08:01 | no             | no             | no         | nothing                       |
+      | HLA-DRB1*01:01+HLA-DRB1*03:01 | no             | no             | no         | nothing                       |
+      | HLA-DRB1*01:01+HLA-DRB1*04:01 | no             | no             | no         | nothing                       |
+      | HLA-DRB1*03:01+HLA-DRB1*13:01 | DRB3*01:01     | no             | no         | DRB3*01:01                    |
+      | HLA-DRB1*15:01+HLA-DRB1*16:01 | no             | no             | DRB5*01:03 | DRB5*01:03                    |
 
   Scenario Outline: DRB1 doesn't blend
 

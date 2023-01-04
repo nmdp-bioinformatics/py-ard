@@ -10,6 +10,8 @@ tags:
     description: Reduce GL String to ARD
   - name: MAC Expansion
     description: Expand MAC to alleles
+  - name: DRBX Blender
+    description: Blend DRBX based on DRB1 and DRB3/4/5
 paths:
   /redux:
     post:
@@ -170,3 +172,74 @@ paths:
                     description: Describes what went wrong
                     type: string
                     example: "Invalid HLA locus"
+  /blend:
+    post:
+      tags:
+        - DRBX Blender
+      operationId: api.drbx_blender_controller
+      summary: Blend DRBX
+      description: |
+        Given DRB1 SLUG(Single Locus Unambiguous Genotype) and DRB3, DRB4, DRB5 alleles,
+        calculate the DRBX Blended SLUG/Allele
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - DRB1_SLUG
+              properties:
+                DRB1_SLUG:
+                  description: |
+                    DRB1 SLUG(Single Locus Unambiguous Genotype) in GL String Format
+                  type: string
+                  example: "HLA-DRB1*03:01+HLA-DRB1*04:01"
+                DRB3:
+                  description: DRB3 Allele
+                  type: string
+                  example: "DRB3*01:01"
+                DRB4:
+                  description: DRB4 Allele
+                  type: string
+                  example: "DRB4*01:03"
+                DRB5:
+                  description: DRB5 Allele
+                  type: string
+                  example: ""
+      responses:
+        200:
+          description: DRBX Blend Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  DRBX_blend:
+                    description: Blended DRBX Result
+                    type: string
+                    example: "DRB3*01:01+DRB4*01:03"
+        404:
+          description: DRBX Blend Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  found:
+                    description: What was found
+                    type: string
+                    example: "DRB5 het"
+                  expected:
+                    description: What was expected
+                    type: string
+                    example: "hom"
+        400:
+          description: Invalid DRB Data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: Describes what went wrong
+                    type: string
+                    example: "All of DRB1_SLUG, DRB3, DRB4, DRB5 values not provided"
