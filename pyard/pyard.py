@@ -39,7 +39,7 @@ HLA_regex = re.compile("^HLA-")
 # >>> pyard.max_cache_size = 1_000_000
 # >>> ard = pyard.ARD()
 
-max_cache_size = 1_000
+max_cache_size = 5_000_000
 default_config = {
     "reduce_serology": True,
     "reduce_v2": True,
