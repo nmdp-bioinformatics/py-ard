@@ -38,10 +38,8 @@ IMGT_HLA_URL = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/"
 
 ars_mapping_tables = [
     "dup_g",
-    "dup_lg",
     "dup_lgx",
     "g_group",
-    "lg_group",
     "lgx_group",
     "exon_group",
     "p_group",
@@ -81,17 +79,11 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         dup_g = db.load_dict(
             db_connection, table_name="dup_g", columns=("allele", "g_group")
         )
-        dup_lg = db.load_dict(
-            db_connection, table_name="dup_lg", columns=("allele", "lg_group")
-        )
         dup_lgx = db.load_dict(
             db_connection, table_name="dup_lgx", columns=("allele", "lgx_group")
         )
         g_group = db.load_dict(
             db_connection, table_name="g_group", columns=("allele", "g")
-        )
-        lg_group = db.load_dict(
-            db_connection, table_name="lg_group", columns=("allele", "lg")
         )
         lgx_group = db.load_dict(
             db_connection, table_name="lgx_group", columns=("allele", "lgx")
@@ -107,10 +99,8 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         )
         return ARSMapping(
             dup_g=dup_g,
-            dup_lg=dup_lg,
             dup_lgx=dup_lgx,
             g_group=g_group,
-            lg_group=lg_group,
             lgx_group=lgx_group,
             exon_group=exon_group,
             p_group=p_group,
@@ -159,7 +149,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 
     df["2d"] = df["A"].apply(get_2field_allele)
     df["3d"] = df["A"].apply(get_3field_allele)
-    df["lg"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]) + "g")
     df["lgx"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]))
 
     # compare df_P["2d"] with df["2d"] to find 2-field alleles in the
@@ -191,19 +180,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         .to_dict()["G"]
     )
 
-    # multiple lg
-    mlg = df.drop_duplicates(["2d", "lg"])["2d"].value_counts()
-    multiple_lg_list = mlg[mlg > 1].reset_index()["index"].to_list()
-
-    # Keep only the alleles that have more than 1 mapping
-    dup_lg = (
-        df[df["2d"].isin(multiple_lg_list)][["lg", "2d"]]
-        .drop_duplicates()
-        .groupby("2d", as_index=True)
-        .agg("/".join)
-        .to_dict()["lg"]
-    )
-
     # multiple lgx
     mlgx = df.drop_duplicates(["2d", "lgx"])["2d"].value_counts()
     multiple_lgx_list = mlgx[mlgx > 1].reset_index()["index"].to_list()
@@ -227,15 +203,6 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         ignore_index=True,
     )
     g_group = df_g.set_index("A")["G"].to_dict()
-
-    df_lg = pd.concat(
-        [
-            df[["2d", "lg"]].rename(columns={"2d": "A"}),
-            df[["3d", "lg"]].rename(columns={"3d": "A"}),
-            df[["A", "lg"]],
-        ]
-    )
-    lg_group = df_lg.set_index("A")["lg"].to_dict()
 
     df_lgx = pd.concat(
         [
@@ -269,24 +236,12 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     )
     db.save_dict(
         db_connection,
-        table_name="dup_lg",
-        dictionary=dup_lg,
-        columns=("allele", "lg_group"),
-    )
-    db.save_dict(
-        db_connection,
         table_name="dup_lgx",
         dictionary=dup_lgx,
         columns=("allele", "lgx_group"),
     )
     db.save_dict(
         db_connection, table_name="g_group", dictionary=g_group, columns=("allele", "g")
-    )
-    db.save_dict(
-        db_connection,
-        table_name="lg_group",
-        dictionary=lg_group,
-        columns=("allele", "lg"),
     )
     db.save_dict(
         db_connection,
@@ -309,10 +264,8 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 
     return ARSMapping(
         dup_g=dup_g,
-        dup_lg=dup_lg,
         dup_lgx=dup_lgx,
         g_group=g_group,
-        lg_group=lg_group,
         lgx_group=lgx_group,
         exon_group=exon_group,
         p_group=p_group,
@@ -434,7 +387,7 @@ def generate_alleles_and_xx_codes_and_who(
 
     # W H O
     who_alleles = set(allele_df["Allele"])
-    # Save this version of the who alleles
+    # Save this version of the WHO alleles
     db.save_set(db_connection, "who_alleles", who_alleles, "allele")
     # Create WHO mapping from the unique alleles in the 1-field column
     unique_alleles = allele_df["Allele"].unique()
