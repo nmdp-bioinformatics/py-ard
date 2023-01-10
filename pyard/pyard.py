@@ -187,24 +187,19 @@ class ARD(object):
                 return self.ars_mappings.dup_g[allele]
             else:
                 return self.ars_mappings.g_group[allele]
-        elif redux_type == "lg":
-            if allele in self.ars_mappings.dup_lg:
-                return self.ars_mappings.dup_lg[allele]
-            elif allele in self.ars_mappings.lg_group:
-                return self.ars_mappings.lg_group[allele]
-            else:
-                # for 'lg' when allele is not in G group,
-                # return allele with only first 2 field
-                return ":".join(allele.split(":")[0:2]) + "g"
-        elif redux_type == "lgx":
+        elif redux_type in ["lgx", "lg"]:
             if allele in self.ars_mappings.dup_lgx:
-                return self.ars_mappings.dup_lgx[allele]
+                redux_allele = self.ars_mappings.dup_lgx[allele]
             elif allele in self.ars_mappings.lgx_group:
-                return self.ars_mappings.lgx_group[allele]
+                redux_allele = self.ars_mappings.lgx_group[allele]
             else:
-                # for 'lgx' when allele is not in G group,
+                # for 'lgx' or 'lg' mode when allele is not in G group,
                 # return allele with only first 2 field
-                return ":".join(allele.split(":")[0:2])
+                redux_allele = ":".join(allele.split(":")[0:2])
+            if redux_type == "lg":
+                # lg mode has g appended with lgx reduction
+                return redux_allele + "g"
+            return redux_allele
         elif redux_type == "W":
             # new redux_type which is full WHO expansion
             if self._is_who_allele(allele):
