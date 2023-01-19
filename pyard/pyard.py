@@ -102,7 +102,9 @@ class ARD(object):
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, False)
         # Load ARS mappings
-        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
+        self.ars_mappings, p_group = dr.generate_ars_mapping(
+            self.db_connection, imgt_version
+        )
         # Load Alleles and XX Codes
         (
             self.valid_alleles,
@@ -111,7 +113,7 @@ class ARD(object):
             self.who_group,
             self.exp_alleles,
         ) = dr.generate_alleles_and_xx_codes_and_who(
-            self.db_connection, imgt_version, self.ars_mappings
+            self.db_connection, imgt_version, self.ars_mappings, p_group
         )
 
         # Generate short nulls from WHO mapping

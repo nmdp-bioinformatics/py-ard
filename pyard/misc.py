@@ -11,6 +11,7 @@ def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
 
     :param allele: Original allele
     :param n: n number of fields to reduce to
+    :param preserve_expression: keep the expression character ?
     :return: trimmed to n fields of the original allele
     """
     last_char = allele[-1]
