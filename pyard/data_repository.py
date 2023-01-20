@@ -28,7 +28,12 @@ import pandas as pd
 from . import db
 from .broad_splits import broad_splits_dna_mapping
 from .broad_splits import broad_splits_ser_mapping
-from .misc import get_2field_allele, get_3field_allele, number_of_fields
+from .misc import (
+    get_2field_allele,
+    get_3field_allele,
+    number_of_fields,
+    get_1field_allele,
+)
 from .misc import expression_chars, get_G_name, get_P_name
 
 # GitHub URL where IMGT HLA files are downloaded.
@@ -241,9 +246,12 @@ def load_g_group(imgt_version):
     #  A*   + 02:01   = A*02:01
     df["A"] = df["Locus"] + df["A"]
     df["G"] = df["Locus"] + df["G"]
+    # Create 2,3 field versions of the alleles
     df["2d"] = df["A"].apply(get_2field_allele)
     df["3d"] = df["A"].apply(get_3field_allele)
+    # lgx is 2 field version of the G group allele
     df["lgx"] = df["G"].apply(get_2field_allele)
+
     return df
 
 
@@ -384,28 +392,23 @@ def generate_alleles_and_xx_codes_and_who(
     db.save_dict(db_connection, "xx_codes", flat_xx_codes, ("allele_1d", "allele_list"))
 
     # W H O
-    who_alleles = set(allele_df["Allele"])
+    who_alleles = allele_df["Allele"].to_list()
     # Save this version of the WHO alleles
     db.save_set(db_connection, "who_alleles", who_alleles, "allele")
+
     # Create WHO mapping from the unique alleles in the 1-field column
-    unique_alleles = allele_df["Allele"].unique()
-    who_df1 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df1["nd"] = allele_df["Allele"].apply(lambda x: x.split(":")[0])
-    # Create WHO mapping from the unique alleles in the 2-field column
-    who_df2 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df2["nd"] = allele_df["Allele"].apply(get_2field_allele)
-    # Create WHO mapping from the unique alleles in the 3-field column
-    who_df3 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df3["nd"] = allele_df["Allele"].apply(get_3field_allele)
-    # Combine n-field dataframes in 1
+    allele_df["1d"] = allele_df["Allele"].apply(get_1field_allele)
 
-    # Create g_codes expansion mapping from the same tables used to reduce to G
-    g_df = pd.DataFrame(list(ars_mappings.g_group.items()), columns=["Allele", "nd"])
-
-    # Create p_codes expansion mapping from the p_group table
-    p_df = pd.DataFrame(list(p_group.items()), columns=["Allele", "nd"])
-
-    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df, p_df])
+    who_codes = pd.concat(
+        [
+            allele_df[["Allele", "1d"]].rename(columns={"1d": "nd"}),
+            allele_df[["Allele", "2d"]].rename(columns={"2d": "nd"}),
+            allele_df[["Allele", "3d"]].rename(columns={"3d": "nd"}),
+            pd.DataFrame(ars_mappings.g_group.items(), columns=["Allele", "nd"]),
+            pd.DataFrame(p_group.items(), columns=["Allele", "nd"]),
+        ],
+        ignore_index=True,
+    )
 
     # remove valid alleles from who_codes to avoid recursion
     for k in who_alleles:

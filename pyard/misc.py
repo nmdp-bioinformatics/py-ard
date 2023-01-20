@@ -37,6 +37,10 @@ def get_2field_allele(a: str) -> str:
     return get_n_field_allele(a, 2)
 
 
+def get_1field_allele(a: str) -> str:
+    return get_n_field_allele(a, 1)
+
+
 def number_of_fields(allele: str) -> int:
     return len(allele.split(":"))
 
