@@ -22,6 +22,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import argparse
+import sys
 
 import pyard
 
@@ -39,13 +40,29 @@ def get_imgt_version(imgt_version):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        usage="""[-v <IMGT DB Version>] [gl-string redux_type]""",
-        description="""py-ard tool to redux GL String""",
+        description="""
+        py-ard tool to redux GL String
+        """,
     )
-    parser.add_argument("-v", "--imgt-version", dest="imgt_version")
-    parser.add_argument("--gl", required=True, dest="gl_string")
     parser.add_argument(
-        "-r", choices=pyard.pyard.reduction_types, required=True, dest="redux_type"
+        "-v",
+        "--version",
+        dest="version",
+        action="store_true",
+        help="IPD-IMGT/HLA DB Version number",
+    )
+    parser.add_argument(
+        "-i",
+        "--imgt-version",
+        dest="imgt_version",
+        help="IPD-IMGT/HLA db to use for redux",
+    )
+    parser.add_argument("--gl", dest="gl_string", help="GL String to reduce")
+    parser.add_argument(
+        "-r",
+        choices=pyard.pyard.reduction_types,
+        dest="redux_type",
+        help="Reduction Method",
     )
 
     args = parser.parse_args()
@@ -55,6 +72,11 @@ if __name__ == "__main__":
         ard = pyard.ARD(imgt_version)
     else:
         ard = pyard.ARD()
+
+    if args.version:
+        version = ard.get_db_version()
+        print(f"IPD-IMGT/HLA version:", version)
+        sys.exit(0)
 
     print(ard.redux_gl(args.gl_string, args.redux_type))
     del ard

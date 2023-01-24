@@ -323,3 +323,36 @@ def similar_alleles(connection: sqlite3.Connection, allele_name: str) -> Set[str
     # Get out the first value of the tuple from the result list
     alleles = set(map(lambda t: t[0], result))
     return alleles
+
+
+def get_user_version(connection: sqlite3.Connection) -> int:
+    """
+    Retrieve user_version from db
+
+    :connection: sqlite3.Connection: SQLite DB Connection
+    """
+    query = "PRAGMA user_version"
+    cursor = connection.execute(query)
+    result = cursor.fetchone()
+    version = result[0]
+    cursor.close()
+
+    if version:
+        return version
+    return None
+
+
+def set_user_version(connection: sqlite3.Connection, version: int):
+    """
+    Save the version number as user_version in db
+
+    :connection: sqlite3.Connection:
+    :version: int: version number to store
+    @return:
+    """
+    query = f"PRAGMA user_version={version}"
+    cursor = connection.execute(query)
+    # commit transaction - writes to the db
+    connection.commit()
+    # close the cursor
+    cursor.close()

@@ -38,6 +38,9 @@ from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingE
 
 
 class TestPyArd(unittest.TestCase):
+    db_version = None
+    ard = None
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.db_version = "3440"
@@ -157,3 +160,6 @@ class TestPyArd(unittest.TestCase):
         allele_code = "C*02:ACMGS"
         allele_code_rx = self.ard.redux_gl(allele_code, "lgx")
         self.assertEqual(allele_code_rx, "C*02:02")
+
+    def test_imgt_db_version(self):
+        self.assertEqual(self.ard.get_db_version(), int(TestPyArd.db_version))
