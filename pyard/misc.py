@@ -11,6 +11,7 @@ def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
 
     :param allele: Original allele
     :param n: n number of fields to reduce to
+    :param preserve_expression: keep the expression character ?
     :return: trimmed to n fields of the original allele
     """
     last_char = allele[-1]
@@ -34,6 +35,10 @@ def get_2field_allele(a: str) -> str:
     if last_char in PandG_chars:
         a = a[:-1]
     return get_n_field_allele(a, 2)
+
+
+def get_1field_allele(a: str) -> str:
+    return get_n_field_allele(a, 1)
 
 
 def number_of_fields(allele: str) -> int:

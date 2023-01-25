@@ -28,7 +28,12 @@ import pandas as pd
 from . import db
 from .broad_splits import broad_splits_dna_mapping
 from .broad_splits import broad_splits_ser_mapping
-from .misc import get_2field_allele, get_3field_allele, number_of_fields
+from .misc import (
+    get_2field_allele,
+    get_3field_allele,
+    number_of_fields,
+    get_1field_allele,
+)
 from .misc import expression_chars, get_G_name, get_P_name
 
 # GitHub URL where IMGT HLA files are downloaded.
@@ -42,7 +47,6 @@ ars_mapping_tables = [
     "g_group",
     "lgx_group",
     "exon_group",
-    "p_group",
     "p_not_g",
 ]
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
@@ -91,75 +95,35 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         exon_group = db.load_dict(
             db_connection, table_name="exon_group", columns=("allele", "exon")
         )
-        p_group = db.load_dict(
-            db_connection, table_name="p_group", columns=("allele", "p")
-        )
         p_not_g = db.load_dict(
             db_connection, table_name="p_not_g", columns=("allele", "lgx")
         )
-        return ARSMapping(
-            dup_g=dup_g,
-            dup_lgx=dup_lgx,
-            g_group=g_group,
-            lgx_group=lgx_group,
-            exon_group=exon_group,
-            p_group=p_group,
-            p_not_g=p_not_g,
+        return (
+            ARSMapping(
+                dup_g=dup_g,
+                dup_lgx=dup_lgx,
+                g_group=g_group,
+                lgx_group=lgx_group,
+                exon_group=exon_group,
+                p_not_g=p_not_g,
+            ),
+            None,
         )
 
-    # load the hla_nom_g.txt
-    ars_G_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt"
-    df = pd.read_csv(ars_G_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    df = load_g_group(imgt_version)
 
-    # the G-group is named for its first allele
-    df["G"] = df["A"].apply(get_G_name)
+    df_p_group = load_p_group(imgt_version)
+    p_group = df_p_group.set_index("A")["P"].to_dict()
 
-    # load the hla_nom_p.txt
-    ars_P_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt"
-    # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
-    df_P = pd.read_csv(
-        ars_P_url, skiprows=6, names=["Locus", "A", "P"], sep=";"
-    ).dropna()
-
-    # the P-group is named for its first allele
-    df_P["P"] = df_P["A"].apply(get_P_name)
-
-    # convert slash delimited string to a list
-    df_P["A"] = df_P["A"].apply(lambda a: a.split("/"))
-    df_P = df_P.explode("A")
-    # C* 06:06:01:01/06:06:01:02/06:271 06:06P
-    df_P["A"] = df_P["Locus"] + df_P["A"]
-    df_P["P"] = df_P["Locus"] + df_P["P"]
-    # C* 06:06:01:01 06:06P
-    # C* 06:06:01:02 06:06P
-    # C* 06:271 06:06P
-    p_group = df_P.set_index("A")["P"].to_dict()
-    df_P["2d"] = df_P["A"].apply(get_2field_allele)
-    # lgx has the P-group name without the P for comparison
-    df_P["lgx"] = df_P["P"].apply(get_2field_allele)
-
-    # convert slash delimited string to a list
-    df["A"] = df["A"].apply(lambda a: a.split("/"))
-    # convert the list into separate rows for each element
-    df = df.explode("A")
-
-    #  A*   + 02:01   = A*02:01
-    df["A"] = df["Locus"] + df["A"]
-    df["G"] = df["Locus"] + df["G"]
-
-    df["2d"] = df["A"].apply(get_2field_allele)
-    df["3d"] = df["A"].apply(get_3field_allele)
-    df["lgx"] = df["G"].apply(lambda a: ":".join(a.split(":")[0:2]))
-
-    # compare df_P["2d"] with df["2d"] to find 2-field alleles in the
+    # compare df_p_group["2d"] with df["2d"] to find 2-field alleles in the
     # P-group that aren't in the G-group
-    PnotinG = set(df_P["2d"]) - set(df["2d"])
+    p_not_in_g = set(df_p_group["2d"]) - set(df["2d"])
 
     # filter to find these 2-field alleles (2d) in the P-group data frame
-    df_PnotG = df_P[df_P["2d"].isin(PnotinG)]
+    df_p_not_g = df_p_group[df_p_group["2d"].isin(p_not_in_g)]
 
     # dictionary which will define the table
-    p_not_g = df_PnotG.set_index("A")["lgx"].to_dict()
+    p_not_g = df_p_not_g.set_index("A")["lgx"].to_dict()
 
     # multiple Gs
     # goal: identify 2-field alleles that are in multiple G-groups
@@ -255,26 +219,68 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
         dictionary=exon_group,
         columns=("allele", "exon"),
     )
-    db.save_dict(
-        db_connection,
-        table_name="p_group",
-        dictionary=p_group,
-        columns=("allele", "p"),
+
+    return (
+        ARSMapping(
+            dup_g=dup_g,
+            dup_lgx=dup_lgx,
+            g_group=g_group,
+            lgx_group=lgx_group,
+            exon_group=exon_group,
+            p_not_g=p_not_g,
+        ),
+        p_group,
     )
 
-    return ARSMapping(
-        dup_g=dup_g,
-        dup_lgx=dup_lgx,
-        g_group=g_group,
-        lgx_group=lgx_group,
-        exon_group=exon_group,
-        p_group=p_group,
-        p_not_g=p_not_g,
-    )
+
+def load_g_group(imgt_version):
+    # load the hla_nom_g.txt
+    ars_g_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt"
+    df = pd.read_csv(ars_g_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    # the G-group is named for its first allele
+    df["G"] = df["A"].apply(get_G_name)
+    # convert slash delimited string to a list
+    df["A"] = df["A"].apply(lambda a: a.split("/"))
+    # convert the list into separate rows for each element
+    df = df.explode("A")
+    #  A*   + 02:01   = A*02:01
+    df["A"] = df["Locus"] + df["A"]
+    df["G"] = df["Locus"] + df["G"]
+    # Create 2,3 field versions of the alleles
+    df["2d"] = df["A"].apply(get_2field_allele)
+    df["3d"] = df["A"].apply(get_3field_allele)
+    # lgx is 2 field version of the G group allele
+    df["lgx"] = df["G"].apply(get_2field_allele)
+
+    return df
+
+
+def load_p_group(imgt_version):
+    # load the hla_nom_p.txt
+    ars_p_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt"
+    # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
+    df_p = pd.read_csv(
+        ars_p_url, skiprows=6, names=["Locus", "A", "P"], sep=";"
+    ).dropna()
+    # the P-group is named for its first allele
+    df_p["P"] = df_p["A"].apply(get_P_name)
+    # convert slash delimited string to a list
+    df_p["A"] = df_p["A"].apply(lambda a: a.split("/"))
+    df_p = df_p.explode("A")
+    # C* 06:06:01:01/06:06:01:02/06:271 06:06P
+    df_p["A"] = df_p["Locus"] + df_p["A"]
+    df_p["P"] = df_p["Locus"] + df_p["P"]
+    # C* 06:06:01:01 06:06P
+    # C* 06:06:01:02 06:06P
+    # C* 06:271 06:06P
+    df_p["2d"] = df_p["A"].apply(get_2field_allele)
+    # lgx has the P-group name without the P for comparison
+    df_p["lgx"] = df_p["P"].apply(get_2field_allele)
+    return df_p
 
 
 def generate_alleles_and_xx_codes_and_who(
-    db_connection: sqlite3.Connection, imgt_version, ars_mappings
+    db_connection: sqlite3.Connection, imgt_version, ars_mappings, p_group
 ):
     """
     Checks to see if there's already an allele list file for the `imgt_version`
@@ -386,28 +392,23 @@ def generate_alleles_and_xx_codes_and_who(
     db.save_dict(db_connection, "xx_codes", flat_xx_codes, ("allele_1d", "allele_list"))
 
     # W H O
-    who_alleles = set(allele_df["Allele"])
+    who_alleles = allele_df["Allele"].to_list()
     # Save this version of the WHO alleles
     db.save_set(db_connection, "who_alleles", who_alleles, "allele")
+
     # Create WHO mapping from the unique alleles in the 1-field column
-    unique_alleles = allele_df["Allele"].unique()
-    who_df1 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df1["nd"] = allele_df["Allele"].apply(lambda x: x.split(":")[0])
-    # Create WHO mapping from the unique alleles in the 2-field column
-    who_df2 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df2["nd"] = allele_df["Allele"].apply(get_2field_allele)
-    # Create WHO mapping from the unique alleles in the 3-field column
-    who_df3 = pd.DataFrame(unique_alleles, columns=["Allele"])
-    who_df3["nd"] = allele_df["Allele"].apply(get_3field_allele)
-    # Combine n-field dataframes in 1
+    allele_df["1d"] = allele_df["Allele"].apply(get_1field_allele)
 
-    # Create g_codes expansion mapping from the same tables used to reduce to G
-    g_df = pd.DataFrame(list(ars_mappings.g_group.items()), columns=["Allele", "nd"])
-
-    # Create p_codes expansion mapping from the p_group table
-    p_df = pd.DataFrame(list(ars_mappings.p_group.items()), columns=["Allele", "nd"])
-
-    who_codes = pd.concat([who_df1, who_df2, who_df3, g_df, p_df])
+    who_codes = pd.concat(
+        [
+            allele_df[["Allele", "1d"]].rename(columns={"1d": "nd"}),
+            allele_df[["Allele", "2d"]].rename(columns={"2d": "nd"}),
+            allele_df[["Allele", "3d"]].rename(columns={"3d": "nd"}),
+            pd.DataFrame(ars_mappings.g_group.items(), columns=["Allele", "nd"]),
+            pd.DataFrame(p_group.items(), columns=["Allele", "nd"]),
+        ],
+        ignore_index=True,
+    )
 
     # remove valid alleles from who_codes to avoid recursion
     for k in who_alleles:
