@@ -123,6 +123,8 @@ class ARD(object):
         dr.generate_serology_mapping(self.db_connection, imgt_version)
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
+        # Save IMGT database version
+        dr.set_db_version(self.db_connection, imgt_version)
 
         # Close the current read-write db connection
         self.db_connection.close()
@@ -713,3 +715,10 @@ class ARD(object):
         :return: None
         """
         dr.generate_mac_codes(self.db_connection, True)
+
+    def get_db_version(self) -> str:
+        """
+        Get the IMGT DB Version Number
+        @return:
+        """
+        return dr.get_db_version(self.db_connection)

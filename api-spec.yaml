@@ -6,6 +6,8 @@ info:
 servers:
   - url: 'http://localhost:8080'
 tags:
+  - name: Database
+    description: IPD-IMGT/HLA DB Information
   - name: ARD Reduction
     description: Reduce GL String to ARD
   - name: MAC Expansion
@@ -13,6 +15,22 @@ tags:
   - name: DRBX Blender
     description: Blend DRBX based on DRB1 and DRB3/4/5
 paths:
+  /version:
+    get:
+      tags:
+        - Database
+      operationId: api.version_controller
+      summary: IPD-IMGT/HLA Version
+      description: |
+        Get IPD-IMGT/HLA DB Version used for this service
+      responses:
+        200:
+          description: IPD-IMGT/HLA version number
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 3440
   /redux:
     post:
       tags:

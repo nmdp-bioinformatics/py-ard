@@ -672,3 +672,40 @@ def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
             dictionary=v2_to_v3_example,
             columns=("v2", "v3"),
         )
+
+
+def set_db_version(db_connection: sqlite3.Connection, imgt_version):
+    """
+    Set the IMGT database version number as a user_version string in
+    the database itself.
+
+    :param db_connection: Active SQLite Connection
+    :param imgt_version: current imgt_version
+    """
+    # If version already exists, don't reset
+    version = db.get_user_version(db_connection)
+    if version:
+        return version
+
+    version = imgt_version
+
+    if imgt_version == "Latest":
+        from urllib.request import urlopen
+
+        response = urlopen(
+            "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/release_version.txt"
+        )
+        for line in response:
+            l = line.decode("utf-8")
+            if l.find("version:") != -1:
+                # Version line looks like
+                # # version: IPD-IMGT/HLA 3.51.0
+                version = l.split()[-1].replace(".", "")
+
+    db.set_user_version(db_connection, int(version))
+    print("Version:", version)
+    return db.get_user_version(db_connection)
+
+
+def get_db_version(db_connection: sqlite3.Connection):
+    return db.get_user_version(db_connection)

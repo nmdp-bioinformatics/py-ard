@@ -79,3 +79,8 @@ def drbx_blender_controller():
             return {"DRBX_blend": blended_drbx}
         except DRBXBlenderError as e:
             return {"found": e.found, "expected": e.expected}
+
+
+def version_controller():
+    version = ard.get_db_version()
+    return {"version": version}, 200
