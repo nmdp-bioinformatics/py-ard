@@ -163,3 +163,9 @@ class TestPyArd(unittest.TestCase):
 
     def test_imgt_db_version(self):
         self.assertEqual(self.ard.get_db_version(), int(TestPyArd.db_version))
+
+    def test_xx_codes_broad_split(self):
+        self.assertFalse(
+            "DQB1*06" in self.ard.redux_gl("DQB1*05:XX", "lgx"),
+            "The split shouldn't include other splits",
+        )
