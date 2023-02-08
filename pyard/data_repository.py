@@ -20,9 +20,12 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import sys
 from collections import namedtuple
 import functools
 import sqlite3
+from urllib.error import HTTPError
+
 import pandas as pd
 
 from . import db
@@ -333,10 +336,22 @@ def generate_alleles_and_xx_codes_and_who(
     if imgt_version == "Latest":
         allele_list_url = f"{IMGT_HLA_URL}Latest/Allelelist.txt"
     else:
+        if imgt_version == "3130":
+            # 3130 was renamed to 3131 for Allelelist file only 🤷🏾‍
+            imgt_version = "3131"
         allele_list_url = (
             f"{IMGT_HLA_URL}Latest/allelelist/Allelelist.{imgt_version}.txt"
         )
-    allele_df = pd.read_csv(allele_list_url, header=6, usecols=["Allele"])
+
+    print("Using imgt_version:", imgt_version)
+    try:
+        allele_df = pd.read_csv(allele_list_url, header=6, usecols=["Allele"])
+    except HTTPError as e:
+        print(
+            f"Failed importing alleles for version {imgt_version} from {allele_list_url}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Create a set of valid alleles
     # All 2-field, 3-field and the original Alleles are considered valid alleles
