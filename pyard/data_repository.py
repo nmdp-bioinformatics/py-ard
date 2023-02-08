@@ -21,6 +21,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import sys
+import copy
 from collections import namedtuple
 import functools
 import sqlite3
@@ -394,7 +395,7 @@ def generate_alleles_and_xx_codes_and_who(
             if broad in xx_codes:
                 xx_codes[broad].extend(xx_codes[split])
             else:
-                xx_codes[broad] = xx_codes[split]
+                xx_codes[broad] = copy.deepcopy(xx_codes[split])
 
     # Save this version of the valid alleles
     db.save_set(db_connection, "alleles", valid_alleles, "allele")
