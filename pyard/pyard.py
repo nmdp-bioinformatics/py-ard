@@ -81,7 +81,6 @@ class ARD(object):
     def __init__(
         self, imgt_version: str = "Latest", data_dir: str = None, config: dict = None
     ):
-
         """
         ARD will load valid alleles, xx codes and MAC mappings for the given
         version of IMGT database, downloading and generating the database if
