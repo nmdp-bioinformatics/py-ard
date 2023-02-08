@@ -20,6 +20,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import re
 
 #
 # Broad, Splits and Associated Antigens
@@ -44,6 +45,11 @@ broad_splits_dna_mapping = {
     "DRB1*02": ["DRB1*15", "DRB1*16"],
     "DRB1*06": ["DRB1*13", "DRB1*14"],
 }
+
+#
+# Derived from rel_ser_ser.txt
+# https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_ser_ser.txt
+#
 broad_splits_ser_mapping = {
     "A9": ["A23", "A24"],
     "A10": ["A25", "A26", "A34", "A66"],
@@ -65,3 +71,33 @@ broad_splits_ser_mapping = {
     "DR5": ["DR11", "DR12"],
     "DR6": ["DR13", "DR14"],
 }
+
+HLA_regex = re.compile("^HLA-")
+
+
+def find_splits(allele: str) -> dict:
+    if HLA_regex.search(allele):
+        prefix = True
+        allele_name = allele.split("-")[1]
+    else:
+        prefix = False
+        allele_name = allele
+
+    if "*" in allele_name:
+        mapping = broad_splits_dna_mapping
+    else:
+        mapping = broad_splits_ser_mapping
+
+    if allele_name in mapping:
+        return _get_mapping(allele_name, mapping, prefix)
+
+    for broad in mapping:
+        if allele_name in mapping[broad]:
+            return _get_mapping(broad, mapping, prefix)
+
+
+def _get_mapping(broad, mapping, prefix):
+    if prefix:
+        return {broad: set(map(lambda x: "HLA-" + x, mapping[broad]))}
+    else:
+        return {broad: mapping[broad]}
