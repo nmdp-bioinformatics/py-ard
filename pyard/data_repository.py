@@ -343,7 +343,6 @@ def generate_alleles_and_xx_codes_and_who(
             f"{IMGT_HLA_URL}Latest/allelelist/Allelelist.{imgt_version}.txt"
         )
 
-    print("Using imgt_version:", imgt_version)
     try:
         allele_df = pd.read_csv(allele_list_url, header=6, usecols=["Allele"])
     except HTTPError as e:
