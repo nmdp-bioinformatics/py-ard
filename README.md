@@ -192,6 +192,16 @@ DRB1*08:01:01G/DRB1*08:02:01G/DRB1*08:03:02G/DRB1*08:04:01G/DRB1*08:05/ ...
 $ pyard -i 3290 --gl 'A1' -r lgx # For a particular version of DB
 A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
 ```
+
+### Find Broad/Splits of an allele or serology typing
+```shell
+$ pyard --splits "A*10"
+A*10 = A*25/A*26/A*34/A*66
+
+$ pyard --splits B14
+B14 = B64/B65
+```
+
 ### Batch Reduce a CSV file
 
 `pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for instructions on how to configure and run.

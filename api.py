@@ -84,3 +84,11 @@ def drbx_blender_controller():
 def version_controller():
     version = ard.get_db_version()
     return {"version": version}, 200
+
+
+def splits_controller(allele: str):
+    mapping = pyard.find_broad_splits(allele)
+    if mapping:
+        return {"broad": mapping[0], "splits": mapping[1]}, 200
+
+    return {"message": f"No Broad/Splits matched {allele}"}, 404
