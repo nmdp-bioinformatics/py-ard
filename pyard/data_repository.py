@@ -29,9 +29,9 @@ from urllib.error import HTTPError
 
 import pandas as pd
 
-from . import db
+from . import db, broad_splits
 from .broad_splits import broad_splits_dna_mapping
-from .broad_splits import broad_splits_ser_mapping
+from .load import load_serology_broad_split_mapping
 from .misc import (
     get_2field_allele,
     get_3field_allele,
@@ -390,7 +390,7 @@ def generate_alleles_and_xx_codes_and_who(
     xx_codes = xx_df.groupby(["1d"]).apply(lambda x: list(x["Allele"])).to_dict()
 
     # Update xx codes with broads and splits
-    for broad, splits in broad_splits_dna_mapping.items():
+    for broad, splits in broad_splits.broad_splits_dna_mapping.items():
         for split in splits:
             if broad in xx_codes:
                 xx_codes[broad].extend(xx_codes[split])
@@ -635,15 +635,15 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
 
         # map alleles for split serology to their corresponding broad
         # Update xx codes with broads and splits
-        for broad, splits in broad_splits_ser_mapping.items():
+        for broad, splits in broad_splits.broad_splits_ser_mapping.items():
             for split in splits:
                 try:
                     sero_mapping[broad] = "/".join(
                         [sero_mapping[broad], sero_mapping[split]]
                     )
-
                 except KeyError:
-                    sero_mapping[broad] = sero_mapping[split]
+                    if split in sero_mapping:
+                        sero_mapping[broad] = sero_mapping[split]
 
         # re-sort allele lists into smartsort order
         for sero in sero_mapping.keys():
@@ -724,3 +724,23 @@ def set_db_version(db_connection: sqlite3.Connection, imgt_version):
 
 def get_db_version(db_connection: sqlite3.Connection):
     return db.get_user_version(db_connection)
+
+
+def generate_serology_broad_split_mapping(db_connection, imgt_version):
+    if not db.table_exists(db_connection, "serology_broad_split_mapping"):
+        sero_mapping = load_serology_broad_split_mapping(imgt_version)
+        # Save the `splits` as a "/" delimited string to db
+        sero_splits = {sero: "/".join(splits) for sero, splits in sero_mapping.items()}
+        db.save_dict(
+            db_connection,
+            table_name="serology_broad_split_mapping",
+            dictionary=sero_splits,
+            columns=("serology", "splits"),
+        )
+        return sero_mapping
+
+    sero_mapping = db.load_dict(
+        db_connection, "serology_broad_split_mapping", ("serology", "splits")
+    )
+    sero_splits = {k: v.split("/") for k, v in sero_mapping.items()}
+    return sero_splits

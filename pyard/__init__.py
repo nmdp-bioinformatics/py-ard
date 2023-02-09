@@ -23,6 +23,7 @@
 #
 from .pyard import ARD
 from .blender import blender as dr_blender
+from .broad_splits import find_splits as find_broad_splits
 
 __author__ = """NMDP Bioinformatics"""
 __version__ = "0.9.1"

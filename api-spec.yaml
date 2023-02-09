@@ -261,3 +261,52 @@ paths:
                     description: Describes what went wrong
                     type: string
                     example: "All of DRB1_SLUG, DRB3, DRB4, DRB5 values not provided"
+  /splits/{allele}:
+    get:
+      tags:
+        - Broad Splits
+      operationId: api.splits_controller
+      summary: Search Broad Split Mapping
+      description: |
+        Given a broad or a split, broad/split mappings will
+        be returned if available.
+      parameters:
+        - name: allele
+          in: path
+          description: A valid Allele/Serology
+          required: true
+          schema:
+            type: string
+          example: A*10
+      responses:
+        200:
+          description: Broad/Split mapping
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  broad:
+                    description: Broad Allele
+                    type: string
+                    example: "A*10"
+                  splits:
+                    description: Corresponding Splits
+                    type: array
+                    example:
+                      - "A*25"
+                      - "A*26"
+                      - "A*34"
+                      - "A*66"
+        404:
+          description: |
+            Broad/Split mapping not found for the given allele
+          content:
+            application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      description: Mapping not found
+                      type: string
+                      example: "Broad/Split not found"

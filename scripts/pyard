@@ -64,6 +64,7 @@ if __name__ == "__main__":
         dest="redux_type",
         help="Reduction Method",
     )
+    parser.add_argument("--splits", dest="splits", help="Find Broad and Splits")
 
     args = parser.parse_args()
 
@@ -76,6 +77,12 @@ if __name__ == "__main__":
     if args.version:
         version = ard.get_db_version()
         print(f"IPD-IMGT/HLA version:", version)
+        sys.exit(0)
+
+    if args.splits:
+        mapping = pyard.find_broad_splits(args.splits)
+        if mapping:
+            print(f"{mapping[0]} = {'/'.join(mapping[1])}")
         sys.exit(0)
 
     print(ard.redux_gl(args.gl_string, args.redux_type))

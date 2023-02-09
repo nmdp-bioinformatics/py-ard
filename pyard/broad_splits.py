@@ -46,36 +46,13 @@ broad_splits_dna_mapping = {
     "DRB1*06": ["DRB1*13", "DRB1*14"],
 }
 
-#
-# Derived from rel_ser_ser.txt
-# https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_ser_ser.txt
-#
-broad_splits_ser_mapping = {
-    "A9": ["A23", "A24"],
-    "A10": ["A25", "A26", "A34", "A66"],
-    "A19": ["A29", "A30", "A31", "A32", "A33", "A74"],
-    "A28": ["A68", "A69"],
-    "B5": ["B51", "B52"],
-    "B12": ["B44", "B45"],
-    "B15": ["B62", "B63", "B75", "B76", "B77"],
-    "B16": ["B38", "B39"],
-    "B17": ["B57", "B58"],
-    "B21": ["B49", "B50"],
-    "B22": ["B54", "B55", "B56"],
-    "B40": ["B60", "B61"],
-    "B70": ["B71", "B72"],
-    "Cw3": ["Cw9", "Cw10"],
-    "DQ1": ["DQ5", "DQ6"],
-    "DR2": ["DR15", "DR16"],
-    "DR3": ["DR17", "DR18"],
-    "DR5": ["DR11", "DR12"],
-    "DR6": ["DR13", "DR14"],
-}
+# Loaded at runtime
+broad_splits_ser_mapping = None
 
 HLA_regex = re.compile("^HLA-")
 
 
-def find_splits(allele: str) -> dict:
+def find_splits(allele: str) -> tuple:
     if HLA_regex.search(allele):
         prefix = True
         allele_name = allele.split("-")[1]
@@ -98,6 +75,6 @@ def find_splits(allele: str) -> dict:
 
 def _get_mapping(broad, mapping, prefix):
     if prefix:
-        return {broad: set(map(lambda x: "HLA-" + x, mapping[broad]))}
+        return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
     else:
-        return {broad: mapping[broad]}
+        return broad, mapping[broad]

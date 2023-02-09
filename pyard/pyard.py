@@ -28,6 +28,7 @@ from typing import Iterable, Literal, List
 
 from . import db
 from . import data_repository as dr
+from . import broad_splits
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from .misc import get_n_field_allele, get_2field_allele, expression_chars
@@ -119,6 +120,9 @@ class ARD(object):
         self.shortnulls = dr.generate_short_nulls(self.db_connection, self.who_group)
 
         # Load Serology mappings
+        broad_splits.broad_splits_ser_mapping = (
+            dr.generate_serology_broad_split_mapping(self.db_connection, imgt_version)
+        )
         dr.generate_serology_mapping(self.db_connection, imgt_version)
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
