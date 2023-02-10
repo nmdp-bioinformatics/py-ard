@@ -22,7 +22,10 @@
 #
 import pathlib
 import sqlite3
+import sys
 from typing import Tuple, Dict, Set, List
+
+from pyard.misc import get_imgt_db_versions
 
 
 def get_pyard_db_install_directory():
@@ -49,16 +52,24 @@ def create_db_connection(data_dir, imgt_version, ro=False):
         # If in read-only mode, make sure the db file exists
         if not pathlib.Path(db_filename).exists():
             raise RuntimeError(f"Reference Database {db_filename}  not available.")
-
-    # Create the data directory if it doesn't exist
-    if not pathlib.Path(data_dir).exists():
-        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
-
-    if ro:
         # Open the database in read-only mode
         file_uri = f"file:{db_filename}?mode=ro"
         # Multiple threads can access the same connection since it's only ro
         return sqlite3.connect(file_uri, check_same_thread=False, uri=True)
+
+    # Check the imgt_version is a valid IMGT DB Version
+    # by querying the IMGT site
+    if imgt_version != "Latest":
+        if not pathlib.Path(db_filename).exists():
+            all_imgt_versions = get_imgt_db_versions()
+            if imgt_version not in all_imgt_versions:
+                raise ValueError(
+                    f"{imgt_version} is not a valid IMGT database version."
+                )
+
+    # Create the data directory if it doesn't exist
+    if not pathlib.Path(data_dir).exists():
+        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     # Open the database for read/write
     file_uri = f"file:{db_filename}"
