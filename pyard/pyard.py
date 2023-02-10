@@ -147,7 +147,8 @@ class ARD(object):
         Close the db connection, when ARD instance goes away
         :return:
         """
-        self.db_connection.close()
+        if hasattr(self, "db_connection") and self.db_connection:
+            self.db_connection.close()
 
     @functools.lru_cache(maxsize=max_cache_size)
     def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
