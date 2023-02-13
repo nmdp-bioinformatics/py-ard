@@ -80,7 +80,11 @@ class ARD(object):
     """
 
     def __init__(
-        self, imgt_version: str = "Latest", data_dir: str = None, config: dict = None
+        self,
+        imgt_version: str = "Latest",
+        data_dir: str = None,
+        load_mac: bool = True,
+        config: dict = None,
     ):
         """
         ARD will load valid alleles, xx codes and MAC mappings for the given
@@ -100,7 +104,7 @@ class ARD(object):
         self.db_connection = db.create_db_connection(data_dir, imgt_version)
 
         # Load MAC codes
-        dr.generate_mac_codes(self.db_connection, False)
+        dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
         # Load ARS mappings
         self.ars_mappings, p_group = dr.generate_ars_mapping(
             self.db_connection, imgt_version
@@ -393,7 +397,7 @@ class ARD(object):
         except InvalidAlleleError as e:
             raise InvalidTypingError(
                 f"{glstring} is not valid GL String. \n {e.message}", e
-            )
+            ) from None
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
@@ -718,7 +722,7 @@ class ARD(object):
         Refreshes MAC code for the current IMGT db version.
         :return: None
         """
-        dr.generate_mac_codes(self.db_connection, True)
+        dr.generate_mac_codes(self.db_connection, refresh_mac=True)
 
     def get_db_version(self) -> str:
         """
