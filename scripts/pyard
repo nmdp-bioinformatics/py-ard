@@ -25,6 +25,7 @@ import argparse
 import sys
 
 import pyard
+from pyard.exceptions import InvalidAlleleError
 
 
 def get_imgt_version(imgt_version):
@@ -77,6 +78,7 @@ if __name__ == "__main__":
     if args.version:
         version = ard.get_db_version()
         print(f"IPD-IMGT/HLA version:", version)
+        print(f"py-ard version:", pyard.__version__)
         sys.exit(0)
 
     if args.splits:
@@ -85,5 +87,17 @@ if __name__ == "__main__":
             print(f"{mapping[0]} = {'/'.join(mapping[1])}")
         sys.exit(0)
 
-    print(ard.redux_gl(args.gl_string, args.redux_type))
+    try:
+        if args.redux_type:
+            print(ard.redux_gl(args.gl_string, args.redux_type))
+        else:
+            for redux_type in pyard.pyard.reduction_types:
+                redux_type_info = f"Reduction Method: {redux_type}"
+                print(redux_type_info)
+                print("-" * len(redux_type_info))
+                print(ard.redux_gl(args.gl_string, redux_type))
+    except InvalidAlleleError as e:
+        print("Error:", e)
+
+    # Remove ard and close db connection
     del ard
