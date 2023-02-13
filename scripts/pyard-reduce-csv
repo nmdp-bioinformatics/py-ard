@@ -38,6 +38,7 @@ import pandas as pd
 import pyard
 import pyard.drbx as drbx
 from pyard.exceptions import PyArdError
+from pyard.misc import get_data_dir, get_imgt_version
 
 
 def is_serology(allele: str) -> bool:
@@ -171,11 +172,21 @@ def create_drbx(row, locus_in_allele_name):
 
 
 if __name__ == "__main__":
-
     # config is specified with a -c parameter
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", help="JSON Configuration file", required=True)
-
+    parser.add_argument(
+        "-d",
+        "--data-dir",
+        dest="data_dir",
+        help="Data directory to store imported data",
+    )
+    parser.add_argument(
+        "-i",
+        "--imgt-version",
+        dest="imgt_version",
+        help="IPD-IMGT/HLA db to use for redux",
+    )
     args = parser.parse_args()
     config_filename = args.config
 
@@ -197,8 +208,9 @@ if __name__ == "__main__":
             print("  pip install openpyxl")
             sys.exit(1)
 
-    # Instantiate py-ard object with the latest
-    ard = pyard.ARD()
+    data_dir = get_data_dir(args.data_dir)
+    imgt_version = get_imgt_version(args.imgt_version)
+    ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
 
     # Read the Input File
     # Read only the columns to be saved.

@@ -68,11 +68,13 @@ if __name__ == "__main__":
         help="Show Versions of available IMGT Databases",
     )
     parser.add_argument(
-        "--db-version",
+        "-i",
+        "--imgt-version",
         dest="imgt_version",
         help="Import supplied IMGT_VERSION DB Version",
     )
     parser.add_argument(
+        "-d",
         "--data-dir",
         dest="data_dir",
         help="Data directory to store imported data",
@@ -153,6 +155,6 @@ if __name__ == "__main__":
 
     if args.refresh_mac:
         print(f"Updating MACs")
-        db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
+        db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, refresh_mac=True)
         print(f"Updated MACs for {imgt_version} IMGT database.")

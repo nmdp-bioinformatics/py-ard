@@ -101,7 +101,7 @@ class ARD(object):
             self._config.update(config)
 
         # Create a database connection for writing
-        self.db_connection = db.create_db_connection(data_dir, imgt_version)
+        self.db_connection, _ = db.create_db_connection(data_dir, imgt_version)
 
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
@@ -144,7 +144,7 @@ class ARD(object):
             gc.freeze()
 
         # Re-open the connection in read-only mode as we're not updating it anymore
-        self.db_connection = db.create_db_connection(data_dir, imgt_version, ro=True)
+        self.db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=True)
 
     def __del__(self):
         """
