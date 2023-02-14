@@ -110,7 +110,7 @@ def reduce(allele, locus, column_name):
         return allele
     if "*" in allele:
         locus_allele = allele
-    elif ard_config["locus_in_allele_name"]:
+    elif ard_config.get("locus_in_allele_name"):
         locus_allele = allele
     else:
         locus_allele = f"{locus}*{allele}"
@@ -129,7 +129,7 @@ def reduce(allele, locus, column_name):
             return allele
         # print(f"reduced to '{reduced_allele}'")
         if reduced_allele:
-            if ard_config["keep_locus_in_allele_name"]:
+            if ard_config.get("keep_locus_in_allele_name"):
                 allele = reduced_allele
             else:
                 allele = remove_locus_name(reduced_allele)
@@ -139,26 +139,25 @@ def reduce(allele, locus, column_name):
         if verbose:
             print(f"\t{locus_allele} => {allele}")
     else:
-        if ard_config["convert_v2_to_v3"]:
+        if ard_config.get("convert_v2_to_v3"):
             if ard.is_v2(locus_allele):
                 v3_allele = ard.v2_to_v3(locus_allele)
-                if not ard_config["keep_locus_in_allele_name"]:
+                if not ard_config.get("keep_locus_in_allele_name"):
                     allele = remove_locus_name(v3_allele)
                 else:
                     allele = v3_allele
                 if verbose:
                     print(f"\t{locus_allele} => {allele}")
-        elif ard_config["keep_locus_in_allele_name"]:
+        elif ard_config.get("keep_locus_in_allele_name"):
             allele = locus_allele
 
     return allele
 
 
-def clean_locus(allele: str, column_name: str = "Unknown") -> str:
+def clean_locus(allele: str, locus: str, column_name: str = "Unknown") -> str:
     if allele:
         # Remove all white spaces
         allele = white_space_regex.sub("", allele)
-        locus = column_name.split("_")[1].upper()
         # If the allele comes in as an allele list, apply reduce to all alleles
         if "/" in allele:
             return "/".join(map(reduce, allele.split("/"), locus, column_name))
@@ -187,6 +186,14 @@ if __name__ == "__main__":
         dest="imgt_version",
         help="IPD-IMGT/HLA db to use for redux",
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        dest="quiet",
+        action="store_true",
+        default=False,
+        help="Don't print verbose log",
+    )
     args = parser.parse_args()
     config_filename = args.config
 
@@ -194,10 +201,14 @@ if __name__ == "__main__":
     with open(config_filename) as conf_file:
         ard_config = json.load(conf_file)
 
-    verbose = ard_config["verbose_log"]
+    if not args.quiet:
+        verbose = ard_config.get("verbose_log")
+    else:
+        verbose = False
+
     white_space_regex = re.compile(r"\s+")
 
-    if ard_config["output_file_format"] == "xlsx":
+    if ard_config.get("output_file_format") == "xlsx":
         try:
             import openpyxl
         except ImportError:
@@ -216,36 +227,48 @@ if __name__ == "__main__":
     # Read only the columns to be saved.
     # Header is the first row
     # Don't convert to NAs
-    df = pd.read_csv(
-        ard_config["in_csv_filename"],
-        usecols=ard_config["columns_from_csv"],
-        header=0,
-        dtype=str,
-        keep_default_na=False,
-    )
+    try:
+        df = pd.read_csv(
+            ard_config["in_csv_filename"],
+            usecols=ard_config["columns_from_csv"],
+            header=0,
+            dtype=str,
+            keep_default_na=False,
+        )
+    except FileNotFoundError as e:
+        print(f"File not found {ard_config.get('in_csv_filename')}", file=sys.stderr)
+        sys.exit(1)
 
+    reduce_prefix = "reduced_"
     failed_to_reduce_alleles = []
-    # Reduce each of the specified columns
-    for column in ard_config["columns_to_reduce_in_csv"]:
-        if verbose:
-            print(f"Column:{column} =>")
-        if ard_config["new_column_for_redux"]:
-            # insert a new column
-            new_column_name = f"reduced_{column}"
-            new_column_index = df.columns.get_loc(column) + 1
-            # Apply clean_locus function to the column and insert as a new column
-            df.insert(
-                new_column_index,
-                new_column_name,
-                df[column].apply(clean_locus, column_name=column),
-            )
-        else:
-            # Apply clean_locus function to the column and replace the column
-            df[column] = df[column].apply(clean_locus, column_name=column)
+    locus_column_mapping = ard_config["locus_column_mapping"]
+    for subject in locus_column_mapping:
+        for locus in locus_column_mapping[subject]:
+            # Reduce each of the specified columns
+            locus_columns = locus_column_mapping[subject][locus]
+            for column in locus_columns:
+                if verbose:
+                    print(f"Column:{column} =>")
+                if ard_config.get("new_column_for_redux"):
+                    # insert a new column
+                    new_column_name = f"{reduce_prefix}{column}"
+                    new_column_index = df.columns.get_loc(column) + 1
+                    # Apply clean_locus function to the column and insert as a new column
+                    df.insert(
+                        new_column_index,
+                        new_column_name,
+                        df[column].apply(clean_locus, locus=locus, column_name=column),
+                    )
+                    locus_columns[locus_columns.index(column)] = new_column_name
+                else:
+                    # Apply clean_locus function to the column and replace the column
+                    df[column] = df[column].apply(
+                        clean_locus, locus=locus, column_name=column
+                    )
 
     # Map DRB3,DRB4,DRB5 to DRBX if specified
     # New columns DRBX_1 and DRBX_2 are created
-    if ard_config["map_drb345_to_drbx"]:
+    if ard_config.get("map_drb345_to_drbx"):
         drbx_loci = ["DRB3", "DRB4", "DRB5"]
         drbx_columns = [
             col_name for col_name in df.columns if col_name.split("_")[1] in drbx_loci
@@ -256,6 +279,27 @@ if __name__ == "__main__":
                 create_drbx, axis=1, args=(locus_in_allele_name,)
             )
             df["DRBX_1"], df["DRBX_2"] = zip(*df_drbx)
+
+    if ard_config.get("generate_glstring"):
+        for subject in locus_column_mapping:
+            slug_columns = []
+            for locus in locus_column_mapping[subject]:
+                slug_column = locus + "_slug"
+                slug_columns.append(slug_column)
+                if len(locus_column_mapping[subject][locus]) > 1:
+                    df[slug_column] = (
+                        df[locus_column_mapping[subject][locus][0]]
+                        + "+"
+                        + df[locus_column_mapping[subject][locus][1]]
+                    )
+                else:
+                    df[slug_column] = df[locus_column_mapping[subject][locus][0]]
+
+            df[subject + "_gl"] = df[slug_columns].agg("^".join, axis=1)
+            df[subject + "_gl"] = df[subject + "_gl"].apply(
+                lambda gl: gl.replace("^+", "")
+            )
+            df.drop(columns=slug_columns, inplace=True)
 
     # Save as XLSX if specified
     if ard_config["output_file_format"] == "xlsx":
