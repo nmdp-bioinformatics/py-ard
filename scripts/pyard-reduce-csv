@@ -154,11 +154,10 @@ def reduce(allele, locus, column_name):
     return allele
 
 
-def clean_locus(allele: str, column_name: str = "Unknown") -> str:
+def clean_locus(allele: str, locus: str, column_name: str = "Unknown") -> str:
     if allele:
         # Remove all white spaces
         allele = white_space_regex.sub("", allele)
-        locus = column_name.split("_")[1].upper()
         # If the allele comes in as an allele list, apply reduce to all alleles
         if "/" in allele:
             return "/".join(map(reduce, allele.split("/"), locus, column_name))
@@ -216,32 +215,49 @@ if __name__ == "__main__":
     # Read only the columns to be saved.
     # Header is the first row
     # Don't convert to NAs
-    df = pd.read_csv(
-        ard_config["in_csv_filename"],
-        usecols=ard_config["columns_from_csv"],
-        header=0,
-        dtype=str,
-        keep_default_na=False,
-    )
+    try:
+        df = pd.read_csv(
+            ard_config["in_csv_filename"],
+            usecols=ard_config["columns_from_csv"],
+            header=0,
+            dtype=str,
+            keep_default_na=False,
+        )
+    except FileNotFoundError as e:
+        print(f"File not found {ard_config['in_csv_filename']}", file=sys.stderr)
+        sys.exit(1)
 
+    reduce_prefix = "reduced_"
     failed_to_reduce_alleles = []
-    # Reduce each of the specified columns
-    for column in ard_config["columns_to_reduce_in_csv"]:
-        if verbose:
-            print(f"Column:{column} =>")
-        if ard_config["new_column_for_redux"]:
-            # insert a new column
-            new_column_name = f"reduced_{column}"
-            new_column_index = df.columns.get_loc(column) + 1
-            # Apply clean_locus function to the column and insert as a new column
-            df.insert(
-                new_column_index,
-                new_column_name,
-                df[column].apply(clean_locus, column_name=column),
-            )
-        else:
-            # Apply clean_locus function to the column and replace the column
-            df[column] = df[column].apply(clean_locus, column_name=column)
+    reduced_column_mappings = {}
+    locus_column_mapping = ard_config["locus_column_mapping"]
+    for subject in locus_column_mapping:
+        reduced_column_mappings[subject] = {}
+        for locus in locus_column_mapping[subject]:
+            if locus not in reduced_column_mappings[subject]:
+                reduced_column_mappings[subject][locus] = []
+            # Reduce each of the specified columns
+            locus_columns = locus_column_mapping[subject][locus]
+            for column in locus_columns:
+                if verbose:
+                    print(f"Column:{column} =>")
+                if ard_config["new_column_for_redux"]:
+                    # insert a new column
+                    new_column_name = f"{reduce_prefix}{column}"
+                    new_column_index = df.columns.get_loc(column) + 1
+                    # Apply clean_locus function to the column and insert as a new column
+                    df.insert(
+                        new_column_index,
+                        new_column_name,
+                        df[column].apply(clean_locus, locus=locus, column_name=column),
+                    )
+                    reduced_column_mappings[subject][locus].append(new_column_name)
+                else:
+                    # Apply clean_locus function to the column and replace the column
+                    df[column] = df[column].apply(
+                        clean_locus, locus=locus, column_name=column
+                    )
+                    reduced_column_mappings[subject][locus].append(column)
 
     # Map DRB3,DRB4,DRB5 to DRBX if specified
     # New columns DRBX_1 and DRBX_2 are created
@@ -256,6 +272,19 @@ if __name__ == "__main__":
                 create_drbx, axis=1, args=(locus_in_allele_name,)
             )
             df["DRBX_1"], df["DRBX_2"] = zip(*df_drbx)
+
+    if ard_config["generate_glstring"]:
+        for subject in reduced_column_mappings:
+            for haplotype_num in range(2):
+                hap1_columns = list(
+                    map(
+                        lambda x: reduced_column_mappings[subject][x][haplotype_num],
+                        reduced_column_mappings[subject].keys(),
+                    )
+                )
+                df[subject + f"_haplotype_{(haplotype_num + 1)}"] = df[
+                    hap1_columns
+                ].agg("~".join, axis=1)
 
     # Save as XLSX if specified
     if ard_config["output_file_format"] == "xlsx":
