@@ -36,28 +36,6 @@
         "r_dpb1_typ1",
         "r_dpb1_typ2"
       ]
-    },
-    "donor": {
-      "A": [
-        "r_a_typ1",
-        "r_a_typ2"
-      ],
-      "B": [
-        "r_b_typ1",
-        "r_b_typ2"
-      ],
-      "C": [
-        "r_c_typ1",
-        "r_c_typ2"
-      ],
-      "drb1": [
-        "r_drb1_typ1",
-        "r_drb1_typ2"
-      ],
-      "dqb1": [
-        "r_dpb1_typ1",
-        "r_dpb1_typ2"
-      ]
     }
   },
   "redux_type": "lgx",
@@ -72,9 +50,9 @@
   "locus_in_allele_name": true,
   "keep_locus_in_allele_name": true,
   "output_file_format": "csv",
-  "new_column_for_redux": false,
+  "new_column_for_redux": true,
   "map_drb345_to_drbx": false,
   "apply_compression": "gzip",
-  "generate_glstring": false
+  "generate_glstring": true,
   "verbose_log": true
 }
