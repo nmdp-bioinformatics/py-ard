@@ -55,7 +55,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
         # Open the database in read-only mode
         file_uri = f"file:{db_filename}?mode=ro"
         # Multiple threads can access the same connection since it's only ro
-        return sqlite3.connect(file_uri, check_same_thread=False, uri=True)
+        return sqlite3.connect(file_uri, check_same_thread=False, uri=True), db_filename
 
     # Check the imgt_version is a valid IMGT DB Version
     # by querying the IMGT site
@@ -73,7 +73,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
 
     # Open the database for read/write
     file_uri = f"file:{db_filename}"
-    return sqlite3.connect(file_uri, uri=True)
+    return sqlite3.connect(file_uri, uri=True), db_filename
 
 
 def table_exists(connection: sqlite3.Connection, table_name: str) -> bool:

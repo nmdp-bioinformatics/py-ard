@@ -486,7 +486,9 @@ def generate_short_nulls(db_connection, who_group):
     return shortnulls
 
 
-def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
+def generate_mac_codes(
+    db_connection: sqlite3.Connection, refresh_mac: bool = False, load_mac: bool = True
+):
     """
     MAC files come in 2 different versions:
 
@@ -530,29 +532,31 @@ def generate_mac_codes(db_connection: sqlite3.Connection, refresh_mac: bool):
 
     :param db_connection: Database connection to the sqlite database
     :param refresh_mac: Refresh the database with newer MAC data ?
+    :param load_mac: Should MAC be loaded at all
     :return: None
     """
-    mac_table_name = "mac_codes"
-    if refresh_mac or not db.table_exists(db_connection, mac_table_name):
-        # Load the MAC file to a DataFrame
-        mac_url = "https://hml.nmdp.org/mac/files/numer.v3.zip"
-        df_mac = pd.read_csv(
-            mac_url,
-            sep="\t",
-            compression="zip",
-            skiprows=3,
-            names=["Code", "Alleles"],
-            keep_default_na=False,
-        )
-        # Create a dict from code to alleles
-        mac = df_mac.set_index("Code")["Alleles"].to_dict()
-        # Save the mac dict to db
-        db.save_dict(
-            db_connection,
-            table_name=mac_table_name,
-            dictionary=mac,
-            columns=("code", "alleles"),
-        )
+    if load_mac:
+        mac_table_name = "mac_codes"
+        if refresh_mac or not db.table_exists(db_connection, mac_table_name):
+            # Load the MAC file to a DataFrame
+            mac_url = "https://hml.nmdp.org/mac/files/numer.v3.zip"
+            df_mac = pd.read_csv(
+                mac_url,
+                sep="\t",
+                compression="zip",
+                skiprows=3,
+                names=["Code", "Alleles"],
+                keep_default_na=False,
+            )
+            # Create a dict from code to alleles
+            mac = df_mac.set_index("Code")["Alleles"].to_dict()
+            # Save the mac dict to db
+            db.save_dict(
+                db_connection,
+                table_name=mac_table_name,
+                dictionary=mac,
+                columns=("code", "alleles"),
+            )
 
 
 def to_serological_name(locus_name: str):

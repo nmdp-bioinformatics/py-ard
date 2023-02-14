@@ -94,3 +94,14 @@ def get_data_dir(data_dir):
     else:
         data_dir = db.get_pyard_db_install_directory()
     return data_dir
+
+
+def get_imgt_version(imgt_version):
+    if imgt_version:
+        version = imgt_version.replace(".", "")
+        if version.isdigit():
+            return version
+        raise RuntimeError(
+            f"{imgt_version} is not a valid IMGT database version number"
+        )
+    return "Latest"

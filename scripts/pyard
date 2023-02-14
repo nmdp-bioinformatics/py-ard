@@ -25,18 +25,8 @@ import argparse
 import sys
 
 import pyard
-
-
-def get_imgt_version(imgt_version):
-    if imgt_version:
-        version = imgt_version.replace(".", "")
-        if version.isdigit():
-            return version
-        raise RuntimeError(
-            f"{imgt_version} is not a valid IMGT database version number"
-        )
-    return None
-
+from pyard.exceptions import InvalidAlleleError
+from pyard.misc import get_data_dir, get_imgt_version
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -50,6 +40,12 @@ if __name__ == "__main__":
         dest="version",
         action="store_true",
         help="IPD-IMGT/HLA DB Version number",
+    )
+    parser.add_argument(
+        "-d",
+        "--data-dir",
+        dest="data_dir",
+        help="Data directory to store imported data",
     )
     parser.add_argument(
         "-i",
@@ -68,22 +64,33 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    imgt_version = get_imgt_version(args.imgt_version)
-    if imgt_version:
-        ard = pyard.ARD(imgt_version)
-    else:
-        ard = pyard.ARD()
-
-    if args.version:
-        version = ard.get_db_version()
-        print(f"IPD-IMGT/HLA version:", version)
-        sys.exit(0)
-
     if args.splits:
         mapping = pyard.find_broad_splits(args.splits)
         if mapping:
             print(f"{mapping[0]} = {'/'.join(mapping[1])}")
         sys.exit(0)
 
-    print(ard.redux_gl(args.gl_string, args.redux_type))
+    imgt_version = get_imgt_version(args.imgt_version)
+    data_dir = get_data_dir(args.data_dir)
+    ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+
+    if args.version:
+        version = ard.get_db_version()
+        print(f"IPD-IMGT/HLA version:", version)
+        print(f"py-ard version:", pyard.__version__)
+        sys.exit(0)
+
+    try:
+        if args.redux_type:
+            print(ard.redux_gl(args.gl_string, args.redux_type))
+        else:
+            for redux_type in pyard.pyard.reduction_types:
+                redux_type_info = f"Reduction Method: {redux_type}"
+                print(redux_type_info)
+                print("-" * len(redux_type_info))
+                print(ard.redux_gl(args.gl_string, redux_type))
+    except InvalidAlleleError as e:
+        print("Error:", e)
+
+    # Remove ard and close db connection
     del ard

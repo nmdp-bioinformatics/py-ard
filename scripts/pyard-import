@@ -68,11 +68,13 @@ if __name__ == "__main__":
         help="Show Versions of available IMGT Databases",
     )
     parser.add_argument(
-        "--db-version",
+        "-i",
+        "--imgt-version",
         dest="imgt_version",
         help="Import supplied IMGT_VERSION DB Version",
     )
     parser.add_argument(
+        "-d",
         "--data-dir",
         dest="data_dir",
         help="Data directory to store imported data",
@@ -91,6 +93,12 @@ if __name__ == "__main__":
         dest="reinstall",
         action="store_true",
         help="reinstall a fresh version of database",
+    )
+    parser.add_argument(
+        "--skip-mac",
+        dest="skip_mac",
+        action="store_true",
+        help="Skip creating MAC mapping",
     )
     args = parser.parse_args()
 
@@ -118,8 +126,14 @@ if __name__ == "__main__":
             db_fullname.unlink(missing_ok=True)
 
     print(f"Importing IMGT database version: {imgt_version}")
+    if args.skip_mac:
+        load_mac = False
+        print(f"Skipping MAC tables creation")
+    else:
+        load_mac = True
+
     try:
-        ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+        ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir, load_mac=load_mac)
     except ValueError as e:
         print(f"Error importing version {imgt_version}:", e)
         sys.exit(1)
@@ -141,6 +155,6 @@ if __name__ == "__main__":
 
     if args.refresh_mac:
         print(f"Updating MACs")
-        db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
-        data_repository.generate_mac_codes(db_connection, True)
+        db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
+        data_repository.generate_mac_codes(db_connection, refresh_mac=True)
         print(f"Updated MACs for {imgt_version} IMGT database.")
