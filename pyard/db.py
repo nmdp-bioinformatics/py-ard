@@ -22,7 +22,6 @@
 #
 import pathlib
 import sqlite3
-import sys
 from typing import Tuple, Dict, Set, List
 
 from pyard.misc import get_imgt_db_versions
