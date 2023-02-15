@@ -92,7 +92,7 @@ def get_data_dir(data_dir):
             raise RuntimeError(f"{data_dir} is not a valid directory")
         data_dir = path
     else:
-        data_dir = db.get_pyard_db_install_directory()
+        data_dir = db.get_pyard_db_default_directory()
     return data_dir
 
 
