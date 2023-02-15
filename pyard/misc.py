@@ -85,6 +85,19 @@ def get_imgt_db_versions() -> List[str]:
         return versions
 
 
+def download_to_file(url: str, local_filename: str):
+    import urllib.request
+
+    req = urllib.request.Request(url)
+    res = urllib.request.urlopen(req, timeout=5)
+    if res.status == 200:
+        file_content = res.read().decode("utf-8")
+        with open(local_filename, "wt") as f:
+            f.write(file_content)
+    else:
+        print(f"Error downloading {url}")
+
+
 def get_data_dir(data_dir):
     if data_dir:
         path = pathlib.Path(data_dir)
