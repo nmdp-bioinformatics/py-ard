@@ -33,14 +33,10 @@ from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from .misc import get_n_field_allele, get_2field_allele, expression_chars
 
+DEFAULT_CACHE_SIZE = 1_000
+
 HLA_regex = re.compile("^HLA-")
 
-# Set the lru cache size with
-# >>> import pyard
-# >>> pyard.max_cache_size = 1_000_000
-# >>> ard = pyard.ARD()
-
-max_cache_size = 1_000
 default_config = {
     "reduce_serology": True,
     "reduce_v2": True,
@@ -84,6 +80,7 @@ class ARD(object):
         imgt_version: str = "Latest",
         data_dir: str = None,
         load_mac: bool = True,
+        max_cache_size: int = DEFAULT_CACHE_SIZE,
         config: dict = None,
     ):
         """
@@ -136,6 +133,11 @@ class ARD(object):
         # Close the current read-write db connection
         self.db_connection.close()
 
+        # Adjust the cache for redux
+        if max_cache_size != DEFAULT_CACHE_SIZE:
+            self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
+            self.redux_gl = functools.lru_cache(maxsize=max_cache_size)(self.redux_gl)
+
         # reference data is read-only and can be frozen
         # Works only for Python >= 3.9
         if sys.version_info.major == 3 and sys.version_info.minor >= 9:
@@ -154,7 +156,7 @@ class ARD(object):
         if hasattr(self, "db_connection") and self.db_connection:
             self.db_connection.close()
 
-    @functools.lru_cache(maxsize=max_cache_size)
+    # @functools.lru_cache(maxsize=max_cache_size)
     def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -287,7 +289,7 @@ class ARD(object):
             sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
         )
 
-    @functools.lru_cache(maxsize=max_cache_size)
+    # @functools.lru_cache(maxsize=max_cache_size)
     def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
         Does ARS reduction with gl string and ARS type

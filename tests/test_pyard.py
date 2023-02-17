@@ -32,9 +32,9 @@ import json
 import os
 import unittest
 
-import pyard.pyard
-from pyard import ARD
+import pyard
 from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
+from pyard.pyard import validate_reduction_type
 
 
 class TestPyArd(unittest.TestCase):
@@ -44,10 +44,7 @@ class TestPyArd(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.db_version = "3440"
-        cls.ard = ARD(cls.db_version, data_dir="/tmp/py-ard")
-
-    def setUp(self):
-        self.assertIsInstance(self.ard, ARD)
+        cls.ard = pyard.init(cls.db_version, data_dir="/tmp/py-ard")
 
     def test_no_mac(self):
         self.assertEqual(self.ard.redux("A*01:01:01", "G"), "A*01:01:01G")
@@ -130,13 +127,13 @@ class TestPyArd(unittest.TestCase):
             self.ard.mac_toG("A*01:AB")
 
     def test_redux_types(self):
-        self.assertIsNone(pyard.pyard.validate_reduction_type("G"))
-        self.assertIsNone(pyard.pyard.validate_reduction_type("lg"))
-        self.assertIsNone(pyard.pyard.validate_reduction_type("lgx"))
-        self.assertIsNone(pyard.pyard.validate_reduction_type("W"))
-        self.assertIsNone(pyard.pyard.validate_reduction_type("exon"))
+        self.assertIsNone(validate_reduction_type("G"))
+        self.assertIsNone(validate_reduction_type("lg"))
+        self.assertIsNone(validate_reduction_type("lgx"))
+        self.assertIsNone(validate_reduction_type("W"))
+        self.assertIsNone(validate_reduction_type("exon"))
         with self.assertRaises(ValueError):
-            pyard.pyard.validate_reduction_type("XX")
+            validate_reduction_type("XX")
 
     def test_empty_allele(self):
         with self.assertRaises(InvalidTypingError):
