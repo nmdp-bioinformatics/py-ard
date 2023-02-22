@@ -241,7 +241,7 @@ class ARD(object):
                 return allele_2_fields
             else:
                 # If ambiguous, reduce to G group level
-                return self.redux(allele, "lgx")
+                return self._redux_allele(allele, "lgx")
         else:
             # TODO: make this an explicit lookup to the g_group or p_group table
             # just having a shorter name be valid is not stringent enough
