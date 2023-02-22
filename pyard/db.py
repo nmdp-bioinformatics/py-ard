@@ -20,6 +20,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
 import pathlib
 import sqlite3
 import tempfile
@@ -29,7 +30,14 @@ from pyard.misc import get_imgt_db_versions
 
 
 def get_pyard_db_default_directory():
-    return pathlib.Path(tempfile.gettempdir()) / "pyard"
+    """
+    The default directory is $TMPDIR/$USER-pyard
+    Check for `USERNAME` on Windows
+    @return: directory path to the default db directory
+    """
+    return pathlib.Path(tempfile.gettempdir()) / (
+        os.environ.get("USER", os.environ.get("USERNAME")) + "-pyard"
+    )
 
 
 def create_db_connection(data_dir, imgt_version, ro=False):
