@@ -100,8 +100,6 @@ class ARD(object):
         # Create a database connection for writing
         self.db_connection, _ = db.create_db_connection(data_dir, imgt_version)
 
-        # Load MAC codes
-        dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
         # Load ARS mappings
         self.ars_mappings, p_group = dr.generate_ars_mapping(
             self.db_connection, imgt_version
@@ -129,6 +127,8 @@ class ARD(object):
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
         # Save IMGT database version
         dr.set_db_version(self.db_connection, imgt_version)
+        # Load MAC codes
+        dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
 
         # Close the current read-write db connection
         self.db_connection.close()
