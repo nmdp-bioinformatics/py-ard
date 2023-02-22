@@ -133,7 +133,9 @@ if __name__ == "__main__":
         load_mac = True
 
     try:
-        ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir, load_mac=load_mac)
+        ard = pyard.init(
+            imgt_version=imgt_version, data_dir=data_dir, load_mac=load_mac
+        )
     except ValueError as e:
         print(f"Error importing version {imgt_version}:", e)
         sys.exit(1)

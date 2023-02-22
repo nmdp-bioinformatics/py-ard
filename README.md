@@ -48,21 +48,30 @@ Import `pyard` package.
 import pyard
 ```
 
-The cache size of pre-computed reductions can be changed from the default of 1000 (_not working_: will be fixed in a later release.)
-```python
-pyard.max_cache_size = 1_000_000
-```
 
 Initialize `ARD` object with a version of IMGT HLA database
 
 ```python
-ard = pyard.ARD(3290)
+import pyard
+
+ard = pyard.init('3510')
+```
+
+The cache size of pre-computed reductions can be changed from the default of 1000
+```python
+import pyard
+
+max_cache_size = 1_000_000
+ard = pyard.init('3510', cache_size=max_cache_size)
+
 ```
 
 You can specify a different directory for the cached data.
 
 ```python
-ard = pyard.ARD('3290', data_dir='/tmp/py-ard')
+import pyard.ard
+
+ard = pyard.ard.ARD('3510', data_dir='/tmp/py-ard')
 ```
 
 You can choose to refresh the MAC code for current IMGT HLA database version
@@ -74,7 +83,9 @@ ard.refresh_mac_codes()
 The default initialization is to use the latest IMGT HLA database
 
 ```python
-ard = pyard.ARD()
+import pyard
+
+ard = pyard.init()
 ```
 
 ### Reduce Typings

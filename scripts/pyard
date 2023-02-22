@@ -24,7 +24,7 @@
 import argparse
 import sys
 
-import pyard
+import pyard.misc
 from pyard.exceptions import InvalidAlleleError
 from pyard.misc import get_data_dir, get_imgt_version
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument("--gl", dest="gl_string", help="GL String to reduce")
     parser.add_argument(
         "-r",
-        choices=pyard.pyard.reduction_types,
+        choices=pyard.misc.VALID_REDUCTION_TYPES,
         dest="redux_type",
         help="Reduction Method",
     )
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     imgt_version = get_imgt_version(args.imgt_version)
     data_dir = get_data_dir(args.data_dir)
-    ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir)
 
     if args.version:
         version = ard.get_db_version()
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         if args.redux_type:
             print(ard.redux_gl(args.gl_string, args.redux_type))
         else:
-            for redux_type in pyard.pyard.reduction_types:
+            for redux_type in pyard.misc.VALID_REDUCTION_TYPES:
                 redux_type_info = f"Reduction Method: {redux_type}"
                 print(redux_type_info)
                 print("-" * len(redux_type_info))

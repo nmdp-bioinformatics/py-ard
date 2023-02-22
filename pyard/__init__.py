@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
-import pyard.pyard
-
 #
 #    pyard pyARD.
 #    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -39,7 +37,7 @@ def init(
     cache_size: int = 1_000,
     config: dict = None,
 ):
-    from .pyard import ARD
+    from .ard import ARD
 
     ard = ARD(
         imgt_version=imgt_version,

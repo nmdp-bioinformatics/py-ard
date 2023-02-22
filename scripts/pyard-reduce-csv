@@ -36,6 +36,7 @@ import sys
 import pandas as pd
 
 import pyard
+from pyard.db import similar_alleles
 import pyard.drbx as drbx
 from pyard.exceptions import PyArdError
 from pyard.misc import get_data_dir, get_imgt_version, download_to_file
@@ -246,7 +247,7 @@ if __name__ == "__main__":
 
     data_dir = get_data_dir(args.data_dir)
     imgt_version = get_imgt_version(args.imgt_version)
-    ard = pyard.ARD(imgt_version=imgt_version, data_dir=data_dir)
+    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir)
 
     # Read the Input File
     # Read only the columns to be saved.
@@ -355,9 +356,7 @@ if __name__ == "__main__":
             file=sys.stderr,
         )
         for column_name, locus_allele in failed_to_reduce_alleles:
-            similar_allele_names = pyard.db.similar_alleles(
-                ard.db_connection, locus_allele
-            )
+            similar_allele_names = similar_alleles(ard.db_connection, locus_allele)
             if similar_allele_names:
                 similar_allele_names = ",".join(
                     sorted(similar_allele_names, reverse=True)

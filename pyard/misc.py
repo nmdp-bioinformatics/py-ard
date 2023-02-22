@@ -1,11 +1,17 @@
 # List of expression characters
 import pathlib
+import re
 import tempfile
-from typing import List
+from typing import List, Literal
 
+HLA_regex = re.compile("^HLA-")
+
+VALID_REDUCTION_TYPES = ["G", "lg", "lgx", "W", "exon", "U2"]
 expression_chars = ["N", "Q", "L", "S"]
 # List of P and G characters
 PandG_chars = ["P", "G"]
+
+DEFAULT_CACHE_SIZE = 1_000
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -121,3 +127,8 @@ def get_imgt_version(imgt_version):
 
 def get_default_db_directory():
     return pathlib.Path(tempfile.gettempdir()) / "pyard"
+
+
+def validate_reduction_type(ars_type):
+    if ars_type not in VALID_REDUCTION_TYPES:
+        raise ValueError(f"Reduction type needs to be one of {VALID_REDUCTION_TYPES}")

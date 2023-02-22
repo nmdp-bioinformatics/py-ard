@@ -24,18 +24,22 @@
 import functools
 import sys
 import re
-from typing import Iterable, Literal, List
+from typing import Iterable, List
 
 from . import db
 from . import data_repository as dr
 from . import broad_splits
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import get_n_field_allele, get_2field_allele, expression_chars
-
-DEFAULT_CACHE_SIZE = 1_000
-
-HLA_regex = re.compile("^HLA-")
+from .misc import (
+    get_n_field_allele,
+    get_2field_allele,
+    expression_chars,
+    DEFAULT_CACHE_SIZE,
+    HLA_regex,
+    VALID_REDUCTION_TYPES,
+    validate_reduction_type,
+)
 
 default_config = {
     "reduce_serology": True,
@@ -50,22 +54,7 @@ default_config = {
     "verbose_log": True,
 }
 
-reduction_types = (
-    "G",
-    "lg",
-    "lgx",
-    "W",
-    "exon",
-    "U2",  # Unambiguous Reduction to 2 fields
-)
-
 # Typing information
-VALID_REDUCTION_TYPES = Literal["G", "lg", "lgx", "W", "exon", "U2"]
-
-
-def validate_reduction_type(ars_type):
-    if ars_type not in reduction_types:
-        raise ValueError(f"Reduction type needs to be one of {reduction_types}")
 
 
 class ARD(object):
@@ -156,7 +145,7 @@ class ARD(object):
         if hasattr(self, "db_connection") and self.db_connection:
             self.db_connection.close()
 
-    # @functools.lru_cache(maxsize=max_cache_size)
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
         """
         Does ARS reduction with allele and ARS type
@@ -289,7 +278,7 @@ class ARD(object):
             sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
         )
 
-    # @functools.lru_cache(maxsize=max_cache_size)
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
         Does ARS reduction with gl string and ARS type

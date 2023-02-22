@@ -34,7 +34,7 @@ import unittest
 
 import pyard
 from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from pyard.pyard import validate_reduction_type
+from pyard.misc import validate_reduction_type
 
 
 class TestPyArd(unittest.TestCase):
@@ -166,3 +166,15 @@ class TestPyArd(unittest.TestCase):
             "DQB1*06" in self.ard.redux_gl("DQB1*05:XX", "lgx"),
             "The split shouldn't include other splits",
         )
+
+    def test_cache_info(self):
+        # validate the default cache size
+        self.assertEqual(
+            self.ard.redux.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
+        )
+        # validate you can change the cache size
+        higher_cache_size = 5_000_000
+        another_ard = pyard.init(
+            self.db_version, data_dir="/tmp/py-ard", cache_size=higher_cache_size
+        )
+        self.assertEqual(another_ard.redux.cache_info().maxsize, higher_cache_size)
