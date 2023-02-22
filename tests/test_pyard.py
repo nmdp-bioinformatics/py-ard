@@ -47,15 +47,15 @@ class TestPyArd(unittest.TestCase):
         cls.ard = pyard.init(cls.db_version, data_dir="/tmp/py-ard")
 
     def test_no_mac(self):
-        self.assertEqual(self.ard.redux("A*01:01:01", "G"), "A*01:01:01G")
-        self.assertEqual(self.ard.redux("A*01:01:01", "lg"), "A*01:01g")
-        self.assertEqual(self.ard.redux("A*01:01:01", "lgx"), "A*01:01")
-        self.assertEqual(self.ard.redux("HLA-A*01:01:01", "G"), "HLA-A*01:01:01G")
-        self.assertEqual(self.ard.redux("HLA-A*01:01:01", "lg"), "HLA-A*01:01g")
-        self.assertEqual(self.ard.redux("HLA-A*01:01:01", "lgx"), "HLA-A*01:01")
+        self.assertEqual(self.ard.redux_gl("A*01:01:01", "G"), "A*01:01:01G")
+        self.assertEqual(self.ard.redux_gl("A*01:01:01", "lg"), "A*01:01g")
+        self.assertEqual(self.ard.redux_gl("A*01:01:01", "lgx"), "A*01:01")
+        self.assertEqual(self.ard.redux_gl("HLA-A*01:01:01", "G"), "HLA-A*01:01:01G")
+        self.assertEqual(self.ard.redux_gl("HLA-A*01:01:01", "lg"), "HLA-A*01:01g")
+        self.assertEqual(self.ard.redux_gl("HLA-A*01:01:01", "lgx"), "HLA-A*01:01")
 
     def test_remove_invalid(self):
-        self.assertEqual(self.ard.redux("A*01:01:01", "G"), "A*01:01:01G")
+        self.assertEqual(self.ard.redux_gl("A*01:01:01", "G"), "A*01:01:01G")
 
     def test_mac(self):
         self.assertEqual(self.ard.redux_gl("A*01:AB", "G"), "A*01:01:01G/A*01:02")
@@ -86,12 +86,12 @@ class TestPyArd(unittest.TestCase):
             self.assertEqual(self.ard.redux_gl(glstring, ard_type), expected_gl)
 
     def test_mac_G(self):
-        self.assertEqual(self.ard.redux("A*01:01:01", "G"), "A*01:01:01G")
+        self.assertEqual(self.ard.redux_gl("A*01:01:01", "G"), "A*01:01:01G")
         self.assertEqual(
             self.ard.redux_gl("HLA-A*01:AB", "G"), "HLA-A*01:01:01G/HLA-A*01:02"
         )
         with self.assertRaises(InvalidAlleleError):
-            self.ard.redux("HLA-A*01:AB", "G")
+            self.ard._redux_allele("HLA-A*01:AB", "G")
 
     def test_xx_code(self):
         expanded_string = """
@@ -170,11 +170,17 @@ class TestPyArd(unittest.TestCase):
     def test_cache_info(self):
         # validate the default cache size
         self.assertEqual(
-            self.ard.redux.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
+            self.ard._redux_allele.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
+        )
+        self.assertEqual(
+            self.ard.redux_gl.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
         )
         # validate you can change the cache size
         higher_cache_size = 5_000_000
         another_ard = pyard.init(
             self.db_version, data_dir="/tmp/py-ard", cache_size=higher_cache_size
         )
-        self.assertEqual(another_ard.redux.cache_info().maxsize, higher_cache_size)
+        self.assertEqual(
+            another_ard._redux_allele.cache_info().maxsize, higher_cache_size
+        )
+        self.assertEqual(another_ard.redux_gl.cache_info().maxsize, higher_cache_size)

@@ -124,7 +124,9 @@ class ARD(object):
 
         # Adjust the cache for redux
         if max_cache_size != DEFAULT_CACHE_SIZE:
-            self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
+            self._redux_allele = functools.lru_cache(maxsize=max_cache_size)(
+                self._redux_allele
+            )
             self.redux_gl = functools.lru_cache(maxsize=max_cache_size)(self.redux_gl)
 
         # reference data is read-only and can be frozen
@@ -146,7 +148,9 @@ class ARD(object):
             self.db_connection.close()
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
-    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
+    def _redux_allele(
+        self, allele: str, redux_type: VALID_REDUCTION_TYPES, re_ping=True
+    ) -> str:
         """
         Does ARS reduction with allele and ARS type
 
@@ -163,7 +167,7 @@ class ARD(object):
         # deal with leading 'HLA-'
         if HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
-            redux_allele = self.redux(allele_name, redux_type)
+            redux_allele = self._redux_allele(allele_name, redux_type)
             if redux_allele:
                 return "HLA-" + redux_allele
             else:
@@ -178,12 +182,12 @@ class ARD(object):
         if allele.endswith(("P", "G")):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
-        if self._config["ping"] and reping:
+        if self._config["ping"] and re_ping:
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
                     return self.ars_mappings.p_not_g[allele]
                 else:
-                    return self.redux(allele, redux_type, False)
+                    return self._redux_allele(allele, redux_type, False)
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
@@ -373,7 +377,7 @@ class ARD(object):
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
             return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
 
-        return self.redux(glstring, redux_type)
+        return self._redux_allele(glstring, redux_type)
 
     def validate(self, glstring):
         """

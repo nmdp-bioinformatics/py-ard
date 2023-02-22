@@ -10,7 +10,7 @@ Feature: U2 Reduction
   # See Issue 121 for discussion
   # https://github.com/nmdp-bioinformatics/py-ard/issues/121
 
-  Scenario Outline: Reduce to 2 Unambiguous feilds
+  Scenario Outline: Reduce to 2 Unambiguous fields
 
     Given the allele as <Allele>
     When reducing on the <Level> level
@@ -32,10 +32,8 @@ Feature: U2 Reduction
 
 
     Examples: Ambiguous Reductions
-      | Allele                  | Level | Redux Allele |
-      | B*44:66                 | U2    | B*44:66      |
-      | B*44:270:01             | U2    | B*44:270     |
-
-      | B*44:270:01/B*44:270:02 | U2    | B*44:270     |
-
-      | B*44:66:01/B*44:66:02   | U2    | B*44:66      |
+      | Allele                      | Level | Redux Allele |
+      | B*44:66                     | U2    | B*44:66      |
+      | B*44:270:01                 | U2    | B*44:270     |
+      | B*44:270:01/B*44:270:02     | U2    | B*44:270     |
+      | B*44:15:01:01/B*44:15:01:02 | U2    | B*44:15      |
