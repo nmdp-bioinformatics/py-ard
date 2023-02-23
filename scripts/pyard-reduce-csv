@@ -38,7 +38,7 @@ import pandas as pd
 import pyard
 import pyard.drbx as drbx
 from pyard.exceptions import PyArdError
-from pyard.misc import get_data_dir, get_imgt_version
+from pyard.misc import get_data_dir, get_imgt_version, download_to_file
 
 
 def is_serology(allele: str) -> bool:
@@ -173,7 +173,7 @@ def create_drbx(row, locus_in_allele_name):
 if __name__ == "__main__":
     # config is specified with a -c parameter
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", help="JSON Configuration file", required=True)
+    parser.add_argument("-c", "--config", help="JSON Configuration file")
     parser.add_argument(
         "-d",
         "--data-dir",
@@ -194,8 +194,33 @@ if __name__ == "__main__":
         default=False,
         help="Don't print verbose log",
     )
+    parser.add_argument(
+        "-g",
+        "--generate-sample",
+        dest="generate",
+        action="store_true",
+        default=False,
+        help="Generate sample config file and csv file",
+    )
+
     args = parser.parse_args()
+
+    if args.generate:
+        config_url = "https://raw.githubusercontent.com/nmdp-bioinformatics/py-ard/master/extras/reduce_conf.json"
+        sample_config = "sample_reduce_conf.json"
+        download_to_file(config_url, sample_config)
+        print(f"Created {sample_config}")
+
+        sample_url = "https://raw.githubusercontent.com/nmdp-bioinformatics/py-ard/master/extras/sample.csv"
+        sample_csv = "sample.csv"
+        download_to_file(sample_url, sample_csv)
+        print(f"Created {sample_csv}")
+        sys.exit(0)
+
     config_filename = args.config
+    if not config_filename:
+        print("Config file required. Specify with -c/--config")
+        sys.exit(1)
 
     print("Using config file:", config_filename)
     with open(config_filename) as conf_file:

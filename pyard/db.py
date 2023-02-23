@@ -20,15 +20,24 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
 import pathlib
 import sqlite3
+import tempfile
 from typing import Tuple, Dict, Set, List
 
 from pyard.misc import get_imgt_db_versions
 
 
-def get_pyard_db_install_directory():
-    return pathlib.Path.home() / ".pyard"
+def get_pyard_db_default_directory():
+    """
+    The default directory is $TMPDIR/$USER-pyard
+    Check for `USERNAME` on Windows
+    @return: directory path to the default db directory
+    """
+    return pathlib.Path(tempfile.gettempdir()) / (
+        os.environ.get("USER", os.environ.get("USERNAME")) + "-pyard"
+    )
 
 
 def create_db_connection(data_dir, imgt_version, ro=False):
@@ -43,7 +52,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     """
     # Set data directory where all the downloaded files will go
     if data_dir is None:
-        data_dir = get_pyard_db_install_directory()
+        data_dir = get_pyard_db_default_directory()
 
     db_filename = f"{data_dir}/pyard-{imgt_version}.sqlite3"
 
@@ -69,6 +78,9 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     # Create the data directory if it doesn't exist
     if not pathlib.Path(data_dir).exists():
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+    if not pathlib.Path(db_filename).exists():
+        print(f"Creating {db_filename} as cache.")
 
     # Open the database for read/write
     file_uri = f"file:{db_filename}"
