@@ -252,13 +252,14 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
-    def sorted_unique_gl(self, gls: List[str], delim: str) -> str:
+    @staticmethod
+    def sorted_unique_gl(gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
         delimiter, split the elements first and then make them unique.
 
-        :param gl: List of gl strings that need to be joined by delim
+        :param gls: List of gl strings that need to be joined by delim
         :param delim: Delimiter of concern
         :return: a GL string sorted and made of unique GL
         """

@@ -25,6 +25,10 @@ import pathlib
 import sqlite3
 from typing import Tuple, Dict, Set, List
 
+from pyard import db
+
+from .data_repository import ARSMapping
+from .load import load_serology_broad_split_mapping
 from .misc import get_imgt_db_versions, get_default_db_directory
 
 
@@ -207,7 +211,7 @@ def save_dict(
     connection: sqlite3.Connection,
     table_name: str,
     dictionary: Dict[str, str],
-    columns=Tuple[str, str],
+    columns: Tuple[str, str],
 ) -> bool:
     """
     Save the dictionary as a table with column names from columns Tuple.
@@ -366,3 +370,191 @@ def set_user_version(connection: sqlite3.Connection, version: int):
     connection.commit()
     # close the cursor
     cursor.close()
+
+
+def load_ars_mappings(db_connection):
+    dup_g = db.load_dict(
+        db_connection, table_name="dup_g", columns=("allele", "g_group")
+    )
+    dup_lgx = db.load_dict(
+        db_connection, table_name="dup_lgx", columns=("allele", "lgx_group")
+    )
+    g_group = db.load_dict(db_connection, table_name="g_group", columns=("allele", "g"))
+    lgx_group = db.load_dict(
+        db_connection, table_name="lgx_group", columns=("allele", "lgx")
+    )
+    exon_group = db.load_dict(
+        db_connection, table_name="exon_group", columns=("allele", "exon")
+    )
+    p_not_g = db.load_dict(
+        db_connection, table_name="p_not_g", columns=("allele", "lgx")
+    )
+    return (
+        ARSMapping(
+            dup_g=dup_g,
+            dup_lgx=dup_lgx,
+            g_group=g_group,
+            lgx_group=lgx_group,
+            exon_group=exon_group,
+            p_not_g=p_not_g,
+        ),
+        None,
+    )
+
+
+def save_ars_mappings(
+    db_connection, dup_g, dup_lgx, exon_group, g_group, lgx_group, p_group, p_not_g
+):
+    db.save_dict(
+        db_connection,
+        table_name="p_not_g",
+        dictionary=p_not_g,
+        columns=("allele", "lgx"),
+    )
+    db.save_dict(
+        db_connection,
+        table_name="dup_g",
+        dictionary=dup_g,
+        columns=("allele", "g_group"),
+    )
+    db.save_dict(
+        db_connection,
+        table_name="dup_lgx",
+        dictionary=dup_lgx,
+        columns=("allele", "lgx_group"),
+    )
+    db.save_dict(
+        db_connection, table_name="g_group", dictionary=g_group, columns=("allele", "g")
+    )
+    db.save_dict(
+        db_connection,
+        table_name="lgx_group",
+        dictionary=lgx_group,
+        columns=("allele", "lgx"),
+    )
+    db.save_dict(
+        db_connection,
+        table_name="exon_group",
+        dictionary=exon_group,
+        columns=("allele", "exon"),
+    )
+    return (
+        ARSMapping(
+            dup_g=dup_g,
+            dup_lgx=dup_lgx,
+            g_group=g_group,
+            lgx_group=lgx_group,
+            exon_group=exon_group,
+            p_not_g=p_not_g,
+        ),
+        p_group,
+    )
+
+
+def save_code_mappings(
+    db_connection,
+    exp_alleles,
+    flat_who_group,
+    flat_xx_codes,
+    valid_alleles,
+    who_alleles,
+):
+    db.save_dict(
+        db_connection, "exp_alleles", exp_alleles, ("exp_allele", "allele_list")
+    )
+    db.save_dict(db_connection, "xx_codes", flat_xx_codes, ("allele_1d", "allele_list"))
+    # Save this version of the valid alleles
+    db.save_set(db_connection, "alleles", valid_alleles, "allele")
+    # Save this version of the WHO alleles
+    db.save_set(db_connection, "who_alleles", who_alleles, "allele")
+    db.save_dict(
+        db_connection, "who_group", flat_who_group, columns=("who", "allele_list")
+    )
+
+
+def load_code_mappings(db_connection):
+    valid_alleles = db.load_set(db_connection, "alleles")
+    who_alleles = db.load_set(db_connection, "who_alleles")
+    who_group = db.load_dict(db_connection, "who_group", ("who", "allele_list"))
+    who_group = {k: v.split("/") for k, v in who_group.items()}
+    xx_codes = db.load_dict(db_connection, "xx_codes", ("allele_1d", "allele_list"))
+    xx_codes = {k: v.split("/") for k, v in xx_codes.items()}
+    exp_alleles = db.load_dict(
+        db_connection, "exp_alleles", ("exp_allele", "allele_list")
+    )
+    exp_alleles = {k: v.split("/") for k, v in exp_alleles.items()}
+    return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
+
+
+def load_shortnulls(db_connection):
+    shortnulls = db.load_dict(db_connection, "shortnulls", ("shortnull", "allele_list"))
+    shortnulls = {k: v.split("/") for k, v in shortnulls.items()}
+    return shortnulls
+
+
+def save_shortnulls(db_connection, shortnulls):
+    db.save_dict(db_connection, "shortnulls", shortnulls, ("shortnull", "allele_list"))
+
+
+def save_mac_codes(db_connection, mac, mac_table_name):
+    # Save the mac dict to db
+    db.save_dict(
+        db_connection,
+        table_name=mac_table_name,
+        dictionary=mac,
+        columns=("code", "alleles"),
+    )
+
+
+def save_serology_mappings(db_connection, sero_mapping):
+    # Save the serology mapping to db
+    db.save_dict(
+        db_connection,
+        table_name="serology_mapping",
+        dictionary=sero_mapping,
+        columns=("serology", "allele_list"),
+    )
+
+
+def load_v2_v3_mappings(db_connection):
+    # TODO: Create mapping table using both the allele list history and
+    #  deleted alleles as reference.
+    # Temporary Example
+    v2_to_v3_example = {
+        "A*0104": "A*01:04:01:01N",
+        "A*0105N": "A*01:04:01:01N",
+        "A*0111": "A*01:11N",
+        "A*01123": "A*01:123N",
+        "A*0115": "A*01:15N",
+        "A*0116": "A*01:16N",
+        "A*01160": "A*01:160N",
+        "A*01162": "A*01:162N",
+        "A*01178": "A*01:178N",
+        "A*01179": "A*01:179N",
+        "DRB5*02ZB": "DRB5*02:UTV",
+    }
+    db.save_dict(
+        db_connection,
+        table_name="v2_mapping",
+        dictionary=v2_to_v3_example,
+        columns=("v2", "v3"),
+    )
+
+
+def load_serology_broad_split_mappings(db_connection):
+    sero_mapping = db.load_dict(
+        db_connection, "serology_broad_split_mapping", ("serology", "splits")
+    )
+    sero_splits = {k: v.split("/") for k, v in sero_mapping.items()}
+    return sero_splits
+
+
+def save_serology_broad_split_mappings(db_connection, sero_mapping):
+    # Save the `splits` as a "/" delimited string to db
+    sero_splits = {sero: "/".join(splits) for sero, splits in sero_mapping.items()}
+    db.save_dict(
+        db_connection,
+        table_name="serology_broad_split_mapping",
+        dictionary=sero_splits,
+        columns=("serology", "splits"),
+    )
