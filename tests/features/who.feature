@@ -6,7 +6,7 @@ Feature: WHO expansion and Exon reduction
   `W` is an expanding type (like MAC and XX) in that finds all WHO alleles consistent with the input.
   `exon` is a reducing type, it expects input that is already exon (3field) resolution or higher (4 field) and reduces it to 3 field.
 
-  To covert 2-field/MAC/XX to exon/3-field resolution it requires calling redux_gl twice: once at W level to expand and then at exon level to reduce the output to exon/3-field
+  To covert 2-field/MAC/XX to exon/3-field resolution it requires calling redux twice: once at W level to expand and then at exon level to reduce the output to exon/3-field
 
   Scenario Outline: WHO expansion
 

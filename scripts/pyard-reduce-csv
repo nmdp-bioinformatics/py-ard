@@ -120,7 +120,7 @@ def reduce(allele, locus, column_name):
     if should_be_reduced(allele, locus_allele):
         # print(f"reducing '{locus_allele}'")
         try:
-            reduced_allele = ard.redux_gl(locus_allele, ard_config["redux_type"])
+            reduced_allele = ard.redux(locus_allele, ard_config["redux_type"])
         except PyArdError as e:
             if verbose:
                 print(e)

@@ -82,13 +82,13 @@ if __name__ == "__main__":
 
     try:
         if args.redux_type:
-            print(ard.redux_gl(args.gl_string, args.redux_type))
+            print(ard.redux(args.gl_string, args.redux_type))
         else:
             for redux_type in pyard.misc.VALID_REDUCTION_TYPES:
                 redux_type_info = f"Reduction Method: {redux_type}"
                 print(redux_type_info)
                 print("-" * len(redux_type_info))
-                print(ard.redux_gl(args.gl_string, redux_type))
+                print(ard.redux(args.gl_string, redux_type))
     except InvalidAlleleError as e:
         print("Error:", e)
 

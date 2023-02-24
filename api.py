@@ -1,12 +1,11 @@
 from flask import request
 
 import pyard
-from pyard import ARD
 from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
 
 # Globally accessible for all endpoints
-ard = ARD()
+ard = pyard.init()
 
 
 def validate_controller():
@@ -40,8 +39,8 @@ def redux_controller():
             return {"message": "gl_string and reduction_method not provided"}, 404
         # Perform redux
         try:
-            redux_gl_string = ard.redux_gl(gl_string, reduction_method)
-            return {"ard": redux_gl_string}, 200
+            redux_string = ard.redux(gl_string, reduction_method)
+            return {"ard": redux_string}, 200
         except PyArdError as e:
             return {"message": e.message}, 400
 

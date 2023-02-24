@@ -127,7 +127,7 @@ class ARD(object):
             self._redux_allele = functools.lru_cache(maxsize=max_cache_size)(
                 self._redux_allele
             )
-            self.redux_gl = functools.lru_cache(maxsize=max_cache_size)(self.redux_gl)
+            self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
 
         # reference data is read-only and can be frozen
         # Works only for Python >= 3.9
@@ -212,7 +212,7 @@ class ARD(object):
             if self._is_who_allele(allele):
                 return allele
             if allele in self.who_group:
-                return self.redux_gl("/".join(self.who_group[allele]), redux_type)
+                return self.redux("/".join(self.who_group[allele]), redux_type)
             else:
                 return allele
         elif redux_type == "exon":
@@ -284,7 +284,7 @@ class ARD(object):
         )
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
-    def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
         Does ARS reduction with gl string and ARS type
 
@@ -302,38 +302,38 @@ class ARD(object):
 
         if re.search(r"\^", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("^")], "^"
+                [self.redux(a, redux_type) for a in glstring.split("^")], "^"
             )
 
         if re.search(r"\|", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("|")], "|"
+                [self.redux(a, redux_type) for a in glstring.split("|")], "|"
             )
 
         if re.search(r"\+", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("+")], "+"
+                [self.redux(a, redux_type) for a in glstring.split("+")], "+"
             )
 
         if re.search("~", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("~")], "~"
+                [self.redux(a, redux_type) for a in glstring.split("~")], "~"
             )
 
         if re.search("/", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("/")], "/"
+                [self.redux(a, redux_type) for a in glstring.split("/")], "/"
             )
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
             glstring = self._map_v2_to_v3(glstring)
-            return self.redux_gl(glstring, redux_type)
+            return self.redux(glstring, redux_type)
 
         # Handle Serology
         if self._config["reduce_serology"] and self.is_serology(glstring):
             alleles = self._get_alleles_from_serology(glstring)
-            return self.redux_gl("/".join(alleles), redux_type)
+            return self.redux("/".join(alleles), redux_type)
 
         if ":" in glstring:
             loc_allele = glstring.split(":")
@@ -350,14 +350,12 @@ class ARD(object):
                 loc_antigen = loc_antigen.split("-")[1]
             if self.is_XX(glstring, loc_antigen, code):
                 if is_hla_prefix:
-                    reduced_alleles = self.redux_gl(
+                    reduced_alleles = self.redux(
                         "/".join(self.xx_codes[loc_antigen]), redux_type
                     )
                     return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
                 else:
-                    return self.redux_gl(
-                        "/".join(self.xx_codes[loc_antigen]), redux_type
-                    )
+                    return self.redux("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -370,13 +368,13 @@ class ARD(object):
                     alleles = ["HLA-" + a for a in alleles]
                 else:
                     alleles = self._get_alleles(code, loc_antigen)
-                return self.redux_gl("/".join(alleles), redux_type)
+                return self.redux("/".join(alleles), redux_type)
             else:
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
 
         # Handle short nulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
-            return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
+            return self.redux("/".join(self.shortnulls[glstring]), redux_type)
 
         return self._redux_allele(glstring, redux_type)
 
