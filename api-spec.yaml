@@ -14,6 +14,8 @@ tags:
     description: Expand MAC to alleles
   - name: DRBX Blender
     description: Blend DRBX based on DRB1 and DRB3/4/5
+  - name: Validation
+    description: Validate a GL String or Allele
 paths:
   /version:
     get:
@@ -134,7 +136,7 @@ paths:
   /validate:
     post:
       tags:
-        - ARD Reduction
+        - Validation
       operationId: api.validate_controller
       summary: Validate GL String
       description: |

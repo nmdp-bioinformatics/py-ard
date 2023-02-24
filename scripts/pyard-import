@@ -30,13 +30,13 @@ from pyard import db, data_repository
 from pyard.misc import get_data_dir
 
 
-def get_imgt_version(imgt_version):
-    if imgt_version:
-        version = imgt_version.replace(".", "")
-        if version.isdigit():
-            return version
+def get_imgt_version(version_number):
+    if version_number:
+        version_no_digit = version_number.replace(".", "")
+        if version_no_digit.isdigit():
+            return version_no_digit
         raise RuntimeError(
-            f"{imgt_version} is not a valid IMGT database version number"
+            f"{version_number} is not a valid IMGT database version number"
         )
     return "Latest"
 

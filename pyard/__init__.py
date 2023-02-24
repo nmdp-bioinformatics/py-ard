@@ -25,6 +25,7 @@ from functools import lru_cache
 from .blender import blender as dr_blender
 from .broad_splits import find_splits as find_broad_splits
 from .misc import get_imgt_db_versions as db_versions
+from .misc import DEFAULT_CACHE_SIZE
 
 __author__ = """NMDP Bioinformatics"""
 __version__ = "0.9.1"
@@ -34,7 +35,7 @@ def init(
     imgt_version: str = "Latest",
     data_dir: str = None,
     load_mac: bool = True,
-    cache_size: int = 1_000,
+    cache_size: int = DEFAULT_CACHE_SIZE,
     config: dict = None,
 ):
     from .ard import ARD
