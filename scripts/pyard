@@ -53,9 +53,10 @@ if __name__ == "__main__":
         dest="imgt_version",
         help="IPD-IMGT/HLA db to use for redux",
     )
-    parser.add_argument("--gl", dest="gl_string", help="GL String to reduce")
+    parser.add_argument("-g", "--gl", dest="gl_string", help="GL String to reduce")
     parser.add_argument(
         "-r",
+        "--redux-type",
         choices=pyard.misc.VALID_REDUCTION_TYPES,
         dest="redux_type",
         help="Reduction Method",

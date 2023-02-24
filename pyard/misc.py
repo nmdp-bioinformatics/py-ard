@@ -2,11 +2,11 @@
 import pathlib
 import re
 import tempfile
-from typing import List, Literal
+from typing import List
 
 HLA_regex = re.compile("^HLA-")
 
-VALID_REDUCTION_TYPES = ["G", "lg", "lgx", "W", "exon", "U2"]
+VALID_REDUCTION_TYPES = ["G", "P", "lg", "lgx", "W", "exon", "U2"]
 expression_chars = ["N", "Q", "L", "S"]
 # List of P and G characters
 PandG_chars = ["P", "G"]

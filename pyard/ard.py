@@ -22,14 +22,13 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import functools
-import sys
 import re
+import sys
 from typing import Iterable, List
 
-from . import db
-from . import data_repository as dr
 from . import broad_splits
-from .smart_sort import smart_sort_comparator
+from . import data_repository as dr
+from . import db
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from .misc import (
     get_n_field_allele,
@@ -40,6 +39,7 @@ from .misc import (
     VALID_REDUCTION_TYPES,
     validate_reduction_type,
 )
+from .smart_sort import smart_sort_comparator
 
 default_config = {
     "reduce_serology": True,
@@ -90,9 +90,7 @@ class ARD(object):
         self.db_connection, _ = db.create_db_connection(data_dir, imgt_version)
 
         # Load ARS mappings
-        self.ars_mappings, p_group = dr.generate_ars_mapping(
-            self.db_connection, imgt_version
-        )
+        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
         (
             self.valid_alleles,
@@ -101,7 +99,7 @@ class ARD(object):
             self.who_group,
             self.exp_alleles,
         ) = dr.generate_alleles_and_xx_codes_and_who(
-            self.db_connection, imgt_version, self.ars_mappings, p_group
+            self.db_connection, imgt_version, self.ars_mappings
         )
 
         # Generate short nulls from WHO mapping
@@ -194,6 +192,8 @@ class ARD(object):
                 return self.ars_mappings.dup_g[allele]
             else:
                 return self.ars_mappings.g_group[allele]
+        elif redux_type == "P" and allele in self.ars_mappings.p_group:
+            return self.ars_mappings.p_group[allele]
         elif redux_type in ["lgx", "lg"]:
             if allele in self.ars_mappings.dup_lgx:
                 redux_allele = self.ars_mappings.dup_lgx[allele]

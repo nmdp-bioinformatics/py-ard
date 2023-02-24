@@ -24,7 +24,7 @@
 import functools
 import re
 
-expr_regex = re.compile("[NQLSGg]")
+expr_regex = re.compile("[PNQLSGg]")
 glstring_chars = re.compile("[/|+^~]")
 
 
