@@ -24,23 +24,23 @@
 import functools
 import sys
 import re
-from typing import Iterable, Literal, List
+from typing import Iterable, List
 
 from . import db
 from . import data_repository as dr
 from . import broad_splits
 from .smart_sort import smart_sort_comparator
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import get_n_field_allele, get_2field_allele, expression_chars
+from .misc import (
+    get_n_field_allele,
+    get_2field_allele,
+    expression_chars,
+    DEFAULT_CACHE_SIZE,
+    HLA_regex,
+    VALID_REDUCTION_TYPES,
+    validate_reduction_type,
+)
 
-HLA_regex = re.compile("^HLA-")
-
-# Set the lru cache size with
-# >>> import pyard
-# >>> pyard.max_cache_size = 1_000_000
-# >>> ard = pyard.ARD()
-
-max_cache_size = 1_000
 default_config = {
     "reduce_serology": True,
     "reduce_v2": True,
@@ -54,22 +54,7 @@ default_config = {
     "verbose_log": True,
 }
 
-reduction_types = (
-    "G",
-    "lg",
-    "lgx",
-    "W",
-    "exon",
-    "U2",  # Unambiguous Reduction to 2 fields
-)
-
 # Typing information
-VALID_REDUCTION_TYPES = Literal["G", "lg", "lgx", "W", "exon", "U2"]
-
-
-def validate_reduction_type(ars_type):
-    if ars_type not in reduction_types:
-        raise ValueError(f"Reduction type needs to be one of {reduction_types}")
 
 
 class ARD(object):
@@ -84,6 +69,7 @@ class ARD(object):
         imgt_version: str = "Latest",
         data_dir: str = None,
         load_mac: bool = True,
+        max_cache_size: int = DEFAULT_CACHE_SIZE,
         config: dict = None,
     ):
         """
@@ -103,8 +89,6 @@ class ARD(object):
         # Create a database connection for writing
         self.db_connection, _ = db.create_db_connection(data_dir, imgt_version)
 
-        # Load MAC codes
-        dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
         # Load ARS mappings
         self.ars_mappings, p_group = dr.generate_ars_mapping(
             self.db_connection, imgt_version
@@ -132,9 +116,18 @@ class ARD(object):
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
         # Save IMGT database version
         dr.set_db_version(self.db_connection, imgt_version)
+        # Load MAC codes
+        dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
 
         # Close the current read-write db connection
         self.db_connection.close()
+
+        # Adjust the cache for redux
+        if max_cache_size != DEFAULT_CACHE_SIZE:
+            self._redux_allele = functools.lru_cache(maxsize=max_cache_size)(
+                self._redux_allele
+            )
+            self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
 
         # reference data is read-only and can be frozen
         # Works only for Python >= 3.9
@@ -154,8 +147,10 @@ class ARD(object):
         if hasattr(self, "db_connection") and self.db_connection:
             self.db_connection.close()
 
-    @functools.lru_cache(maxsize=max_cache_size)
-    def redux(self, allele: str, redux_type: VALID_REDUCTION_TYPES, reping=True) -> str:
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    def _redux_allele(
+        self, allele: str, redux_type: VALID_REDUCTION_TYPES, re_ping=True
+    ) -> str:
         """
         Does ARS reduction with allele and ARS type
 
@@ -172,7 +167,7 @@ class ARD(object):
         # deal with leading 'HLA-'
         if HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
-            redux_allele = self.redux(allele_name, redux_type)
+            redux_allele = self._redux_allele(allele_name, redux_type)
             if redux_allele:
                 return "HLA-" + redux_allele
             else:
@@ -187,12 +182,12 @@ class ARD(object):
         if allele.endswith(("P", "G")):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
-        if self._config["ping"] and reping:
+        if self._config["ping"] and re_ping:
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
                     return self.ars_mappings.p_not_g[allele]
                 else:
-                    return self.redux(allele, redux_type, False)
+                    return self._redux_allele(allele, redux_type, False)
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
@@ -217,7 +212,7 @@ class ARD(object):
             if self._is_who_allele(allele):
                 return allele
             if allele in self.who_group:
-                return self.redux_gl("/".join(self.who_group[allele]), redux_type)
+                return self.redux("/".join(self.who_group[allele]), redux_type)
             else:
                 return allele
         elif redux_type == "exon":
@@ -246,7 +241,7 @@ class ARD(object):
                 return allele_2_fields
             else:
                 # If ambiguous, reduce to G group level
-                return self.redux(allele, "lgx")
+                return self._redux_allele(allele, "lgx")
         else:
             # TODO: make this an explicit lookup to the g_group or p_group table
             # just having a shorter name be valid is not stringent enough
@@ -257,13 +252,14 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
-    def sorted_unique_gl(self, gls: List[str], delim: str) -> str:
+    @staticmethod
+    def sorted_unique_gl(gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
         delimiter, split the elements first and then make them unique.
 
-        :param gl: List of gl strings that need to be joined by delim
+        :param gls: List of gl strings that need to be joined by delim
         :param delim: Delimiter of concern
         :return: a GL string sorted and made of unique GL
         """
@@ -287,8 +283,8 @@ class ARD(object):
             sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
         )
 
-    @functools.lru_cache(maxsize=max_cache_size)
-    def redux_gl(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
         Does ARS reduction with gl string and ARS type
 
@@ -306,38 +302,38 @@ class ARD(object):
 
         if re.search(r"\^", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("^")], "^"
+                [self.redux(a, redux_type) for a in glstring.split("^")], "^"
             )
 
         if re.search(r"\|", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("|")], "|"
+                [self.redux(a, redux_type) for a in glstring.split("|")], "|"
             )
 
         if re.search(r"\+", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("+")], "+"
+                [self.redux(a, redux_type) for a in glstring.split("+")], "+"
             )
 
         if re.search("~", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("~")], "~"
+                [self.redux(a, redux_type) for a in glstring.split("~")], "~"
             )
 
         if re.search("/", glstring):
             return self.sorted_unique_gl(
-                [self.redux_gl(a, redux_type) for a in glstring.split("/")], "/"
+                [self.redux(a, redux_type) for a in glstring.split("/")], "/"
             )
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
             glstring = self._map_v2_to_v3(glstring)
-            return self.redux_gl(glstring, redux_type)
+            return self.redux(glstring, redux_type)
 
         # Handle Serology
         if self._config["reduce_serology"] and self.is_serology(glstring):
             alleles = self._get_alleles_from_serology(glstring)
-            return self.redux_gl("/".join(alleles), redux_type)
+            return self.redux("/".join(alleles), redux_type)
 
         if ":" in glstring:
             loc_allele = glstring.split(":")
@@ -354,14 +350,12 @@ class ARD(object):
                 loc_antigen = loc_antigen.split("-")[1]
             if self.is_XX(glstring, loc_antigen, code):
                 if is_hla_prefix:
-                    reduced_alleles = self.redux_gl(
+                    reduced_alleles = self.redux(
                         "/".join(self.xx_codes[loc_antigen]), redux_type
                     )
                     return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
                 else:
-                    return self.redux_gl(
-                        "/".join(self.xx_codes[loc_antigen]), redux_type
-                    )
+                    return self.redux("/".join(self.xx_codes[loc_antigen]), redux_type)
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -374,15 +368,15 @@ class ARD(object):
                     alleles = ["HLA-" + a for a in alleles]
                 else:
                     alleles = self._get_alleles(code, loc_antigen)
-                return self.redux_gl("/".join(alleles), redux_type)
+                return self.redux("/".join(alleles), redux_type)
             else:
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
 
         # Handle short nulls
         if self._config["reduce_shortnull"] and self.is_shortnull(glstring):
-            return self.redux_gl("/".join(self.shortnulls[glstring]), redux_type)
+            return self.redux("/".join(self.shortnulls[glstring]), redux_type)
 
-        return self.redux(glstring, redux_type)
+        return self._redux_allele(glstring, redux_type)
 
     def validate(self, glstring):
         """

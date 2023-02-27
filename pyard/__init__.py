@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import lru_cache
 
 #
 #    pyard pyARD.
@@ -21,10 +22,29 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from .pyard import ARD
 from .blender import blender as dr_blender
 from .broad_splits import find_splits as find_broad_splits
 from .misc import get_imgt_db_versions as db_versions
+from .misc import DEFAULT_CACHE_SIZE
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "0.9.1"
+__version__ = "1.0.0rc1"
+
+
+def init(
+    imgt_version: str = "Latest",
+    data_dir: str = None,
+    load_mac: bool = True,
+    cache_size: int = DEFAULT_CACHE_SIZE,
+    config: dict = None,
+):
+    from .ard import ARD
+
+    ard = ARD(
+        imgt_version=imgt_version,
+        data_dir=data_dir,
+        load_mac=load_mac,
+        max_cache_size=cache_size,
+        config=config,
+    )
+    return ard

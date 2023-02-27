@@ -1,12 +1,17 @@
 # List of expression characters
 import pathlib
-from typing import List
+import re
+import tempfile
+from typing import List, Literal
 
-from pyard import db
+HLA_regex = re.compile("^HLA-")
 
+VALID_REDUCTION_TYPES = ["G", "lg", "lgx", "W", "exon", "U2"]
 expression_chars = ["N", "Q", "L", "S"]
 # List of P and G characters
 PandG_chars = ["P", "G"]
+
+DEFAULT_CACHE_SIZE = 1_000
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -105,7 +110,7 @@ def get_data_dir(data_dir):
             raise RuntimeError(f"{data_dir} is not a valid directory")
         data_dir = path
     else:
-        data_dir = db.get_pyard_db_default_directory()
+        data_dir = get_default_db_directory()
     return data_dir
 
 
@@ -118,3 +123,12 @@ def get_imgt_version(imgt_version):
             f"{imgt_version} is not a valid IMGT database version number"
         )
     return "Latest"
+
+
+def get_default_db_directory():
+    return pathlib.Path(tempfile.gettempdir()) / "pyard"
+
+
+def validate_reduction_type(ars_type):
+    if ars_type not in VALID_REDUCTION_TYPES:
+        raise ValueError(f"Reduction type needs to be one of {VALID_REDUCTION_TYPES}")

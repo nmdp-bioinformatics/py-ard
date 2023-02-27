@@ -25,7 +25,7 @@ def step_impl(context, level):
 def step_impl(context, level):
     context.level = level
     try:
-        context.redux_allele = context.ard.redux_gl(context.allele, level)
+        context.redux_allele = context.ard.redux(context.allele, level)
     except PyArdError:
         context.redux_allele = "X"
 
@@ -52,13 +52,13 @@ def step_impl(context, allele):
 
 @when("expanding at the {level} level")
 def step_impl(context, level):
-    context.expanded_alleles = context.ard.redux_gl(context.allele, level)
+    context.expanded_alleles = context.ard.redux(context.allele, level)
 
 
 @when("expanding to WHO then reducing to the {level} level")
 def step_impl(context, level):
-    context.expanded_alleles = context.ard.redux_gl(
-        context.ard.redux_gl(context.allele, "W"), level
+    context.expanded_alleles = context.ard.redux(
+        context.ard.redux(context.allele, "W"), level
     )
 
 
