@@ -33,11 +33,13 @@ from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from .misc import (
     get_n_field_allele,
     get_2field_allele,
-    expression_chars,
-    DEFAULT_CACHE_SIZE,
+    validate_reduction_type,
+)
+from .constants import (
     HLA_regex,
     VALID_REDUCTION_TYPES,
-    validate_reduction_type,
+    expression_chars,
+    DEFAULT_CACHE_SIZE,
 )
 from .smart_sort import smart_sort_comparator
 

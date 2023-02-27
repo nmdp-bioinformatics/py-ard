@@ -33,6 +33,7 @@ import os
 import unittest
 
 import pyard
+from pyard.constants import DEFAULT_CACHE_SIZE
 from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from pyard.misc import validate_reduction_type
 
@@ -170,11 +171,9 @@ class TestPyArd(unittest.TestCase):
     def test_cache_info(self):
         # validate the default cache size
         self.assertEqual(
-            self.ard._redux_allele.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
+            self.ard._redux_allele.cache_info().maxsize, DEFAULT_CACHE_SIZE
         )
-        self.assertEqual(
-            self.ard.redux.cache_info().maxsize, pyard.misc.DEFAULT_CACHE_SIZE
-        )
+        self.assertEqual(self.ard.redux.cache_info().maxsize, DEFAULT_CACHE_SIZE)
         # validate you can change the cache size
         higher_cache_size = 5_000_000
         another_ard = pyard.init(

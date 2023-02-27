@@ -23,7 +23,6 @@
 import copy
 import functools
 import sqlite3
-from collections import namedtuple
 
 import pandas as pd
 
@@ -37,31 +36,14 @@ from .load import (
     load_serology_mappings,
     load_latest_version,
 )
-from .misc import expression_chars
+from .constants import expression_chars
+from .mappings import ars_mapping_tables, ARSMapping, code_mapping_tables
 from .misc import (
     get_2field_allele,
     get_3field_allele,
     number_of_fields,
     get_1field_allele,
 )
-
-ars_mapping_tables = [
-    "dup_g",
-    "dup_lgx",
-    "g_group",
-    "p_group",
-    "lgx_group",
-    "exon_group",
-    "p_not_g",
-]
-ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
-
-code_mapping_tables = [
-    "alleles",
-    "xx_codes",
-    "who_alleles",
-    "who_group",
-]
 
 
 def expression_reduce(df):

@@ -24,7 +24,7 @@ import pathlib
 import sqlite3
 from typing import Tuple, Dict, Set, List
 
-from .data_repository import ARSMapping
+from .mappings import ARSMapping
 from .misc import get_imgt_db_versions, get_default_db_directory
 
 

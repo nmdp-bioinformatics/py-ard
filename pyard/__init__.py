@@ -23,7 +23,7 @@
 #
 from .blender import blender as dr_blender
 from .broad_splits import find_splits as find_broad_splits
-from .misc import DEFAULT_CACHE_SIZE
+from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""
