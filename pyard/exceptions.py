@@ -25,6 +25,7 @@ class InvalidMACError(PyArdError):
 
 class InvalidTypingError(PyArdError):
     def __init__(self, message: str, cause=None) -> None:
+        super().__init__(message)
         self.cause = cause
 
     def __str__(self) -> str:
