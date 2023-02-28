@@ -66,12 +66,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.splits:
-        mapping = pyard.find_broad_splits(args.splits)
-        if mapping:
-            print(f"{mapping[0]} = {'/'.join(mapping[1])}")
-        sys.exit(0)
-
     imgt_version = get_imgt_version(args.imgt_version)
     data_dir = get_data_dir(args.data_dir)
     ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir)
@@ -80,6 +74,12 @@ if __name__ == "__main__":
         version = ard.get_db_version()
         print(f"IPD-IMGT/HLA version:", version)
         print(f"py-ard version:", pyard.__version__)
+        sys.exit(0)
+
+    if args.splits:
+        mapping = pyard.find_broad_splits(args.splits)
+        if mapping:
+            print(f"{mapping[0]} = {'/'.join(mapping[1])}")
         sys.exit(0)
 
     try:
