@@ -35,7 +35,14 @@ from .load import (
     load_latest_version,
 )
 from .constants import expression_chars
-from .mappings import ars_mapping_tables, ARSMapping, code_mapping_tables
+from .mappings import (
+    ars_mapping_tables,
+    ARSMapping,
+    code_mapping_tables,
+    AlleleGroups,
+    CodeMappings,
+    allele_tables,
+)
 from .misc import (
     get_2field_allele,
     get_3field_allele,
@@ -63,7 +70,7 @@ def expression_reduce(df):
     return None
 
 
-def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
+def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARSMapping:
     if db.tables_exist(db_connection, ars_mapping_tables):
         return db.load_ars_mappings(db_connection)
 
@@ -162,7 +169,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
 def generate_alleles_and_xx_codes_and_who(
     db_connection: sqlite3.Connection, imgt_version, ars_mappings
 ):
-    if db.tables_exist(db_connection, code_mapping_tables):
+    if db.tables_exist(db_connection, code_mapping_tables + allele_tables):
         return db.load_code_mappings(db_connection)
 
     import pandas as pd
@@ -256,7 +263,14 @@ def generate_alleles_and_xx_codes_and_who(
         who_alleles,
     )
 
-    return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
+    return (
+        CodeMappings(xx_codes=xx_codes, who_group=who_group),
+        AlleleGroups(
+            alleles=valid_alleles, who_alleles=who_alleles, exp_alleles=exp_alleles
+        ),
+    )
+
+    # return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
 
 
 def generate_short_nulls(db_connection, who_group):

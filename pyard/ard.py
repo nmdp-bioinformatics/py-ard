@@ -96,17 +96,16 @@ class ARD(object):
         self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
         (
-            self.valid_alleles,
-            self.who_alleles,
-            self.xx_codes,
-            self.who_group,
-            self.exp_alleles,
+            self.code_mappings,
+            self.allele_group,
         ) = dr.generate_alleles_and_xx_codes_and_who(
             self.db_connection, imgt_version, self.ars_mappings
         )
 
         # Generate short nulls from WHO mapping
-        self.shortnulls = dr.generate_short_nulls(self.db_connection, self.who_group)
+        self.shortnulls = dr.generate_short_nulls(
+            self.db_connection, self.code_mappings.who_group
+        )
 
         # Load Serology mappings
         broad_splits.broad_splits_ser_mapping = (
@@ -214,8 +213,10 @@ class ARD(object):
             # new redux_type which is full WHO expansion
             if self._is_who_allele(allele):
                 return allele
-            if allele in self.who_group:
-                return self.redux("/".join(self.who_group[allele]), redux_type)
+            if allele in self.code_mappings.who_group:
+                return self.redux(
+                    "/".join(self.code_mappings.who_group[allele]), redux_type
+                )
             else:
                 return allele
         elif redux_type == "exon":
@@ -354,11 +355,13 @@ class ARD(object):
             if self.is_XX(glstring, loc_antigen, code):
                 if is_hla_prefix:
                     reduced_alleles = self.redux(
-                        "/".join(self.xx_codes[loc_antigen]), redux_type
+                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
                     )
                     return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
                 else:
-                    return self.redux("/".join(self.xx_codes[loc_antigen]), redux_type)
+                    return self.redux(
+                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
+                    )
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -403,7 +406,7 @@ class ARD(object):
                 loc_antigen, code = loc_allele[0], loc_allele[1]
             else:
                 return False
-        return code == "XX" and loc_antigen in self.xx_codes
+        return code == "XX" and loc_antigen in self.code_mappings.xx_codes
 
     def is_serology(self, allele: str) -> bool:
         """
@@ -469,7 +472,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.who_alleles
+        return allele in self.allele_group.who_alleles
 
     def _is_valid_allele(self, allele):
         """
@@ -477,7 +480,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.valid_alleles
+        return allele in self.allele_group.alleles
 
     def is_shortnull(self, allele):
         """
@@ -494,7 +497,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.exp_alleles
+        return allele in self.allele_group.exp_alleles
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """

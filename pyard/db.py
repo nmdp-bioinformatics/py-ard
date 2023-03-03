@@ -24,7 +24,7 @@ import pathlib
 import sqlite3
 from typing import Tuple, Dict, Set, List
 
-from .mappings import ARSMapping
+from .mappings import ARSMapping, CodeMappings, AlleleGroups
 from .misc import get_imgt_db_versions, get_default_db_directory
 
 
@@ -467,7 +467,12 @@ def load_code_mappings(db_connection):
     xx_codes = {k: v.split("/") for k, v in xx_codes.items()}
     exp_alleles = load_dict(db_connection, "exp_alleles", ("exp_allele", "allele_list"))
     exp_alleles = {k: v.split("/") for k, v in exp_alleles.items()}
-    return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
+    return (
+        CodeMappings(xx_codes=xx_codes, who_group=who_group),
+        AlleleGroups(
+            alleles=valid_alleles, who_alleles=who_alleles, exp_alleles=exp_alleles
+        ),
+    )
 
 
 def load_shortnulls(db_connection):
