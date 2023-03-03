@@ -2,8 +2,6 @@ import sys
 from typing import Dict, List
 from urllib.error import HTTPError
 
-import pandas as pd
-
 from pyard.misc import get_G_name, get_2field_allele, get_3field_allele, get_P_name
 
 # GitHub URL where IMGT HLA files are downloaded.
@@ -20,6 +18,8 @@ def add_locus_name(locus: str, splits: str) -> List:
 # https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_ser_ser.txt
 #
 def load_serology_broad_split_mapping(imgt_version: str) -> Dict:
+    import pandas as pd
+
     ser_ser_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/rel_ser_ser.txt"
     df_p = pd.read_csv(
         ser_ser_url,
@@ -40,6 +40,8 @@ def load_serology_broad_split_mapping(imgt_version: str) -> Dict:
 
 
 def load_g_group(imgt_version):
+    import pandas as pd
+
     # load the hla_nom_g.txt
     ars_g_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt"
     df = pd.read_csv(ars_g_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
@@ -62,6 +64,8 @@ def load_g_group(imgt_version):
 
 
 def load_p_group(imgt_version):
+    import pandas as pd
+
     # load the hla_nom_p.txt
     ars_p_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt"
     # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
@@ -111,6 +115,7 @@ def load_allele_list(imgt_version):
     :param ars_mappings: ARSMapping object to ARS mapping tables
     :return: None, updates self
     """
+
     # Create a Pandas DataFrame from the mac_code list file
     # Skip the header (first 6 lines) and use only the Allele column
     if imgt_version == "Latest":
@@ -122,6 +127,8 @@ def load_allele_list(imgt_version):
         allele_list_url = (
             f"{IMGT_HLA_URL}Latest/allelelist/Allelelist.{imgt_version}.txt"
         )
+    import pandas as pd
+
     try:
         allele_df = pd.read_csv(allele_list_url, header=6, usecols=["Allele"])
     except HTTPError as e:
@@ -149,6 +156,8 @@ def load_serology_mappings(imgt_version):
     """
     rel_dna_ser_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/rel_dna_ser.txt"
     # Load WMDA serology mapping data from URL
+    import pandas as pd
+
     df_sero = pd.read_csv(
         rel_dna_ser_url,
         sep=";",
@@ -203,6 +212,8 @@ def load_mac_codes():
     """
     # Load the MAC file to a DataFrame
     mac_url = "https://hml.nmdp.org/mac/files/numer.v3.zip"
+    import pandas as pd
+
     df_mac = pd.read_csv(
         mac_url,
         sep="\t",
