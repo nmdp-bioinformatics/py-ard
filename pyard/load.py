@@ -1,6 +1,6 @@
 import sys
 from typing import Dict, List
-from urllib.error import HTTPError
+from urllib.error import URLError
 
 from pyard.misc import get_G_name, get_2field_allele, get_3field_allele, get_P_name
 
@@ -21,14 +21,18 @@ def load_serology_broad_split_mapping(imgt_version: str) -> Dict:
     import pandas as pd
 
     ser_ser_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/rel_ser_ser.txt"
-    df_p = pd.read_csv(
-        ser_ser_url,
-        skiprows=6,
-        names=["Locus", "A", "Splits", "Associated"],
-        usecols=[0, 1, 2],
-        dtype="string",
-        sep=";",
-    ).dropna()
+    try:
+        df_p = pd.read_csv(
+            ser_ser_url,
+            skiprows=6,
+            names=["Locus", "A", "Splits", "Associated"],
+            usecols=[0, 1, 2],
+            dtype="string",
+            sep=";",
+        ).dropna()
+    except URLError as e:
+        print(f"Error downloading {ser_ser_url}", e, file=sys.stderr)
+        sys.exit(1)
 
     df_p["Sero"] = df_p["Locus"] + df_p["A"]
     df_p["Splits"] = df_p[["Locus", "Splits"]].apply(
@@ -44,7 +48,14 @@ def load_g_group(imgt_version):
 
     # load the hla_nom_g.txt
     ars_g_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_g.txt"
-    df = pd.read_csv(ars_g_url, skiprows=6, names=["Locus", "A", "G"], sep=";").dropna()
+    try:
+        df = pd.read_csv(
+            ars_g_url, skiprows=6, names=["Locus", "A", "G"], sep=";"
+        ).dropna()
+    except URLError as e:
+        print(f"Error downloading {ars_g_url}", e, file=sys.stderr)
+        sys.exit(1)
+
     # the G-group is named for its first allele
     df["G"] = df["A"].apply(get_G_name)
     # convert slash delimited string to a list
@@ -69,9 +80,14 @@ def load_p_group(imgt_version):
     # load the hla_nom_p.txt
     ars_p_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/hla_nom_p.txt"
     # example: C*;06:06:01:01/06:06:01:02/06:271;06:06P
-    df_p = pd.read_csv(
-        ars_p_url, skiprows=6, names=["Locus", "A", "P"], sep=";"
-    ).dropna()
+    try:
+        df_p = pd.read_csv(
+            ars_p_url, skiprows=6, names=["Locus", "A", "P"], sep=";"
+        ).dropna()
+    except URLError as e:
+        print(f"Error downloading {ars_p_url}", e, file=sys.stderr)
+        sys.exit(1)
+
     # the P-group is named for its first allele
     df_p["P"] = df_p["A"].apply(get_P_name)
     # convert slash delimited string to a list
@@ -131,12 +147,10 @@ def load_allele_list(imgt_version):
 
     try:
         allele_df = pd.read_csv(allele_list_url, header=6, usecols=["Allele"])
-    except HTTPError as e:
-        print(
-            f"Failed importing alleles for version {imgt_version} from {allele_list_url}",
-            file=sys.stderr,
-        )
+    except URLError as e:
+        print(f"Error downloading {allele_list_url}", e, file=sys.stderr)
         sys.exit(1)
+
     return allele_df
 
 
@@ -158,13 +172,18 @@ def load_serology_mappings(imgt_version):
     # Load WMDA serology mapping data from URL
     import pandas as pd
 
-    df_sero = pd.read_csv(
-        rel_dna_ser_url,
-        sep=";",
-        skiprows=6,
-        names=["Locus", "Allele", "USA", "PSA", "ASA", "EAE"],
-        index_col=False,
-    )
+    try:
+        df_sero = pd.read_csv(
+            rel_dna_ser_url,
+            sep=";",
+            skiprows=6,
+            names=["Locus", "Allele", "USA", "PSA", "ASA", "EAE"],
+            index_col=False,
+        )
+    except URLError as e:
+        print(f"Error downloading {rel_dna_ser_url}", e, file=sys.stderr)
+        sys.exit(1)
+
     return df_sero
 
 
@@ -214,23 +233,34 @@ def load_mac_codes():
     mac_url = "https://hml.nmdp.org/mac/files/numer.v3.zip"
     import pandas as pd
 
-    df_mac = pd.read_csv(
-        mac_url,
-        sep="\t",
-        compression="zip",
-        skiprows=3,
-        names=["Code", "Alleles"],
-        keep_default_na=False,
-    )
+    try:
+        df_mac = pd.read_csv(
+            mac_url,
+            sep="\t",
+            compression="zip",
+            skiprows=3,
+            names=["Code", "Alleles"],
+            keep_default_na=False,
+        )
+    except URLError as e:
+        print(f"Error downloading {mac_url}", e, file=sys.stderr)
+        sys.exit(1)
+
     return df_mac
 
 
 def load_latest_version():
     from urllib.request import urlopen
 
-    response = urlopen(
+    version_txt = (
         "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/release_version.txt"
     )
+    try:
+        response = urlopen(version_txt)
+    except URLError as e:
+        print(f"Error downloading {version_txt}", e, file=sys.stderr)
+        sys.exit(1)
+
     version = 0
     for line in response:
         l = line.decode("utf-8")
