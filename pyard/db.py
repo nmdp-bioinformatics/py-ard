@@ -282,16 +282,17 @@ def save_set(
     return True
 
 
-def load_set(connection: sqlite3.Connection, table_name: str) -> Set:
+def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Set:
     """
     Retrieve the first column of the table as a set
 
     :param connection: db connection of type sqlite.Connection
     :param table_name: name of the table to query
+    :param column: name of the column in the table to query
     :return: set containing values from the column
     """
     cursor = connection.cursor()
-    select_all_query = f"SELECT * FROM {table_name}"
+    select_all_query = f"SELECT {column} FROM {table_name}"
     cursor.execute(select_all_query)
     table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
     cursor.close()
@@ -458,8 +459,8 @@ def save_code_mappings(
 
 
 def load_code_mappings(db_connection):
-    valid_alleles = load_set(db_connection, "alleles")
-    who_alleles = load_set(db_connection, "who_alleles")
+    valid_alleles = load_set(db_connection, "alleles", "allele")
+    who_alleles = load_set(db_connection, "who_alleles", "allele")
     who_group = load_dict(db_connection, "who_group", ("who", "allele_list"))
     who_group = {k: v.split("/") for k, v in who_group.items()}
     xx_codes = load_dict(db_connection, "xx_codes", ("allele_1d", "allele_list"))
