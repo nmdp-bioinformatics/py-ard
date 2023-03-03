@@ -56,6 +56,7 @@ default_config = {
     "verbose_log": True,
 }
 
+
 # Typing information
 
 
@@ -255,7 +256,7 @@ class ARD(object):
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
     @staticmethod
-    def sorted_unique_gl(gls: List[str], delim: str) -> str:
+    def _sorted_unique_gl(gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
@@ -302,28 +303,28 @@ class ARD(object):
 
         self.validate(glstring)
 
-        if re.search(r"\^", glstring):
-            return self.sorted_unique_gl(
+        if "^" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("^")], "^"
             )
 
-        if re.search(r"\|", glstring):
-            return self.sorted_unique_gl(
+        if "|" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("|")], "|"
             )
 
-        if re.search(r"\+", glstring):
-            return self.sorted_unique_gl(
+        if "+" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("+")], "+"
             )
 
-        if re.search("~", glstring):
-            return self.sorted_unique_gl(
+        if "~" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("~")], "~"
             )
 
-        if re.search("/", glstring):
-            return self.sorted_unique_gl(
+        if "/" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("/")], "/"
             )
 
@@ -389,7 +390,7 @@ class ARD(object):
         :return: boolean indicating success
         """
         try:
-            return self.isvalid_gl(glstring)
+            return self._is_valid_gl(glstring)
         except InvalidAlleleError as e:
             raise InvalidTypingError(
                 f"{glstring} is not valid GL String. \n {e.message}", e
@@ -574,9 +575,9 @@ class ARD(object):
             v3_allele = self._predict_v3(v2_allele)
         return v3_allele
 
-    def isvalid(self, allele: str) -> bool:
+    def _is_valid(self, allele: str) -> bool:
         """
-        Determines validity of an allele
+        Determines validity of an allele in various forms
 
         :param allele: An HLA allele.
         :type: str
@@ -617,7 +618,7 @@ class ARD(object):
             return self._is_valid_allele(allele)
         return True
 
-    def isvalid_gl(self, glstring: str) -> bool:
+    def _is_valid_gl(self, glstring: str) -> bool:
         """
         Determines validity of glstring
 
@@ -627,61 +628,22 @@ class ARD(object):
         :rtype: bool
         """
 
-        if re.search(r"\^", glstring):
-            return all(map(self.isvalid_gl, glstring.split("^")))
-        if re.search(r"\|", glstring):
-            return all(map(self.isvalid_gl, glstring.split("|")))
-        if re.search(r"\+", glstring):
-            return all(map(self.isvalid_gl, glstring.split("+")))
-        if re.search("~", glstring):
-            return all(map(self.isvalid_gl, glstring.split("~")))
-        if re.search("/", glstring):
-            return all(map(self.isvalid_gl, glstring.split("/")))
+        if "^" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("^")))
+        if "|" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("|")))
+        if "+" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("+")))
+        if "~" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("~")))
+        if "/" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("/")))
 
         # what falls through here is an allele
-        is_valid_allele = self.isvalid(glstring)
+        is_valid_allele = self._is_valid(glstring)
         if not is_valid_allele:
             raise InvalidAlleleError(f"{glstring} is not a valid Allele")
         return is_valid_allele
-
-    def mac_toG(self, allele: str) -> str:
-        """
-        Does ARS reduction with allele and ARS type
-
-        :param allele: An HLA allele.
-        :type: str
-        :return: ARS reduced allele
-        :rtype: str
-        """
-        locus_antigen, code = allele.split(":")
-        if HLA_regex.search(allele):
-            locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
-        if db.is_valid_mac_code(self.db_connection, code):
-            alleles = self._get_alleles(code, locus_antigen)
-            group = [self.toG(a) for a in alleles]
-            if "X" in group:
-                raise InvalidMACError(f"{allele} is an invalid MAC.")
-            else:
-                return "/".join(group)
-        else:
-            raise InvalidMACError(f"{allele} is an invalid MAC.")
-
-    def toG(self, allele: str) -> str:
-        """
-        Does ARS reduction to the G group level
-
-        :param allele: An HLA allele.
-        :type: str
-        :return: ARS G reduced allele
-        :rtype: str
-        """
-        if allele in self.ars_mappings.g_group:
-            if allele in self.ars_mappings.dup_g:
-                return self.ars_mappings.dup_g[allele]
-            else:
-                return self.ars_mappings.g_group[allele]
-        else:
-            return "X"
 
     def expand_mac(self, mac_code: str):
         """
