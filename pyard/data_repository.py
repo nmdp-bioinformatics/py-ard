@@ -24,8 +24,6 @@ import copy
 import functools
 import sqlite3
 
-import pandas as pd
-
 import pyard.load
 from pyard.smart_sort import smart_sort_comparator
 from . import db, broad_splits
@@ -68,6 +66,8 @@ def expression_reduce(df):
 def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     if db.tables_exist(db_connection, ars_mapping_tables):
         return db.load_ars_mappings(db_connection)
+
+    import pandas as pd
 
     df_g_group = load_g_group(imgt_version)
     df_p_group = load_p_group(imgt_version)
@@ -164,6 +164,8 @@ def generate_alleles_and_xx_codes_and_who(
 ):
     if db.tables_exist(db_connection, code_mapping_tables):
         return db.load_code_mappings(db_connection)
+
+    import pandas as pd
 
     allele_df = load_allele_list(imgt_version)
 
@@ -332,6 +334,8 @@ def to_serological_name(locus_name: str):
 def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
     if not db.table_exists(db_connection, "serology_mapping"):
         df_sero = load_serology_mappings(imgt_version)
+
+        import pandas as pd
 
         # Remove 0 and ? from USA
         df_sero = df_sero[(df_sero["USA"] != "0") & (df_sero["USA"] != "?")]
