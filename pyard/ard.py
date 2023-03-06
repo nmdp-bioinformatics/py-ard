@@ -26,7 +26,7 @@ import re
 import sys
 from typing import Iterable, List
 
-from . import broad_splits
+from . import broad_splits, smart_sort
 from . import data_repository as dr
 from . import db
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
@@ -41,7 +41,6 @@ from .constants import (
     expression_chars,
     DEFAULT_CACHE_SIZE,
 )
-from .smart_sort import smart_sort_comparator
 
 default_config = {
     "reduce_serology": True,
@@ -128,6 +127,12 @@ class ARD(object):
                 self._redux_allele
             )
             self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
+            self.is_mac = functools.lru_cache(maxsize=max_cache_size)(self.is_mac)
+            self.smart_sort_comparator = functools.lru_cache(maxsize=max_cache_size)(
+                smart_sort.smart_sort_comparator
+            )
+        else:
+            self.smart_sort_comparator = smart_sort.smart_sort_comparator
 
         # reference data is read-only and can be frozen
         # Works only for Python >= 3.9
@@ -256,8 +261,7 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
-    @staticmethod
-    def _sorted_unique_gl(gls: List[str], delim: str) -> str:
+    def _sorted_unique_gl(self, gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
@@ -274,7 +278,7 @@ class ARD(object):
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
             return delim.join(
-                sorted(gls, key=functools.cmp_to_key(smart_sort_comparator))
+                sorted(gls, key=functools.cmp_to_key(self.smart_sort_comparator))
             )
 
         # generate a unique list over a delimiter
@@ -284,7 +288,7 @@ class ARD(object):
             all_gls += gl.split(delim)
         unique_gls = set(all_gls)
         return delim.join(
-            sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
+            sorted(unique_gls, key=functools.cmp_to_key(self.smart_sort_comparator))
         )
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
@@ -427,6 +431,7 @@ class ARD(object):
 
         return db.is_valid_serology(self.db_connection, allele)
 
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def is_mac(self, allele: str) -> bool:
         """
         MAC has non-digit characters after the : character.
