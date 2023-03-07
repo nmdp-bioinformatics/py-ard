@@ -24,11 +24,13 @@
 import functools
 import re
 
+from pyard import constants
+
 expr_regex = re.compile("[PNQLSGg]")
 glstring_chars = re.compile("[/|+^~]")
 
 
-@functools.lru_cache(maxsize=1000)
+@functools.lru_cache(maxsize=constants.DEFAULT_CACHE_SIZE)
 def smart_sort_comparator(a1, a2):
     """
     Natural sort 2 given alleles.

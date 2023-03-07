@@ -26,7 +26,7 @@ import re
 import sys
 from typing import Iterable, List
 
-from . import broad_splits
+from . import broad_splits, smart_sort
 from . import data_repository as dr
 from . import db
 from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
@@ -41,7 +41,6 @@ from .constants import (
     expression_chars,
     DEFAULT_CACHE_SIZE,
 )
-from .smart_sort import smart_sort_comparator
 
 default_config = {
     "reduce_serology": True,
@@ -55,6 +54,7 @@ default_config = {
     "map_drb345_to_drbx": True,
     "verbose_log": True,
 }
+
 
 # Typing information
 
@@ -95,17 +95,16 @@ class ARD(object):
         self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
         (
-            self.valid_alleles,
-            self.who_alleles,
-            self.xx_codes,
-            self.who_group,
-            self.exp_alleles,
+            self.code_mappings,
+            self.allele_group,
         ) = dr.generate_alleles_and_xx_codes_and_who(
             self.db_connection, imgt_version, self.ars_mappings
         )
 
         # Generate short nulls from WHO mapping
-        self.shortnulls = dr.generate_short_nulls(self.db_connection, self.who_group)
+        self.shortnulls = dr.generate_short_nulls(
+            self.db_connection, self.code_mappings.who_group
+        )
 
         # Load Serology mappings
         broad_splits.broad_splits_ser_mapping = (
@@ -128,6 +127,12 @@ class ARD(object):
                 self._redux_allele
             )
             self.redux = functools.lru_cache(maxsize=max_cache_size)(self.redux)
+            self.is_mac = functools.lru_cache(maxsize=max_cache_size)(self.is_mac)
+            self.smart_sort_comparator = functools.lru_cache(maxsize=max_cache_size)(
+                smart_sort.smart_sort_comparator
+            )
+        else:
+            self.smart_sort_comparator = smart_sort.smart_sort_comparator
 
         # reference data is read-only and can be frozen
         # Works only for Python >= 3.9
@@ -213,8 +218,10 @@ class ARD(object):
             # new redux_type which is full WHO expansion
             if self._is_who_allele(allele):
                 return allele
-            if allele in self.who_group:
-                return self.redux("/".join(self.who_group[allele]), redux_type)
+            if allele in self.code_mappings.who_group:
+                return self.redux(
+                    "/".join(self.code_mappings.who_group[allele]), redux_type
+                )
             else:
                 return allele
         elif redux_type == "exon":
@@ -254,8 +261,7 @@ class ARD(object):
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
-    @staticmethod
-    def sorted_unique_gl(gls: List[str], delim: str) -> str:
+    def _sorted_unique_gl(self, gls: List[str], delim: str) -> str:
         """
         Make a list of sorted unique GL Strings separated by delim.
         As the list may itself contains elements that are separated by the
@@ -272,7 +278,7 @@ class ARD(object):
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
             return delim.join(
-                sorted(gls, key=functools.cmp_to_key(smart_sort_comparator))
+                sorted(gls, key=functools.cmp_to_key(self.smart_sort_comparator))
             )
 
         # generate a unique list over a delimiter
@@ -282,7 +288,7 @@ class ARD(object):
             all_gls += gl.split(delim)
         unique_gls = set(all_gls)
         return delim.join(
-            sorted(unique_gls, key=functools.cmp_to_key(smart_sort_comparator))
+            sorted(unique_gls, key=functools.cmp_to_key(self.smart_sort_comparator))
         )
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
@@ -302,28 +308,28 @@ class ARD(object):
 
         self.validate(glstring)
 
-        if re.search(r"\^", glstring):
-            return self.sorted_unique_gl(
+        if "^" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("^")], "^"
             )
 
-        if re.search(r"\|", glstring):
-            return self.sorted_unique_gl(
+        if "|" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("|")], "|"
             )
 
-        if re.search(r"\+", glstring):
-            return self.sorted_unique_gl(
+        if "+" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("+")], "+"
             )
 
-        if re.search("~", glstring):
-            return self.sorted_unique_gl(
+        if "~" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("~")], "~"
             )
 
-        if re.search("/", glstring):
-            return self.sorted_unique_gl(
+        if "/" in glstring:
+            return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("/")], "/"
             )
 
@@ -353,11 +359,13 @@ class ARD(object):
             if self.is_XX(glstring, loc_antigen, code):
                 if is_hla_prefix:
                     reduced_alleles = self.redux(
-                        "/".join(self.xx_codes[loc_antigen]), redux_type
+                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
                     )
                     return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
                 else:
-                    return self.redux("/".join(self.xx_codes[loc_antigen]), redux_type)
+                    return self.redux(
+                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
+                    )
 
         # Handle MAC
         if self._config["reduce_MAC"] and self.is_mac(glstring):
@@ -389,7 +397,7 @@ class ARD(object):
         :return: boolean indicating success
         """
         try:
-            return self.isvalid_gl(glstring)
+            return self._is_valid_gl(glstring)
         except InvalidAlleleError as e:
             raise InvalidTypingError(
                 f"{glstring} is not valid GL String. \n {e.message}", e
@@ -402,7 +410,7 @@ class ARD(object):
                 loc_antigen, code = loc_allele[0], loc_allele[1]
             else:
                 return False
-        return code == "XX" and loc_antigen in self.xx_codes
+        return code == "XX" and loc_antigen in self.code_mappings.xx_codes
 
     def is_serology(self, allele: str) -> bool:
         """
@@ -423,6 +431,7 @@ class ARD(object):
 
         return db.is_valid_serology(self.db_connection, allele)
 
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def is_mac(self, allele: str) -> bool:
         """
         MAC has non-digit characters after the : character.
@@ -468,7 +477,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.who_alleles
+        return allele in self.allele_group.who_alleles
 
     def _is_valid_allele(self, allele):
         """
@@ -476,7 +485,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.valid_alleles
+        return allele in self.allele_group.alleles
 
     def is_shortnull(self, allele):
         """
@@ -493,7 +502,7 @@ class ARD(object):
         :param allele: Allele to test
         :return: bool to indicate if allele is valid
         """
-        return allele in self.exp_alleles
+        return allele in self.allele_group.exp_alleles
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
@@ -574,9 +583,9 @@ class ARD(object):
             v3_allele = self._predict_v3(v2_allele)
         return v3_allele
 
-    def isvalid(self, allele: str) -> bool:
+    def _is_valid(self, allele: str) -> bool:
         """
-        Determines validity of an allele
+        Determines validity of an allele in various forms
 
         :param allele: An HLA allele.
         :type: str
@@ -617,7 +626,7 @@ class ARD(object):
             return self._is_valid_allele(allele)
         return True
 
-    def isvalid_gl(self, glstring: str) -> bool:
+    def _is_valid_gl(self, glstring: str) -> bool:
         """
         Determines validity of glstring
 
@@ -627,61 +636,22 @@ class ARD(object):
         :rtype: bool
         """
 
-        if re.search(r"\^", glstring):
-            return all(map(self.isvalid_gl, glstring.split("^")))
-        if re.search(r"\|", glstring):
-            return all(map(self.isvalid_gl, glstring.split("|")))
-        if re.search(r"\+", glstring):
-            return all(map(self.isvalid_gl, glstring.split("+")))
-        if re.search("~", glstring):
-            return all(map(self.isvalid_gl, glstring.split("~")))
-        if re.search("/", glstring):
-            return all(map(self.isvalid_gl, glstring.split("/")))
+        if "^" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("^")))
+        if "|" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("|")))
+        if "+" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("+")))
+        if "~" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("~")))
+        if "/" in glstring:
+            return all(map(self._is_valid_gl, glstring.split("/")))
 
         # what falls through here is an allele
-        is_valid_allele = self.isvalid(glstring)
+        is_valid_allele = self._is_valid(glstring)
         if not is_valid_allele:
             raise InvalidAlleleError(f"{glstring} is not a valid Allele")
         return is_valid_allele
-
-    def mac_toG(self, allele: str) -> str:
-        """
-        Does ARS reduction with allele and ARS type
-
-        :param allele: An HLA allele.
-        :type: str
-        :return: ARS reduced allele
-        :rtype: str
-        """
-        locus_antigen, code = allele.split(":")
-        if HLA_regex.search(allele):
-            locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
-        if db.is_valid_mac_code(self.db_connection, code):
-            alleles = self._get_alleles(code, locus_antigen)
-            group = [self.toG(a) for a in alleles]
-            if "X" in group:
-                raise InvalidMACError(f"{allele} is an invalid MAC.")
-            else:
-                return "/".join(group)
-        else:
-            raise InvalidMACError(f"{allele} is an invalid MAC.")
-
-    def toG(self, allele: str) -> str:
-        """
-        Does ARS reduction to the G group level
-
-        :param allele: An HLA allele.
-        :type: str
-        :return: ARS G reduced allele
-        :rtype: str
-        """
-        if allele in self.ars_mappings.g_group:
-            if allele in self.ars_mappings.dup_g:
-                return self.ars_mappings.dup_g[allele]
-            else:
-                return self.ars_mappings.g_group[allele]
-        else:
-            return "X"
 
     def expand_mac(self, mac_code: str):
         """

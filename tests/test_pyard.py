@@ -121,12 +121,6 @@ class TestPyArd(unittest.TestCase):
         mac_hla_ac_expanded = ["HLA-A*01:01", "HLA-A*01:03"]
         self.assertEqual(self.ard.expand_mac("HLA-A*01:AC"), mac_hla_ac_expanded)
 
-    def test_mac_toG(self):
-        g_alleles = "A*01:01:01G/A*01:03:01G"
-        self.assertEqual(self.ard.mac_toG("A*01:AC"), g_alleles)
-        with self.assertRaises(InvalidMACError):
-            self.ard.mac_toG("A*01:AB")
-
     def test_redux_types(self):
         self.assertIsNone(validate_reduction_type("G"))
         self.assertIsNone(validate_reduction_type("lg"))

@@ -54,5 +54,7 @@
   "map_drb345_to_drbx": false,
   "apply_compression": "gzip",
   "generate_glstring": true,
+  "redux_cache_size": 1000,
+  "reduced_column_prefix": "reduced_",
   "verbose_log": true
 }

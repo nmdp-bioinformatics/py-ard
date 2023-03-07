@@ -17,7 +17,7 @@ def validate_controller():
             return {"message": "gl_string not provided"}, 404
         # Validate
         try:
-            ard.isvalid_gl(gl_string)
+            ard.validate(gl_string)
             return {"valid": True}, 200
         except InvalidAlleleError as e:
             return {

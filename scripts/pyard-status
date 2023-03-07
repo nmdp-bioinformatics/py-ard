@@ -96,6 +96,7 @@ if __name__ == "__main__":
             for table in (
                 pyard.mappings.ars_mapping_tables
                 + pyard.mappings.code_mapping_tables
+                + pyard.mappings.allele_tables
                 + ["mac_codes"]
             ):
                 if db.table_exists(db_connection, table):

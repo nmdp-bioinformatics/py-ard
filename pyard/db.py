@@ -24,7 +24,7 @@ import pathlib
 import sqlite3
 from typing import Tuple, Dict, Set, List
 
-from .mappings import ARSMapping
+from .mappings import ARSMapping, CodeMappings, AlleleGroups
 from .misc import get_imgt_db_versions, get_default_db_directory
 
 
@@ -282,16 +282,17 @@ def save_set(
     return True
 
 
-def load_set(connection: sqlite3.Connection, table_name: str) -> Set:
+def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Set:
     """
     Retrieve the first column of the table as a set
 
     :param connection: db connection of type sqlite.Connection
     :param table_name: name of the table to query
+    :param column: name of the column in the table to query
     :return: set containing values from the column
     """
     cursor = connection.cursor()
-    select_all_query = f"SELECT * FROM {table_name}"
+    select_all_query = f"SELECT {column} FROM {table_name}"
     cursor.execute(select_all_query)
     table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
     cursor.close()
@@ -458,15 +459,20 @@ def save_code_mappings(
 
 
 def load_code_mappings(db_connection):
-    valid_alleles = load_set(db_connection, "alleles")
-    who_alleles = load_set(db_connection, "who_alleles")
+    valid_alleles = load_set(db_connection, "alleles", "allele")
+    who_alleles = load_set(db_connection, "who_alleles", "allele")
     who_group = load_dict(db_connection, "who_group", ("who", "allele_list"))
     who_group = {k: v.split("/") for k, v in who_group.items()}
     xx_codes = load_dict(db_connection, "xx_codes", ("allele_1d", "allele_list"))
     xx_codes = {k: v.split("/") for k, v in xx_codes.items()}
     exp_alleles = load_dict(db_connection, "exp_alleles", ("exp_allele", "allele_list"))
     exp_alleles = {k: v.split("/") for k, v in exp_alleles.items()}
-    return valid_alleles, who_alleles, xx_codes, who_group, exp_alleles
+    return (
+        CodeMappings(xx_codes=xx_codes, who_group=who_group),
+        AlleleGroups(
+            alleles=valid_alleles, who_alleles=who_alleles, exp_alleles=exp_alleles
+        ),
+    )
 
 
 def load_shortnulls(db_connection):

@@ -9,12 +9,18 @@ ars_mapping_tables = [
     "exon_group",
     "p_not_g",
 ]
+
 code_mapping_tables = [
-    "alleles",
-    "exp_alleles",
     "xx_codes",
-    "who_alleles",
     "who_group",
 ]
 
+allele_tables = [
+    "alleles",
+    "exp_alleles",
+    "who_alleles",
+]
+
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
+CodeMappings = namedtuple("CodeMappings", code_mapping_tables)
+AlleleGroups = namedtuple("AlleleGroups", allele_tables)
