@@ -247,7 +247,10 @@ if __name__ == "__main__":
 
     data_dir = get_data_dir(args.data_dir)
     imgt_version = get_imgt_version(args.imgt_version)
-    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir)
+    max_cache_size = ard_config.get("redux_cache_size", pyard.DEFAULT_CACHE_SIZE)
+    ard = pyard.init(
+        imgt_version=imgt_version, data_dir=data_dir, cache_size=max_cache_size
+    )
 
     # Read the Input File
     # Read only the columns to be saved.
@@ -265,7 +268,8 @@ if __name__ == "__main__":
         print(f"File not found {ard_config.get('in_csv_filename')}", file=sys.stderr)
         sys.exit(1)
 
-    reduce_prefix = "reduced_"
+    reduce_prefix = ard_config.get("reduced_column_prefix", "reduced_")
+
     failed_to_reduce_alleles = []
     locus_column_mapping = ard_config["locus_column_mapping"]
     for subject in locus_column_mapping:
