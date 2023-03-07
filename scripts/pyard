@@ -24,6 +24,7 @@
 import argparse
 import sys
 
+from pyard.constants import VALID_REDUCTION_TYPES
 import pyard.misc
 from pyard.exceptions import InvalidAlleleError
 from pyard.misc import get_data_dir, get_imgt_version
@@ -53,22 +54,17 @@ if __name__ == "__main__":
         dest="imgt_version",
         help="IPD-IMGT/HLA db to use for redux",
     )
-    parser.add_argument("--gl", dest="gl_string", help="GL String to reduce")
+    parser.add_argument("-g", "--gl", dest="gl_string", help="GL String to reduce")
     parser.add_argument(
         "-r",
-        choices=pyard.misc.VALID_REDUCTION_TYPES,
+        "--redux-type",
+        choices=VALID_REDUCTION_TYPES,
         dest="redux_type",
         help="Reduction Method",
     )
     parser.add_argument("--splits", dest="splits", help="Find Broad and Splits")
 
     args = parser.parse_args()
-
-    if args.splits:
-        mapping = pyard.find_broad_splits(args.splits)
-        if mapping:
-            print(f"{mapping[0]} = {'/'.join(mapping[1])}")
-        sys.exit(0)
 
     imgt_version = get_imgt_version(args.imgt_version)
     data_dir = get_data_dir(args.data_dir)
@@ -80,15 +76,22 @@ if __name__ == "__main__":
         print(f"py-ard version:", pyard.__version__)
         sys.exit(0)
 
+    if args.splits:
+        mapping = pyard.find_broad_splits(args.splits)
+        if mapping:
+            print(f"{mapping[0]} = {'/'.join(mapping[1])}")
+        sys.exit(0)
+
     try:
         if args.redux_type:
             print(ard.redux(args.gl_string, args.redux_type))
         else:
-            for redux_type in pyard.misc.VALID_REDUCTION_TYPES:
+            for redux_type in VALID_REDUCTION_TYPES:
                 redux_type_info = f"Reduction Method: {redux_type}"
                 print(redux_type_info)
                 print("-" * len(redux_type_info))
                 print(ard.redux(args.gl_string, redux_type))
+                print()
     except InvalidAlleleError as e:
         print("Error:", e)
 

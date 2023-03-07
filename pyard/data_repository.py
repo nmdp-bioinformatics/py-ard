@@ -23,7 +23,6 @@
 import copy
 import functools
 import sqlite3
-from collections import namedtuple
 
 import pandas as pd
 
@@ -37,30 +36,14 @@ from .load import (
     load_serology_mappings,
     load_latest_version,
 )
-from .misc import expression_chars
+from .constants import expression_chars
+from .mappings import ars_mapping_tables, ARSMapping, code_mapping_tables
 from .misc import (
     get_2field_allele,
     get_3field_allele,
     number_of_fields,
     get_1field_allele,
 )
-
-ars_mapping_tables = [
-    "dup_g",
-    "dup_lgx",
-    "g_group",
-    "lgx_group",
-    "exon_group",
-    "p_not_g",
-]
-ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
-
-code_mapping_tables = [
-    "alleles",
-    "xx_codes",
-    "who_alleles",
-    "who_group",
-]
 
 
 def expression_reduce(df):
@@ -162,14 +145,22 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version):
     )
     exon_group = df_exon.set_index("A")["exon"].to_dict()
 
-    # save
-    return db.save_ars_mappings(
-        db_connection, dup_g, dup_lgx, exon_group, g_group, lgx_group, p_group, p_not_g
+    ars_mapping = ARSMapping(
+        dup_g=dup_g,
+        dup_lgx=dup_lgx,
+        g_group=g_group,
+        p_group=p_group,
+        lgx_group=lgx_group,
+        exon_group=exon_group,
+        p_not_g=p_not_g,
     )
+    db.save_ars_mappings(db_connection, ars_mapping)
+
+    return ars_mapping
 
 
 def generate_alleles_and_xx_codes_and_who(
-    db_connection: sqlite3.Connection, imgt_version, ars_mappings, p_group
+    db_connection: sqlite3.Connection, imgt_version, ars_mappings
 ):
     if db.tables_exist(db_connection, code_mapping_tables):
         return db.load_code_mappings(db_connection)
@@ -232,7 +223,7 @@ def generate_alleles_and_xx_codes_and_who(
             allele_df[["Allele", "2d"]].rename(columns={"2d": "nd"}),
             allele_df[["Allele", "3d"]].rename(columns={"3d": "nd"}),
             pd.DataFrame(ars_mappings.g_group.items(), columns=["Allele", "nd"]),
-            pd.DataFrame(p_group.items(), columns=["Allele", "nd"]),
+            pd.DataFrame(ars_mappings.p_group.items(), columns=["Allele", "nd"]),
         ],
         ignore_index=True,
     )

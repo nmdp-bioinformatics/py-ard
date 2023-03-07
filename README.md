@@ -126,6 +126,7 @@ ard.redux('B14', 'lg')
 | Reduction Type | Description                                     |
 |----------------|-------------------------------------------------|
 | `G`            | Reduce to G Group Level                         |
+| `P`            | Reduce to P Group Level                         |
 | `lg`           | Reduce to 2 field ARD level (append `g`)        |
 | `lgx`          | Reduce to 2 field ARD level                     |
 | `W`            | Reduce/Expand to 3 field WHO nomenclature level |
