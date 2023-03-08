@@ -126,10 +126,8 @@ def load_allele_list(imgt_version):
     HLA16436,A*01:01:01:07
     ```
 
-    :param db_connection: Database connection to the sqlite database
     :param imgt_version: IMGT database version
-    :param ars_mappings: ARSMapping object to ARS mapping tables
-    :return: None, updates self
+    :return: pandas Dataframe of Alleles
     """
 
     # Create a Pandas DataFrame from the mac_code list file

@@ -70,7 +70,7 @@ def expression_reduce(df):
     return None
 
 
-def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARSMapping:
+def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARSMapping:
     if db.tables_exist(db_connection, ars_mapping_tables):
         return db.load_ars_mappings(db_connection)
 
@@ -124,7 +124,7 @@ def generate_ars_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
         .to_dict()["lgx"]
     )
 
-    # Creating dictionaries with mac_code->ARS group mapping
+    # Creating dictionaries with mac_code->ARD group mapping
     df_g = pd.concat(
         [
             df_g_group[["2d", "G"]].rename(columns={"2d": "A"}),

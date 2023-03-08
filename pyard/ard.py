@@ -91,8 +91,8 @@ class ARD(object):
         # Create a database connection for writing
         self.db_connection, _ = db.create_db_connection(data_dir, imgt_version)
 
-        # Load ARS mappings
-        self.ars_mappings = dr.generate_ars_mapping(self.db_connection, imgt_version)
+        # Load ARD mappings
+        self.ars_mappings = dr.generate_ard_mapping(self.db_connection, imgt_version)
         # Load Alleles and XX Codes
         (
             self.code_mappings,
@@ -157,13 +157,13 @@ class ARD(object):
         self, allele: str, redux_type: VALID_REDUCTION_TYPES, re_ping=True
     ) -> str:
         """
-        Does ARS reduction with allele and ARS type
+        Does ARD reduction with allele and reduction type
 
         :param allele: An HLA allele.
         :type: str
-        :param redux_type: The ARS ars_type.
+        :param redux_type: reduction type.
         :type: str
-        :return: ARS reduced allele
+        :return: reduced allele
         :rtype: str
         """
 
@@ -294,13 +294,13 @@ class ARD(object):
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
         """
-        Does ARS reduction with gl string and ARS type
+        Does ARD reduction with gl string and reduction type
 
         :param glstring: A GL String
         :type: str
-        :param redux_type: The ARS redux_type.
+        :param redux_type: The reduction_type.
         :type: str
-        :return: ARS reduced allele
+        :return: reduced allele
         :rtype: str
         """
 
