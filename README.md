@@ -12,15 +12,15 @@ ARD reduction for HLA with Python
     * [Install From Source](#install-from-source)
 2. [Using `py-ard`](#using-py-ard)
     * [Using `py-ard` from Python](#using-py-ard-from-python-code)
-    * [Using `py-ard` from R](#using-py-ard-from-python-code)
+    * [Using `py-ard` from R](#using-py-ard-from-r-code)
     * [Perform Reduxtion](#reduce-typings)
     * [DRBX blending](#perform-drb1-blending-with-drb3-drb4-and-drb5)
 3. [Command Line Tools](#command-line-tools)
-    * [pyard-import](#pyard-import-import-the-latest-ipd-imgthla-database)
-    * [pyard-status](#pyard-status-show-database-status)
-    * [pyard Redux](#pyard-redux-quickly)
-    * [pyard-csv-reduce](#pyard-csv-reduce-batch-reduce-a-csv-file)
-4. [py-ard REST Webservice](#py-ard-rest-web-service)
+    * [`pyard-import` Import Reference Data](#pyard-import-import-the-latest-ipd-imgthla-database)
+    * [`pyard-status` Show Statuses of Databases](#pyard-status-show-database-status)
+    * [`pyard` Redux](#pyard-redux-quickly)
+    * [`pyard-csv-reduce` Batch Mode Redux](#pyard-csv-reduce-batch-reduce-a-csv-file)
+4. [`py-ard` REST Webservice](#py-ard-rest-web-service)
 5. [Docker Deployment](#docker-deployment-of-py-ard-rest-web-service)
 
 ## Installation
@@ -442,7 +442,7 @@ Saved result to file:clean_sample.csv.gz
 
 ```
 
-## py-ard REST Web Service
+## `py-ard` REST Web Service
 
 Run `py-ard` as a service so that it can be accessed as a REST service endpoint.
 
