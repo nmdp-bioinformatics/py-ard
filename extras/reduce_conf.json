@@ -12,7 +12,17 @@
     "r_drb1_typ1",
     "r_drb1_typ2",
     "r_dpb1_typ1",
-    "r_dpb1_typ2"
+    "r_dpb1_typ2",
+    "d_a_typ1",
+    "d_a_typ2",
+    "d_b_typ1",
+    "d_b_typ2",
+    "d_c_typ1",
+    "d_c_typ2",
+    "d_drb1_typ1",
+    "d_drb1_typ2",
+    "d_dpb1_typ1",
+    "d_dpb1_typ2"
   ],
   "locus_column_mapping": {
     "recipient": {
@@ -35,6 +45,28 @@
       "dqb1": [
         "r_dpb1_typ1",
         "r_dpb1_typ2"
+      ]
+    },
+    "donor": {
+      "A": [
+        "d_a_typ1",
+        "d_a_typ2"
+      ],
+      "B": [
+        "d_b_typ1",
+        "d_b_typ2"
+      ],
+      "C": [
+        "d_c_typ1",
+        "d_c_typ2"
+      ],
+      "drb1": [
+        "d_drb1_typ1",
+        "d_drb1_typ2"
+      ],
+      "dqb1": [
+        "d_dpb1_typ1",
+        "d_dpb1_typ2"
       ]
     }
   },
