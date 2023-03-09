@@ -5,7 +5,9 @@ from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
 
 # Globally accessible for all endpoints
+print("py-ard version: ", pyard.__version__)
 ard = pyard.init()
+print("IMGT version:   ", ard.get_db_version())
 
 
 def validate_controller():
