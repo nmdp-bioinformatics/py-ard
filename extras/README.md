@@ -21,32 +21,22 @@ These files should be used as a template for your own data.
 Once the configuration file is created, use `-c` option to specify the configuration file to be used for batch
 processing.
 
-In the following example, we generate a sample configuration and CSV file. We specify the config file with `-c` and
-a `-q` to suppress verbose log messages.
+In the following example, we generate a sample configuration and CSV file.
 
 ```shell
 $ pyard-reduce-csv --generate-sample
 Created sample_reduce_conf.json
 Created sample.csv
+```
 
+We specify the config file with `-c` and a `-q` to suppress verbose log messages.
+```shell
 $ pyard-reduce-csv -c sample_reduce_conf.json -q
 Using config file: reduce_conf.json
 Failed reducing 'C*02:85:02' in column r_c_typ2
 Failed reducing 'DRB1*14:167:01' in column r_drb1_typ2
-Failed reducing 'DPB1*193:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*914:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*405:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*582:01:01' in column r_dpb1_typ2
-Failed reducing 'DPB1*278:01:01' in column r_dpb1_typ2
-Failed reducing 'DPB1*479:01:01' in column r_dpb1_typ2
-Failed reducing 'C*02:85:02' in column d_c_typ2
-Failed reducing 'DRB1*14:167:01' in column d_drb1_typ2
-Failed reducing 'DPB1*193:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*914:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*405:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*582:01:01' in column d_dpb1_typ2
-Failed reducing 'DPB1*278:01:01' in column d_dpb1_typ2
-Failed reducing 'DPB1*479:01:01' in column d_dpb1_typ2
+...
+
 Summary
 -------
 16 alleles failed to reduce.
@@ -54,20 +44,8 @@ Summary
 | --------------- | ---------------- | -------------------------
 | r_c_typ2        | C*02:85:02       | NA
 | r_drb1_typ2     | DRB1*14:167:01   | NA
-| r_dpb1_typ1     | DPB1*193:01:01   | NA
-| r_dpb1_typ1     | DPB1*914:01:01   | NA
-| r_dpb1_typ1     | DPB1*405:01:01   | NA
-| r_dpb1_typ2     | DPB1*582:01:01   | NA
-| r_dpb1_typ2     | DPB1*278:01:01   | NA
-| r_dpb1_typ2     | DPB1*479:01:01   | NA
-| d_c_typ2        | C*02:85:02       | NA
-| d_drb1_typ2     | DRB1*14:167:01   | NA
-| d_dpb1_typ1     | DPB1*193:01:01   | NA
-| d_dpb1_typ1     | DPB1*914:01:01   | NA
-| d_dpb1_typ1     | DPB1*405:01:01   | NA
-| d_dpb1_typ2     | DPB1*582:01:01   | NA
-| d_dpb1_typ2     | DPB1*278:01:01   | NA
-| d_dpb1_typ2     | DPB1*479:01:01   | NA
+...
+
 Saved result to file:clean_sample.csv.gz
 ```
 
@@ -142,32 +120,32 @@ The column names corresponding to the loci will be reduced and must appear in th
 ```json
   "locus_column_mapping": {
     "recipient": {
-    "A": [
-    "r_a_typ1",
-    "r_a_typ2"
-    ],
-    "B": [
-    "r_b_typ1",
-    "r_b_typ2"
-    ],
-    "C": [
-    "r_c_typ1",
-    "r_c_typ2"
-    ]
+        "A": [
+            "r_a_typ1",
+            "r_a_typ2"
+        ],
+        "B": [
+            "r_b_typ1",
+            "r_b_typ2"
+        ],
+        "C": [
+            "r_c_typ1",
+            "r_c_typ2"
+        ]
     },
     "donor": {
-    "A": [
-    "d_a_typ1",
-    "d_a_typ2"
-    ],
-    "B": [
-    "d_b_typ1",
-    "d_b_typ2"
-    ],
-    "C": [
-    "d_c_typ1",
-    "d_c_typ2"
-    ]
+        "A": [
+            "d_a_typ1",
+            "d_a_typ2"
+        ],
+        "B": [
+            "d_b_typ1",
+            "d_b_typ2"
+        ],
+        "C": [
+            "d_c_typ1",
+            "d_c_typ2"
+        ]
     }
 }
 ```
