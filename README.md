@@ -390,57 +390,6 @@ B14 = B64/B65
 
 `pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for detailed information about all the options.
 
-Use `-g` or `--generate-sample` to generate a sample configuration and a sample file.
-
-Use `-c` option to specify the configuration to be used for batch processing.
-
-```shell
-$ pyard-reduce-csv --generate-sample
-Created sample_reduce_conf.json
-Created sample.csv
-
-$ pyard-reduce-csv -c sample_reduce_conf.json -q
-Using config file: reduce_conf.json
-Failed reducing 'C*02:85:02' in column r_c_typ2
-Failed reducing 'DRB1*14:167:01' in column r_drb1_typ2
-Failed reducing 'DPB1*193:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*914:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*405:01:01' in column r_dpb1_typ1
-Failed reducing 'DPB1*582:01:01' in column r_dpb1_typ2
-Failed reducing 'DPB1*278:01:01' in column r_dpb1_typ2
-Failed reducing 'DPB1*479:01:01' in column r_dpb1_typ2
-Failed reducing 'C*02:85:02' in column d_c_typ2
-Failed reducing 'DRB1*14:167:01' in column d_drb1_typ2
-Failed reducing 'DPB1*193:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*914:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*405:01:01' in column d_dpb1_typ1
-Failed reducing 'DPB1*582:01:01' in column d_dpb1_typ2
-Failed reducing 'DPB1*278:01:01' in column d_dpb1_typ2
-Failed reducing 'DPB1*479:01:01' in column d_dpb1_typ2
-Summary
--------
-16 alleles failed to reduce.
-| Column  Name    |      Allele      |      Did you mean ?
-| --------------- | ---------------- | -------------------------
-| r_c_typ2        | C*02:85:02       | NA
-| r_drb1_typ2     | DRB1*14:167:01   | NA
-| r_dpb1_typ1     | DPB1*193:01:01   | NA
-| r_dpb1_typ1     | DPB1*914:01:01   | NA
-| r_dpb1_typ1     | DPB1*405:01:01   | NA
-| r_dpb1_typ2     | DPB1*582:01:01   | NA
-| r_dpb1_typ2     | DPB1*278:01:01   | NA
-| r_dpb1_typ2     | DPB1*479:01:01   | NA
-| d_c_typ2        | C*02:85:02       | NA
-| d_drb1_typ2     | DRB1*14:167:01   | NA
-| d_dpb1_typ1     | DPB1*193:01:01   | NA
-| d_dpb1_typ1     | DPB1*914:01:01   | NA
-| d_dpb1_typ1     | DPB1*405:01:01   | NA
-| d_dpb1_typ2     | DPB1*582:01:01   | NA
-| d_dpb1_typ2     | DPB1*278:01:01   | NA
-| d_dpb1_typ2     | DPB1*479:01:01   | NA
-Saved result to file:clean_sample.csv.gz
-
-```
 
 ## `py-ard` REST Web Service
 
