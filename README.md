@@ -1,9 +1,16 @@
 # py-ard
+
+Swiss army knife of **HLA** Nomenclature
+
 [![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard)
 
-ARD reduction for HLA with Python
+![py-ard-logo.png](images/py-ard-logo.png)
 
-`py-ard` works with Python 3.8 and higher.
+### `py-ard` is ARD reduction for HLA in Python
+
+HLA genes regulate cell surface proteins that present cellular antigens to the immune system.
+The exons of HLA that encode peptide binding groove of Antigen Recognition Domain (ARD) is the most polymorphic region of HLA and is important for [HLA matching](https://bethematch.org/patients-and-families/before-transplant/find-a-donor/hla-matching/). The version 3 of HLA [Nomenclature](https://www.theatlantic.com/magazine/archive/2023/04/clint-smith-nomenclature-poem/673097/) was defined by [The WHO Nomenclature Committee](https://hla.alleles.org/nomenclature/committee.html) in 2010 defining how HLA Alleles are named and grouped. The history of allele typing methods has played a major role in determining resolution and ambiguity of reported HLA. `py-ard` is aware of these various resolutions and grouping and is able to translate from one representation to another based on alleles published quarterly by [IPD/IMGT-HLA](https://github.com/ANHIG/IMGTHLA/).
+
 
 ## Table of Contents
 1. [Installation](#installation)
@@ -24,6 +31,8 @@ ARD reduction for HLA with Python
 5. [Docker Deployment](#docker-deployment-of-py-ard-rest-web-service)
 
 ## Installation
+`py-ard` works with Python 3.8 and higher.
+
 ### Install from PyPi
 
 ```shell
