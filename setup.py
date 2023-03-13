@@ -28,9 +28,6 @@ from setuptools import setup
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-with open("HISTORY.rst") as history_file:
-    history = history_file.read()
-
 with open("requirements.txt") as requirements_file:
     requirements = requirements_file.read().split("\n")
 
@@ -41,7 +38,7 @@ setup(
     name="py-ard",
     version="1.0.0rc4",
     description="ARD reduction for HLA with Python",
-    long_description=readme + "\n\n" + history,
+    long_description=readme,
     long_description_content_type="text/markdown",
     author="CIBMTR",
     author_email="cibmtr-pypi@nmdp.org",
@@ -61,12 +58,14 @@ setup(
     zip_safe=False,
     keywords="pyard",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Intended Audience :: Developers",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     test_suite="tests",
     tests_require=test_requirements,
