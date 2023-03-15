@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #
-#    pyard pyARD.
-#    Copyright (c) 2018 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#    py-ard
+#    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,7 @@ from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "1.0.0rc3"
+__version__ = "1.0.0rc4"
 
 
 def init(

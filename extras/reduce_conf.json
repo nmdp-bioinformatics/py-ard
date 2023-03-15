@@ -12,7 +12,17 @@
     "r_drb1_typ1",
     "r_drb1_typ2",
     "r_dpb1_typ1",
-    "r_dpb1_typ2"
+    "r_dpb1_typ2",
+    "d_a_typ1",
+    "d_a_typ2",
+    "d_b_typ1",
+    "d_b_typ2",
+    "d_c_typ1",
+    "d_c_typ2",
+    "d_drb1_typ1",
+    "d_drb1_typ2",
+    "d_dpb1_typ1",
+    "d_dpb1_typ2"
   ],
   "locus_column_mapping": {
     "recipient": {
@@ -36,9 +46,34 @@
         "r_dpb1_typ1",
         "r_dpb1_typ2"
       ]
+    },
+    "donor": {
+      "A": [
+        "d_a_typ1",
+        "d_a_typ2"
+      ],
+      "B": [
+        "d_b_typ1",
+        "d_b_typ2"
+      ],
+      "C": [
+        "d_c_typ1",
+        "d_c_typ2"
+      ],
+      "drb1": [
+        "d_drb1_typ1",
+        "d_drb1_typ2"
+      ],
+      "dqb1": [
+        "d_dpb1_typ1",
+        "d_dpb1_typ2"
+      ]
     }
   },
+
   "redux_type": "lgx",
+  "redux_cache_size": 1000,
+
   "reduce_serology": false,
   "reduce_v2": true,
   "convert_v2_to_v3": false,
@@ -47,14 +82,18 @@
   "reduce_P": true,
   "reduce_XX": false,
   "reduce_MAC": true,
+  "map_drb345_to_drbx": false,
+
   "locus_in_allele_name": true,
   "keep_locus_in_allele_name": true,
-  "output_file_format": "csv",
+
   "new_column_for_redux": true,
-  "map_drb345_to_drbx": false,
-  "apply_compression": "gzip",
-  "generate_glstring": true,
-  "redux_cache_size": 1000,
   "reduced_column_prefix": "reduced_",
+
+  "generate_glstring": true,
+
+  "output_file_format": "csv",
+  "apply_compression": "gzip",
+
   "verbose_log": true
 }

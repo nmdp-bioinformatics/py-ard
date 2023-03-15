@@ -1,3 +1,24 @@
+#
+#    py-ard
+#    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Lesser General Public License as published
+#    by the Free Software Foundation; either version 3 of the License, or (at
+#    your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but WITHOUT
+#    ANY WARRANTY; with out even the implied warranty of MERCHANTABILITY or
+#    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this library;  if not, write to the Free Software Foundation,
+#    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+#    > http://www.fsf.org/licensing/licenses/lgpl.html
+#    > http://www.opensource.org/licenses/lgpl-license.php
+#
 import sys
 from typing import Dict, List
 from urllib.error import URLError
@@ -126,10 +147,8 @@ def load_allele_list(imgt_version):
     HLA16436,A*01:01:01:07
     ```
 
-    :param db_connection: Database connection to the sqlite database
     :param imgt_version: IMGT database version
-    :param ars_mappings: ARSMapping object to ARS mapping tables
-    :return: None, updates self
+    :return: pandas Dataframe of Alleles
     """
 
     # Create a Pandas DataFrame from the mac_code list file
