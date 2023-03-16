@@ -1,0 +1,33 @@
+{
+  "in_csv_filename": "sample_glstring.csv",
+  "out_csv_filename": "clean_sample_glstring.csv",
+  "columns_from_csv": [
+    "did",
+    "rid",
+    "donor_gl",
+    "recip_gl"
+  ],
+  "glstring_columns": [
+    "donor_gl",
+    "recip_gl"
+  ],
+  "redux_type": "lgx",
+  "redux_cache_size": 1000,
+  "reduce_serology": false,
+  "reduce_v2": true,
+  "convert_v2_to_v3": false,
+  "reduce_2field": true,
+  "reduce_3field": true,
+  "reduce_P": true,
+  "reduce_XX": false,
+  "reduce_MAC": true,
+  "map_drb345_to_drbx": false,
+  "locus_in_allele_name": true,
+  "keep_locus_in_allele_name": true,
+  "new_column_for_redux": true,
+  "reduced_column_prefix": "reduced_",
+  "generate_glstring": true,
+  "output_file_format": "csv",
+  "apply_compression": "gzip",
+  "verbose_log": true
+}

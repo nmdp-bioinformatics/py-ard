@@ -2,7 +2,8 @@
   "in_csv_filename": "sample.csv",
   "out_csv_filename": "clean_sample.csv",
   "columns_from_csv": [
-    "nmdp_id",
+    "rid",
+    "did",
     "r_a_typ1",
     "r_a_typ2",
     "r_b_typ1",

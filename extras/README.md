@@ -150,6 +150,20 @@ The column names corresponding to the loci will be reduced and must appear in th
 }
 ```
 
+### GL String Columns
+
+Instead of providing single locus alleles per column with `locus_column_mapping`, a GL String describing the whole
+genotype can be provided per column. Use `glstring_columns` to provide a list of GL String columns to reduce.
+
+```json
+  "glstring_columns": [
+    "donor_gl",
+    "recip_gl"
+  ],
+```
+
+Depending upon the data, only one of `locus_column_mapping` or `glstring_columns` needs to be provided.
+
 ### Redux Options
 
 `redux_type` Reduction Type
