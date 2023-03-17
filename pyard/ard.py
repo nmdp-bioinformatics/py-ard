@@ -655,22 +655,56 @@ class ARD(object):
 
     def expand_mac(self, mac_code: str):
         """
-        Expands mac codes
+        Expands MAC code into its
 
-        :param mac_code: An HLA allele.
+        :param mac_code: A MAC code
         :type: str
-        :return: List
-        :rtype: List
+        :return: GL String of expanded alleles
+        :rtype: str
         """
         locus_antigen, code = mac_code.split(":")
         if db.is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
-                return ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
+                return "/".join(
+                    ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
+                )
             else:
-                return list(self._get_alleles(code, locus_antigen))
+                return "/".join(self._get_alleles(code, locus_antigen))
 
         raise InvalidMACError(f"{mac_code} is an invalid MAC.")
+
+    def decode_to_mac(self, allelelist_gl: str):
+        """
+        Finds a MAC code corresponding to
+
+        :param allelelist_gl: Allelelist GL String
+        :type: str
+        :return: MAC code
+        :rtype: str
+        """
+        alleles = allelelist_gl.split("/")
+        allele_fields = [allele.split("*")[1] for allele in alleles]
+        antigen_groups = sorted({allele.split(":")[0] for allele in allele_fields})
+        if len(antigen_groups) == 1:
+            mac_expansion = "/".join(
+                sorted({allele.split(":")[1] for allele in allele_fields})
+            )
+            # See if the 2nd field lists is in the database
+            mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
+            if mac_code:
+                locus = allelelist_gl.split("*")[0]
+                return f"{locus}*{antigen_groups[0]}:{mac_code}"
+
+        # Try the list of first_field:second_field combinations
+        mac_expansion = "/".join(sorted(allele_fields))
+        mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
+
+        if mac_code:
+            locus = allelelist_gl.split("*")[0]
+            return f"{locus}*{antigen_groups[0]}:{mac_code}"
+
+        raise InvalidMACError(f"{allelelist_gl} does not have a MAC.")
 
     def v2_to_v3(self, v2_allele) -> str:
         """

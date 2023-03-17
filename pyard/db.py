@@ -135,6 +135,24 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     return alleles
 
 
+def alleles_to_mac_code(
+    connection: sqlite3.Connection, code_expansion: str
+) -> List[str]:
+    """
+    Look up the MAC code in the database and based on list of allele expansion
+    :param connection: db connection of type sqlite.Connection
+    :param code_expansion: expansion of MAC code
+    :return: List of alleles
+    """
+    mac_query = "SELECT code from mac_codes where alleles = ?"
+    cursor = connection.execute(mac_query, (code_expansion,))
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        return result[0]
+    return None
+
+
 def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
     """
     Check db if the MAC code exists.

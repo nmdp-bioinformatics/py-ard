@@ -188,7 +188,7 @@ pyard.dr_blender(drb1='HLA-DRB1*03:01+DRB1*04:01', drb3='DRB3*01:01', drb4='DRB4
 You can also use `py-ard` to expand MAC codes. Use `expand_mac` method on `ard`.
 ```python
 ard.expand_mac('HLA-A*01:BC')
-# ['HLA-A*01:02', 'HLA-A*01:03']
+# 'HLA-A*01:02/HLA-A*01:03'
 ```
 
 ### Using `py-ard` from R code

@@ -10,8 +10,8 @@ tags:
     description: IPD-IMGT/HLA DB Information
   - name: ARD Reduction
     description: Reduce GL String to ARD
-  - name: MAC Expansion
-    description: Expand MAC to alleles
+  - name: MAC
+    description: Expand/Collapse MAC to/from alleles
   - name: DRBX Blender
     description: Blend DRBX based on DRB1 and DRB3/4/5
   - name: Validation
@@ -87,7 +87,7 @@ paths:
   /mac/{allele_code}:
     get:
       tags:
-        - MAC Expansion
+        - MAC
       operationId: api.mac_expand_controller
       summary: Expand MAC (Allele Code)
       description: |
@@ -116,7 +116,57 @@ paths:
                     description: GL String version of expanded MAC
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
-                  expansion:
+                  alleles:
+                    description: Alleles corresponding to MAC
+                    type: array
+                    example:
+                      - "HLA-A*01:01"
+                      - "HLA-A*01:02"
+        400:
+          description: Invalid MAC Code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: MAC Code is not valid
+                    type: string
+                    example: "Invalid MAC Code"
+  /mac:
+    post:
+      tags:
+        - MAC
+      operationId: api.mac_decode_controller
+      summary: Decode to MAC (Allele Code) from Alleles
+      description: |
+        Given a allele list as a GL String, find corresponding MAC
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                gl_string:
+                  description: GL String version of a MAC
+                  type: string
+                  example: "HLA-A*01:01/HLA-A*01:02"
+      responses:
+        200:
+          description: Alleles corresponding to MAC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mac:
+                    description: MAC
+                    type: string
+                    example: "HLA-A*01:AB"
+                  gl_string:
+                    description: GL String version of expanded MAC
+                    type: string
+                    example: "HLA-A*01:01/HLA-A*01:02"
+                  alleles:
                     description: Alleles corresponding to MAC
                     type: array
                     example:

@@ -110,16 +110,20 @@ class TestPyArd(unittest.TestCase):
 
     def test_expand_mac(self):
         mac_ab_expanded = ["A*01:01", "A*01:02"]
-        self.assertEqual(self.ard.expand_mac("A*01:AB"), mac_ab_expanded)
+        self.assertEqual(self.ard.expand_mac("A*01:AB"), "/".join(mac_ab_expanded))
 
         mac_hla_ab_expanded = ["HLA-A*01:01", "HLA-A*01:02"]
-        self.assertEqual(self.ard.expand_mac("HLA-A*01:AB"), mac_hla_ab_expanded)
+        self.assertEqual(
+            self.ard.expand_mac("HLA-A*01:AB"), "/".join(mac_hla_ab_expanded)
+        )
 
         mac_ac_expanded = ["A*01:01", "A*01:03"]
-        self.assertEqual(self.ard.expand_mac("A*01:AC"), mac_ac_expanded)
+        self.assertEqual(self.ard.expand_mac("A*01:AC"), "/".join(mac_ac_expanded))
 
         mac_hla_ac_expanded = ["HLA-A*01:01", "HLA-A*01:03"]
-        self.assertEqual(self.ard.expand_mac("HLA-A*01:AC"), mac_hla_ac_expanded)
+        self.assertEqual(
+            self.ard.expand_mac("HLA-A*01:AC"), "/".join(mac_hla_ac_expanded)
+        )
 
     def test_redux_types(self):
         self.assertIsNone(validate_reduction_type("G"))

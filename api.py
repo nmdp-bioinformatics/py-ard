@@ -53,16 +53,30 @@ def redux_controller():
 def mac_expand_controller(allele_code: str):
     try:
         if ard.is_mac(allele_code):
-            alleles = ard.expand_mac(allele_code)
+            allele_list = ard.expand_mac(allele_code)
             return {
                 "mac": allele_code,
-                "alleles": alleles,
-                "gl_string": "/".join(alleles),
+                "alleles": allele_list.split("/"),
+                "gl_string": allele_list,
             }, 200
         else:
             return {"message": f"{allele_code} is not a valid MAC"}, 404
     except PyArdError as e:
         return {"message": e.message}, 400
+
+
+def mac_decode_controller():
+    if request.json:
+        try:
+            allele_list = request.json["gl_string"]
+            mac_code = ard.decode_to_mac(allele_list)
+            return {
+                "mac": mac_code,
+                "alleles": allele_list.split("/"),
+                "gl_string": allele_list,
+            }, 200
+        except PyArdError as e:
+            return {"message": e.message}, 400
 
 
 def drbx_blender_controller():
