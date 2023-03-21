@@ -191,6 +191,28 @@ ard.expand_mac('HLA-A*01:BC')
 # 'HLA-A*01:02/HLA-A*01:03'
 ```
 
+### Decode to MAC
+
+Find the corresponding MAC code for an allele list GL String.
+```python
+ard.decode_to_mac('A*01:02/A*01:01/A*01:03')
+# A*01:MN
+```
+
+### CWD Reduction
+
+Reduce a MAC code or an allele list GL String to CWD reduced list.
+```python
+ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*15:27")
+# => B*15:01/B*15:07
+```
+
+The above 2 methods can be chained to get back a MAC code that has a CWD reduced version.
+```python
+ard.decode_to_mac(ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*15:27"))
+# 'B*15:AH'
+```
+
 ### Using `py-ard` from R code
 
 `py-ard` works well from `R` as well. Please see [Using pyard from R language](https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-pyard-library-from-R-language) page for detailed walkthrough.
