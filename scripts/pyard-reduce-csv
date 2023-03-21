@@ -302,9 +302,8 @@ if __name__ == "__main__":
         for sample_file in sample_files:
             try:
                 url = f"https://raw.githubusercontent.com/nmdp-bioinformatics/py-ard/master/extras/{sample_file}"
-                sample_local_file = f"sample_{sample_file}"
-                download_to_file(url, sample_local_file)
-                print(f"Created {sample_local_file}")
+                download_to_file(url, sample_file)
+                print(f"Created {sample_file}")
             except HTTPError:
                 print(f"Download failed for {sample_file}")
         sys.exit(0)
