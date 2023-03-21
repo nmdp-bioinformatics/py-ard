@@ -117,6 +117,8 @@ class ARD(object):
         dr.set_db_version(self.db_connection, imgt_version)
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
+        # Load CIWD mapping
+        dr.generate_cwd_mapping(self.db_connection)
 
         # Close the current read-write db connection
         self.db_connection.close()
@@ -705,6 +707,19 @@ class ARD(object):
             return f"{locus}*{antigen_groups[0]}:{mac_code}"
 
         raise InvalidMACError(f"{allelelist_gl} does not have a MAC.")
+
+    def cwd_redux(self, allele_list_gl):
+        lgx_redux = self.redux(allele_list_gl, "lgx")
+        locus = allele_list_gl.split("*")[0]
+        if HLA_regex.search(locus):
+            locus = locus.split("-")[1]
+        ciwd_for_locus = db.load_cwd(self.db_connection, locus)
+        lgx_redux_alleles = set(lgx_redux.split("/"))
+        alleles_in_ciwd = ciwd_for_locus.intersection(lgx_redux_alleles)
+        sorted_alleles = sorted(
+            alleles_in_ciwd, key=functools.cmp_to_key(self.smart_sort_comparator)
+        )
+        return "/".join(sorted_alleles)
 
     def v2_to_v3(self, v2_allele) -> str:
         """

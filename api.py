@@ -107,3 +107,31 @@ def splits_controller(allele: str):
         return {"broad": mapping[0], "splits": mapping[1]}, 200
 
     return {"message": f"No Broad/Splits matched {allele}"}, 404
+
+
+def cwd_redux_controller():
+    if request.json:
+        # Check the request has required inputs
+        try:
+            gl_string = request.json["gl_string"]
+        except KeyError:
+            return {"message": "gl_string and reduction_method not provided"}, 404
+        # Perform redux
+        try:
+            cwd = ard.cwd_redux(ard.redux(gl_string, "lgx"))
+        except PyArdError as e:
+            return {"message": e.message}, 400
+
+        # If the cwd reduction is a single locus or empty
+        if "/" not in cwd:
+            try:
+                cwd_mac = ard.decode_to_mac(cwd)
+            except pyard.exceptions.InvalidMACError as e:
+                cwd_mac = ""
+        else:
+            cwd_mac = ""
+
+        return {"gl_string": gl_string, "cwd": cwd, "cwd_mac": cwd_mac}, 200
+
+    # if no data is sent
+    return {"message": "No input data provided"}, 404

@@ -317,6 +317,22 @@ def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Se
     return table_as_set
 
 
+def load_cwd(connection: sqlite3.Connection, locus: str) -> Set:
+    """
+    Retrieve the CWD Version 2 alleles for a locus as a set
+
+    :param connection: db connection of type sqlite.Connection
+    :param locus: name of the column in the table to query
+    :return: CWD allele set
+    """
+    cursor = connection.cursor()
+    select_all_query = f"SELECT allele FROM cwd2 where locus='{locus}'"
+    cursor.execute(select_all_query)
+    table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
+    cursor.close()
+    return table_as_set
+
+
 def load_dict(
     connection: sqlite3.Connection, table_name: str, columns: Tuple[str, str]
 ) -> Dict[str, str]:
@@ -564,4 +580,13 @@ def save_serology_broad_split_mappings(db_connection, sero_mapping):
         table_name="serology_broad_split_mapping",
         dictionary=sero_splits,
         columns=("serology", "splits"),
+    )
+
+
+def save_cwd2(db_connection: sqlite3.Connection, cwd2_map: dict):
+    save_dict(
+        db_connection,
+        table_name="cwd2",
+        dictionary=cwd2_map,
+        columns=("allele", "locus"),
     )

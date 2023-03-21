@@ -84,6 +84,55 @@ paths:
                     description: Describes what went wrong
                     type: string
                     example: "Invalid HLA locus"
+  /cwd-redux:
+    post:
+      tags:
+        - CWD Reduction
+      operationId: api.cwd_redux_controller
+      summary: Reduce to CWD/MAC
+      description: |
+        Given a GL String of Allele List or a MAC find only the CWD alleles and a corresponding
+        MAC if available.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                gl_string:
+                  description: GL String of Allele List or a MAC code
+                  type: string
+                  example: "A*26:CBJTR"
+      responses:
+        200:
+          description: CWD Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gl_string:
+                    description: GL String of Allele List or a MAC code
+                    type: string
+                    example: "A*26:CBJTR"
+                  cwd:
+                    description: CWD reduced version of GL String
+                    type: string
+                    example: "A*26:01/A*25:01"
+                  cwd_mac:
+                    description: MAC of reduced CWD if available
+                    type: string
+                    example: "A*26:BYHR"
+        400:
+          description: Invalid GL String Form
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: Describes what went wrong
+                    type: string
+                    example: "Invalid HLA locus"
   /mac/{allele_code}:
     get:
       tags:
