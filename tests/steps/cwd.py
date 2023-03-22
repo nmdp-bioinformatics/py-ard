@@ -19,7 +19,7 @@ def step_impl(context, cwd_list):
 
 @step('the MAC Code for CWD alleles should be "{cwd_mac}"')
 def step_impl(context, cwd_mac):
-    mac = context.ard.decode_to_mac(context.cwd)
+    mac = context.ard.lookup_mac(context.cwd)
     assert_that(mac, is_(cwd_mac))
 
 

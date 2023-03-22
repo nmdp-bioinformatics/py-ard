@@ -65,11 +65,11 @@ def mac_expand_controller(allele_code: str):
         return {"message": e.message}, 400
 
 
-def mac_decode_controller():
+def mac_lookup_controller():
     if request.json:
         try:
             allele_list = request.json["gl_string"]
-            mac_code = ard.decode_to_mac(allele_list)
+            mac_code = ard.lookup_mac(allele_list)
             return {
                 "mac": mac_code,
                 "alleles": allele_list.split("/"),
@@ -123,9 +123,9 @@ def cwd_redux_controller():
             return {"message": e.message}, 400
 
         # If the cwd reduction is a single locus or empty
-        if "/" not in cwd:
+        if "/" in cwd:
             try:
-                cwd_mac = ard.decode_to_mac(cwd)
+                cwd_mac = ard.lookup_mac(cwd)
             except pyard.exceptions.InvalidMACError as e:
                 cwd_mac = ""
         else:

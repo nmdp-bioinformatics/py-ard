@@ -681,7 +681,7 @@ class ARD(object):
 
         raise InvalidMACError(f"{mac_code} is an invalid MAC.")
 
-    def decode_to_mac(self, allelelist_gl: str):
+    def lookup_mac(self, allelelist_gl: str):
         """
         Finds a MAC code corresponding to
 

@@ -24,7 +24,7 @@ def step_impl(context, allele_list):
 
 @when("decoding to a MAC")
 def step_impl(context):
-    context.mac_code = context.ard.decode_to_mac(context.allele_list)
+    context.mac_code = context.ard.lookup_mac(context.allele_list)
 
 
 @then("the decoded MAC is {mac_code}")

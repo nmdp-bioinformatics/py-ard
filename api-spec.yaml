@@ -186,8 +186,8 @@ paths:
     post:
       tags:
         - MAC
-      operationId: api.mac_decode_controller
-      summary: Decode to MAC (Allele Code) from Alleles
+      operationId: api.mac_lookup_controller
+      summary: Lookup MAC from Alleles
       description: |
         Given a allele list as a GL String, find corresponding MAC
       requestBody:
@@ -196,12 +196,12 @@ paths:
             schema:
               properties:
                 gl_string:
-                  description: GL String version of a MAC
+                  description: GL String version of allele list
                   type: string
                   example: "HLA-A*01:01/HLA-A*01:02"
       responses:
         200:
-          description: Alleles corresponding to MAC
+          description: MAC corresponding to Alleles
           content:
             application/json:
               schema:
@@ -212,7 +212,7 @@ paths:
                     type: string
                     example: "HLA-A*01:AB"
                   gl_string:
-                    description: GL String version of expanded MAC
+                    description: Supplied GL String
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
