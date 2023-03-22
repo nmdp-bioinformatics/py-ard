@@ -254,10 +254,15 @@ class ARD(object):
                 # If ambiguous, reduce to G group level
                 return self._redux_allele(allele, "lgx")
         else:
-            # TODO: make this an explicit lookup to the g_group or p_group table
-            # just having a shorter name be valid is not stringent enough
-            if allele.endswith(("P", "G")):
-                allele = allele[:-1]
+            # Make this an explicit lookup to the g_group or p_group table
+            # for stringent validation
+            if allele.endswith("P"):
+                if allele in self.ars_mappings.p_group.values():
+                    return allele
+            elif allele.endswith("G"):
+                if allele in self.ars_mappings.g_group.values():
+                    return allele
+
             if self._is_valid_allele(allele):
                 return allele
             else:
