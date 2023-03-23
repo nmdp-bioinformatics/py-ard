@@ -25,4 +25,4 @@ from .pyard import ARD
 from .blender import blender as dr_blender
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "0.9.1"
+__version__ = "0.9.2"
