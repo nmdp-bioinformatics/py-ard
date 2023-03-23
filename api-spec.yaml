@@ -55,6 +55,7 @@ paths:
                   type: string
                   enum:
                     - G
+                    - P
                     - lg
                     - lgx
                     - W
