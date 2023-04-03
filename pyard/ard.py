@@ -117,6 +117,8 @@ class ARD(object):
         dr.set_db_version(self.db_connection, imgt_version)
         # Load MAC codes
         dr.generate_mac_codes(self.db_connection, refresh_mac=False, load_mac=load_mac)
+        # Load CIWD mapping
+        dr.generate_cwd_mapping(self.db_connection)
 
         # Close the current read-write db connection
         self.db_connection.close()
@@ -252,10 +254,15 @@ class ARD(object):
                 # If ambiguous, reduce to G group level
                 return self._redux_allele(allele, "lgx")
         else:
-            # TODO: make this an explicit lookup to the g_group or p_group table
-            # just having a shorter name be valid is not stringent enough
-            if allele.endswith(("P", "G")):
-                allele = allele[:-1]
+            # Make this an explicit lookup to the g_group or p_group table
+            # for stringent validation
+            if allele.endswith("P"):
+                if allele in self.ars_mappings.p_group.values():
+                    return allele
+            elif allele.endswith("G"):
+                if allele in self.ars_mappings.g_group.values():
+                    return allele
+
             if self._is_valid_allele(allele):
                 return allele
             else:
@@ -655,22 +662,69 @@ class ARD(object):
 
     def expand_mac(self, mac_code: str):
         """
-        Expands mac codes
+        Expands MAC code into its
 
-        :param mac_code: An HLA allele.
+        :param mac_code: A MAC code
         :type: str
-        :return: List
-        :rtype: List
+        :return: GL String of expanded alleles
+        :rtype: str
         """
         locus_antigen, code = mac_code.split(":")
         if db.is_valid_mac_code(self.db_connection, code):
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
-                return ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
+                return "/".join(
+                    ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
+                )
             else:
-                return list(self._get_alleles(code, locus_antigen))
+                return "/".join(self._get_alleles(code, locus_antigen))
 
         raise InvalidMACError(f"{mac_code} is an invalid MAC.")
+
+    def lookup_mac(self, allelelist_gl: str):
+        """
+        Finds a MAC code corresponding to
+
+        :param allelelist_gl: Allelelist GL String
+        :type: str
+        :return: MAC code
+        :rtype: str
+        """
+        alleles = allelelist_gl.split("/")
+        allele_fields = [allele.split("*")[1] for allele in alleles]
+        antigen_groups = sorted({allele.split(":")[0] for allele in allele_fields})
+        if len(antigen_groups) == 1:
+            mac_expansion = "/".join(
+                sorted({allele.split(":")[1] for allele in allele_fields})
+            )
+            # See if the 2nd field lists is in the database
+            mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
+            if mac_code:
+                locus = allelelist_gl.split("*")[0]
+                return f"{locus}*{antigen_groups[0]}:{mac_code}"
+
+        # Try the list of first_field:second_field combinations
+        mac_expansion = "/".join(sorted(allele_fields))
+        mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
+
+        if mac_code:
+            locus = allelelist_gl.split("*")[0]
+            return f"{locus}*{antigen_groups[0]}:{mac_code}"
+
+        raise InvalidMACError(f"{allelelist_gl} does not have a MAC.")
+
+    def cwd_redux(self, allele_list_gl):
+        lgx_redux = self.redux(allele_list_gl, "lgx")
+        locus = allele_list_gl.split("*")[0]
+        if HLA_regex.search(locus):
+            locus = locus.split("-")[1]
+        ciwd_for_locus = db.load_cwd(self.db_connection, locus)
+        lgx_redux_alleles = set(lgx_redux.split("/"))
+        alleles_in_ciwd = ciwd_for_locus.intersection(lgx_redux_alleles)
+        sorted_alleles = sorted(
+            alleles_in_ciwd, key=functools.cmp_to_key(self.smart_sort_comparator)
+        )
+        return "/".join(sorted_alleles)
 
     def v2_to_v3(self, v2_allele) -> str:
         """

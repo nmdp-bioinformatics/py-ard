@@ -288,3 +288,13 @@ def load_latest_version():
             # # version: IPD-IMGT/HLA 3.51.0
             version = l.split()[-1].replace(".", "")
     return version
+
+
+def load_cwd2():
+    import pandas as pd
+    import os
+
+    cwd_csv_path = os.path.join(os.path.dirname(__file__), "CWD2.csv")
+    df = pd.read_csv(cwd_csv_path)
+    cwd_map = df.set_index("ALLELE")["LOCUS"].to_dict()
+    return cwd_map

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: ARD Reduction
   description: Reduce to ARD Level
-  version: "1.0.0rc4"
+  version: "1.0.0rc5"
 servers:
   - url: 'http://localhost:8080'
 tags:
@@ -10,8 +10,8 @@ tags:
     description: IPD-IMGT/HLA DB Information
   - name: ARD Reduction
     description: Reduce GL String to ARD
-  - name: MAC Expansion
-    description: Expand MAC to alleles
+  - name: MAC
+    description: Expand/Collapse MAC to/from alleles
   - name: DRBX Blender
     description: Blend DRBX based on DRB1 and DRB3/4/5
   - name: Validation
@@ -55,6 +55,7 @@ paths:
                   type: string
                   enum:
                     - G
+                    - P
                     - lg
                     - lgx
                     - W
@@ -84,10 +85,59 @@ paths:
                     description: Describes what went wrong
                     type: string
                     example: "Invalid HLA locus"
+  /cwd-redux:
+    post:
+      tags:
+        - CWD Reduction
+      operationId: api.cwd_redux_controller
+      summary: Reduce to CWD/MAC
+      description: |
+        Given a GL String of Allele List or a MAC find only the CWD alleles and a corresponding
+        MAC if available.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                gl_string:
+                  description: GL String of Allele List or a MAC code
+                  type: string
+                  example: "A*26:CBJTR"
+      responses:
+        200:
+          description: CWD Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gl_string:
+                    description: GL String of Allele List or a MAC code
+                    type: string
+                    example: "A*26:CBJTR"
+                  cwd:
+                    description: CWD reduced version of GL String
+                    type: string
+                    example: "A*26:01/A*25:01"
+                  cwd_mac:
+                    description: MAC of reduced CWD if available
+                    type: string
+                    example: "A*26:BYHR"
+        400:
+          description: Invalid GL String Form
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: Describes what went wrong
+                    type: string
+                    example: "Invalid HLA locus"
   /mac/{allele_code}:
     get:
       tags:
-        - MAC Expansion
+        - MAC
       operationId: api.mac_expand_controller
       summary: Expand MAC (Allele Code)
       description: |
@@ -116,7 +166,57 @@ paths:
                     description: GL String version of expanded MAC
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
-                  expansion:
+                  alleles:
+                    description: Alleles corresponding to MAC
+                    type: array
+                    example:
+                      - "HLA-A*01:01"
+                      - "HLA-A*01:02"
+        400:
+          description: Invalid MAC Code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: MAC Code is not valid
+                    type: string
+                    example: "Invalid MAC Code"
+  /mac:
+    post:
+      tags:
+        - MAC
+      operationId: api.mac_lookup_controller
+      summary: Lookup MAC from Alleles
+      description: |
+        Given a allele list as a GL String, find corresponding MAC
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                gl_string:
+                  description: GL String version of allele list
+                  type: string
+                  example: "HLA-A*01:01/HLA-A*01:02"
+      responses:
+        200:
+          description: MAC corresponding to Alleles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mac:
+                    description: MAC
+                    type: string
+                    example: "HLA-A*01:AB"
+                  gl_string:
+                    description: Supplied GL String
+                    type: string
+                    example: "HLA-A*01:01/HLA-A*01:02"
+                  alleles:
                     description: Alleles corresponding to MAC
                     type: array
                     example:

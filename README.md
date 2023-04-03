@@ -21,6 +21,7 @@ Human leukocyte antigen (HLA) genes encode cell surface proteins that are import
     * [Using `py-ard` from R](#using-py-ard-from-r-code)
     * [Perform Reduxtion](#reduce-typings)
     * [DRBX blending](#perform-drb1-blending-with-drb3-drb4-and-drb5)
+    * [Expand/Lookup MAC](#mac-codes)
 3. [Command Line Tools](#command-line-tools)
     * [`pyard-import` Import Reference Data](#pyard-import-import-the-latest-ipd-imgthla-database)
     * [`pyard-status` Show Statuses of Databases](#pyard-status-show-database-status)
@@ -183,12 +184,41 @@ pyard.dr_blender(drb1='HLA-DRB1*03:01+DRB1*04:01', drb3='DRB3*01:01', drb4='DRB4
 # >>> 'DRB3*01:01+DRB4*01:03'
 ```
 
-### Expand MAC codes
+## MAC Codes
+
+`py-ard` supports not only reducing to various types but helps in expanding and
+looking up MAC representation. See [MAC Service UI](https://hml.nmdp.org/MacUI/) for detail.
+
+### Expand MAC
 
 You can also use `py-ard` to expand MAC codes. Use `expand_mac` method on `ard`.
 ```python
 ard.expand_mac('HLA-A*01:BC')
-# ['HLA-A*01:02', 'HLA-A*01:03']
+# 'HLA-A*01:02/HLA-A*01:03'
+```
+
+### Lookup MAC
+
+Find the corresponding MAC code for an allele list GL String.
+
+```python
+ard.lookup_mac('A*01:02/A*01:01/A*01:03')
+# A*01:MN
+```
+
+### CWD Reduction
+
+Reduce a MAC code or an allele list GL String to CWD reduced list.
+```python
+ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*15:27")
+# => B*15:01/B*15:07
+```
+
+The above 2 methods can be chained to get back a MAC code that has a CWD reduced version.
+
+```python
+ard.lookup_mac(ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*15:27"))
+# 'B*15:AH'
 ```
 
 ### Using `py-ard` from R code

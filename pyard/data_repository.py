@@ -441,10 +441,18 @@ def get_db_version(db_connection: sqlite3.Connection):
     return db.get_user_version(db_connection)
 
 
-def generate_serology_broad_split_mapping(db_connection, imgt_version):
+def generate_serology_broad_split_mapping(
+    db_connection: sqlite3.Connection, imgt_version
+):
     if not db.table_exists(db_connection, "serology_broad_split_mapping"):
         sero_mapping = pyard.load.load_serology_broad_split_mapping(imgt_version)
         db.save_serology_broad_split_mappings(db_connection, sero_mapping)
         return sero_mapping
 
     return db.load_serology_broad_split_mappings(db_connection)
+
+
+def generate_cwd_mapping(db_connection: sqlite3.Connection):
+    if not db.table_exists(db_connection, "cwd2"):
+        cwd2_map = pyard.load.load_cwd2()
+        db.save_cwd2(db_connection, cwd2_map)

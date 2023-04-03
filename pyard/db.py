@@ -135,6 +135,24 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
     return alleles
 
 
+def alleles_to_mac_code(
+    connection: sqlite3.Connection, code_expansion: str
+) -> List[str]:
+    """
+    Look up the MAC code in the database and based on list of allele expansion
+    :param connection: db connection of type sqlite.Connection
+    :param code_expansion: expansion of MAC code
+    :return: List of alleles
+    """
+    mac_query = "SELECT code from mac_codes where alleles = ?"
+    cursor = connection.execute(mac_query, (code_expansion,))
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        return result[0]
+    return None
+
+
 def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
     """
     Check db if the MAC code exists.
@@ -293,6 +311,22 @@ def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Se
     """
     cursor = connection.cursor()
     select_all_query = f"SELECT {column} FROM {table_name}"
+    cursor.execute(select_all_query)
+    table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
+    cursor.close()
+    return table_as_set
+
+
+def load_cwd(connection: sqlite3.Connection, locus: str) -> Set:
+    """
+    Retrieve the CWD Version 2 alleles for a locus as a set
+
+    :param connection: db connection of type sqlite.Connection
+    :param locus: name of the column in the table to query
+    :return: CWD allele set
+    """
+    cursor = connection.cursor()
+    select_all_query = f"SELECT allele FROM cwd2 where locus='{locus}'"
     cursor.execute(select_all_query)
     table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
     cursor.close()
@@ -546,4 +580,13 @@ def save_serology_broad_split_mappings(db_connection, sero_mapping):
         table_name="serology_broad_split_mapping",
         dictionary=sero_splits,
         columns=("serology", "splits"),
+    )
+
+
+def save_cwd2(db_connection: sqlite3.Connection, cwd2_map: dict):
+    save_dict(
+        db_connection,
+        table_name="cwd2",
+        dictionary=cwd2_map,
+        columns=("allele", "locus"),
     )
