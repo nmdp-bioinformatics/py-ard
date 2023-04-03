@@ -1,3 +1,24 @@
+<a name="1.0.0rc5"></a>
+# [Decode MAC and CWD 2.0 Reductions (1.0.0rc5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc5) - 03 Apr 2023
+
+Support looking up MAC code from allele list with `lookup_mac` method.
+
+Support CWD Reduction:
+ - add `cwd_redux` method to produce CWD only allele list
+ - create `cwd2` table on load
+ - `cwd-redux` endpoint to allow CWD reduction
+
+[Changes][1.0.0rc5]
+
+
+<a name="0.9.2"></a>
+# [Fix Pandas dependencies Latest (0.9.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.9.2) - 23 Mar 2023
+
+Set to `pandas==1.5.3`
+
+[Changes][0.9.2]
+
+
 <a name="1.0.0rc4"></a>
 # [Documentation Update and Cleanup (1.0.0rc4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc4) - 15 Mar 2023
 
@@ -474,6 +495,8 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.0rc5]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.2...1.0.0rc5
+[0.9.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc4...0.9.2
 [1.0.0rc4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc3...1.0.0rc4
 [1.0.0rc3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc2...1.0.0rc3
 [1.0.0rc2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc1...1.0.0rc2
