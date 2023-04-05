@@ -5,6 +5,8 @@ include HISTORY.rst
 include LICENSE
 include README.rst
 include pyard/*.csv
+include requirements.txt
+include requirements-tests.txt
 
 recursive-exclude tests *
 recursive-exclude * __pycache__
