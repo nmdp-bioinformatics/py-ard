@@ -1,3 +1,14 @@
+<a name="1.0.0rc6"></a>
+# [Batch Reduce Fixes (1.0.0rc6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc6) - 05 Apr 2023
+
+Bug fixes
+- Fix issue when adding locus name to a serology value
+- Fix issue when reducing an allele-list
+- Account for lower case allele names
+
+[Changes][1.0.0rc6]
+
+
 <a name="1.0.0rc5"></a>
 # [Decode MAC and CWD 2.0 Reductions (1.0.0rc5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc5) - 03 Apr 2023
 
@@ -495,6 +506,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.0rc6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc5...1.0.0rc6
 [1.0.0rc5]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.2...1.0.0rc5
 [0.9.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc4...0.9.2
 [1.0.0rc4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc3...1.0.0rc4
