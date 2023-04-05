@@ -106,7 +106,7 @@ def remove_locus_name(reduced_allele):
     return "/".join(map(lambda a: a.split("*")[1], reduced_allele.split("/")))
 
 
-def reduce(allele, locus, column_name):
+def redux(allele, locus, column_name):
     # Does the allele name have the locus in it ?
     if allele == "":
         return allele
@@ -115,7 +115,13 @@ def reduce(allele, locus, column_name):
     elif ard_config.get("locus_in_allele_name"):
         locus_allele = allele
     else:
-        locus_allele = f"{locus}*{allele}"
+        if allele.startswith(locus):
+            locus_allele = allele
+        else:
+            if ":" in allele:
+                locus_allele = f"{locus}*{allele}"
+            else:
+                locus_allele = f"{locus}{allele}"  # serology
 
     # Check the config if this allele should be reduced
     if should_be_reduced(allele, locus_allele):
@@ -162,9 +168,9 @@ def clean_locus(allele: str, locus: str, column_name: str = "Unknown") -> str:
         allele = white_space_regex.sub("", allele)
         # If the allele comes in as an allele list, apply reduce to all alleles
         if "/" in allele:
-            return "/".join(map(reduce, allele.split("/"), locus, column_name))
+            return "/".join([redux(a, locus, column_name) for a in allele.split("/")])
         else:
-            return reduce(allele, locus, column_name)
+            return redux(allele, locus, column_name)
     return allele
 
 
@@ -189,7 +195,9 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
                     df.insert(
                         new_column_index,
                         new_column_name,
-                        df[column].apply(clean_locus, locus=locus, column_name=column),
+                        df[column].apply(
+                            clean_locus, locus=locus.upper(), column_name=column
+                        ),
                     )
                     locus_columns[locus_columns.index(column)] = new_column_name
                 else:
