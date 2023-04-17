@@ -38,6 +38,8 @@ Human leukocyte antigen (HLA) genes encode cell surface proteins that are import
 ```shell
 pip install py-ard
 ```
+Note: With `py-ard` version *1.0.0* and higher, the redux API has changed. If your use requires the older API, please install with `pip install py-ard==0.9.2`
+
 
 ### Install With Homebrew
 
