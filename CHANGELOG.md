@@ -1,3 +1,11 @@
+<a name="1.0.0"></a>
+# [Final Release 1.0.0](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0) - 04 May 2023
+
+Release YAY!! 🎉
+
+[Changes][1.0.0]
+
+
 <a name="1.0.0rc7"></a>
 # [Fix PyPi Packaging (1.0.0rc7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc7) - 17 Apr 2023
 
@@ -514,6 +522,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc7...1.0.0
 [1.0.0rc7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc6...1.0.0rc7
 [1.0.0rc6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc5...1.0.0rc6
 [1.0.0rc5]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.2...1.0.0rc5
