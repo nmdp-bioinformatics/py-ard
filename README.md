@@ -176,6 +176,7 @@ ard.redux('B14', 'lg')
 | `W`            | Reduce/Expand to 3 field WHO nomenclature level |
 | `exon`         | Reduce/Expand to exon level                     |
 | `U2`           | Reduce to 2 field unambiguous level             |
+| `S`            | Reduce to Serological level                     |
 
 ### Perform DRB1 blending with DRB3, DRB4 and DRB5
 

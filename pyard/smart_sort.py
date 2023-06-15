@@ -61,7 +61,11 @@ def smart_sort_comparator(a1, a2):
     if a1 == a2:
         return 0
 
-    # Extract and Compare first fields first
+    # Handle serology
+    if ":" not in a1:
+        return 1 if a1 > a2 else -1
+
+    # Extract and Compare 1st fields first
     a1_f1 = int(a1[a1.find("*") + 1 : a1.find(":")])
     a2_f1 = int(a2[a2.find("*") + 1 : a2.find(":")])
 

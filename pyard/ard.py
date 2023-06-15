@@ -33,6 +33,7 @@ from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from .misc import (
     get_n_field_allele,
     get_2field_allele,
+    is_2_field_allele,
     validate_reduction_type,
 )
 from .constants import (
@@ -253,6 +254,20 @@ class ARD(object):
             else:
                 # If ambiguous, reduce to G group level
                 return self._redux_allele(allele, "lgx")
+        elif redux_type == "S":
+            # find serology equivalent in serology_mapping
+            serology_mapping = db.find_serology_for_allele(self.db_connection, allele)
+            serology_set = set()
+            if is_2_field_allele(allele):
+                for serology, allele_list in serology_mapping.items():
+                    allele_list_lgx = self.redux(allele_list, "lgx")
+                    if allele in allele_list_lgx:
+                        serology_set.add(serology)
+            else:
+                for serology, allele_list in serology_mapping.items():
+                    if allele in allele_list:
+                        serology_set.add(serology)
+            return "/".join(serology_set)
         else:
             # Make this an explicit lookup to the g_group or p_group table
             # for stringent validation
@@ -293,7 +308,7 @@ class ARD(object):
         all_gls = []
         for gl in gls:
             all_gls += gl.split(delim)
-        unique_gls = set(all_gls)
+        unique_gls = filter(lambda s: s != "", set(all_gls))
         return delim.join(
             sorted(unique_gls, key=functools.cmp_to_key(self.smart_sort_comparator))
         )
