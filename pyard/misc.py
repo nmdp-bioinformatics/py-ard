@@ -67,6 +67,10 @@ def number_of_fields(allele: str) -> int:
     return len(allele.split(":"))
 
 
+def is_2_field_allele(allele: str) -> bool:
+    return number_of_fields(allele) == 2
+
+
 # computes a valid G name based on the ambiguity string
 def get_G_name(a: str) -> str:
     a = a.split("/")[0]

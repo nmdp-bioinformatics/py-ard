@@ -370,6 +370,27 @@ def similar_alleles(connection: sqlite3.Connection, allele_name: str) -> Set[str
     return alleles
 
 
+def find_serology_for_allele(
+    connection: sqlite3.Connection, allele_name: str
+) -> Dict[str, str]:
+    """
+    Find similar alleles starting with the provided allele_name.
+
+    :param connection: db connection of type sqlite.Connection
+    :param allele_name: Allele name to use as a prefix to find similar alleles
+    :return: list of similar alleles
+    """
+    query = (
+        "SELECT serology, allele_list FROM serology_mapping WHERE allele_list LIKE ?"
+    )
+    cursor = connection.execute(query, (f"%{allele_name}%",))
+    results = cursor.fetchall()
+    # fetchall() returns a list of tuples of results
+    # e.g. [('A1', ''A*01:01:01:01/A*01:01:01:03')]
+    serology_mapping = {serology: allele_list for serology, allele_list in results}
+    return serology_mapping
+
+
 def get_user_version(connection: sqlite3.Connection) -> int:
     """
     Retrieve user_version from db
