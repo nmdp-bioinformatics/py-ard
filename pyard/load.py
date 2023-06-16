@@ -110,7 +110,8 @@ def load_p_group(imgt_version):
         sys.exit(1)
 
     # the P-group is named for its first allele
-    df_p["P"] = df_p["A"].apply(get_P_name)
+    # The P column is already present in the file
+    # df_p["P"] = df_p["A"].apply(get_P_name)
     # convert slash delimited string to a list
     df_p["A"] = df_p["A"].apply(lambda a: a.split("/"))
     df_p = df_p.explode("A")
@@ -121,6 +122,7 @@ def load_p_group(imgt_version):
     # C* 06:06:01:02 06:06P
     # C* 06:271 06:06P
     df_p["2d"] = df_p["A"].apply(get_2field_allele)
+    df_p["3d"] = df_p["A"].apply(get_3field_allele)
     # lgx has the P-group name without the P for comparison
     df_p["lgx"] = df_p["P"].apply(get_2field_allele)
     return df_p

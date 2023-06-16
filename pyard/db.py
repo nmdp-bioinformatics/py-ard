@@ -58,7 +58,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     if imgt_version != "Latest":
         if not pathlib.Path(db_filename).exists():
             all_imgt_versions = get_imgt_db_versions()
-            if imgt_version not in all_imgt_versions:
+            if str(imgt_version) not in all_imgt_versions:
                 raise ValueError(
                     f"{imgt_version} is not a valid IMGT database version."
                 )
