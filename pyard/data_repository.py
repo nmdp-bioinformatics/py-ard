@@ -79,9 +79,6 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     df_g_group = load_g_group(imgt_version)
     df_p_group = load_p_group(imgt_version)
 
-    # Extract p group mapping
-    p_group = df_p_group.set_index("A")["P"].to_dict()
-
     # compare df_p_group["2d"] with df_g_group["2d"] to find 2-field alleles in the
     # P-group that aren't in the G-group
     p_not_in_g = set(df_p_group["2d"]) - set(df_g_group["2d"])
@@ -124,7 +121,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
         .to_dict()["lgx"]
     )
 
-    # Creating dictionaries with mac_code->ARD group mapping
+    # Extract G group mapping
     df_g = pd.concat(
         [
             df_g_group[["2d", "G"]].rename(columns={"2d": "A"}),
@@ -135,6 +132,18 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     )
     g_group = df_g.set_index("A")["G"].to_dict()
 
+    # Extract P group mapping
+    df_p = pd.concat(
+        [
+            df_p_group[["2d", "P"]].rename(columns={"2d": "A"}),
+            df_p_group[["3d", "P"]].rename(columns={"3d": "A"}),
+            df_p_group[["A", "P"]],
+        ],
+        ignore_index=True,
+    )
+    p_group = df_p.set_index("A")["P"].to_dict()
+
+    # Extract lgx group mapping
     df_lgx = pd.concat(
         [
             df_g_group[["2d", "lgx"]].rename(columns={"2d": "A"}),
@@ -144,7 +153,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     )
     lgx_group = df_lgx.set_index("A")["lgx"].to_dict()
 
-    # exon
+    # Extract exon mapping
     df_exon = pd.concat(
         [
             df_g_group[["A", "3d"]].rename(columns={"3d": "exon"}),
