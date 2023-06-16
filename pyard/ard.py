@@ -215,6 +215,7 @@ class ARD(object):
                 # return allele with only first 2 field
                 redux_allele = ":".join(allele.split(":")[0:2])
             if redux_type == "lg":
+                # ARS suffix maybe used instead of g
                 if self._config["ARS_as_lg"]:
                     return redux_allele + "ARS"
                 # lg mode has g appended with lgx reduction
