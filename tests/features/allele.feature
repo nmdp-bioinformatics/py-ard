@@ -40,3 +40,20 @@ Feature: Alleles
       | C*02:10        | lg    | C*02:02g          |
       | C*02:10        | lgx   | C*02:02           |
       | C*06:17        | lgx   | C*06:17           |
+
+
+  Scenario Outline: allele reduction with ARS suffix
+
+    In `g` mode, use `ARS` prefix rather than `g`.
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level with ARS suffix enabled
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele         | Level | Redux Allele   |
+      | A*01:01:01     | lg     | A*01:01ARS     |
+      | HLA-A*01:01:01 | lg     | HLA-A*01:01ARS |
+      | DRB1*14:06:01  | lg     | DRB1*14:06ARS  |
+      | C*02:02        | lg     | C*02:02ARS     |
+      | C*02:10        | lg     | C*02:02ARS     |
