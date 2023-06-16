@@ -267,7 +267,11 @@ class ARD(object):
                 for serology, allele_list in serology_mapping.items():
                     if allele in allele_list:
                         serology_set.add(serology)
-            return "/".join(serology_set)
+            return "/".join(
+                sorted(
+                    serology_set, key=functools.cmp_to_key(self.smart_sort_comparator)
+                )
+            )
         else:
             # Make this an explicit lookup to the g_group or p_group table
             # for stringent validation
