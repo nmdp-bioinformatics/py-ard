@@ -54,6 +54,7 @@ default_config = {
     "ping": False,
     "map_drb345_to_drbx": True,
     "verbose_log": True,
+    "ARS_as_lg": False,
 }
 
 
@@ -64,7 +65,7 @@ class ARD(object):
     """
     ARD reduction for HLA
     Allows reducing alleles, allele code(MAC), Serology to
-    G, lg, lgx, W, exon and U2 levels.
+    G, lg, lgx, W, exon, S and U2 levels.
     """
 
     def __init__(
@@ -214,6 +215,9 @@ class ARD(object):
                 # return allele with only first 2 field
                 redux_allele = ":".join(allele.split(":")[0:2])
             if redux_type == "lg":
+                # ARS suffix maybe used instead of g
+                if self._config["ARS_as_lg"]:
+                    return redux_allele + "ARS"
                 # lg mode has g appended with lgx reduction
                 return redux_allele + "g"
             return redux_allele

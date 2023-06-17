@@ -26,7 +26,13 @@ def before_all(context):
     context.ard = pyard.init("3440", data_dir="/tmp/py-ard")
 
     # an ard with ping set to True
-    my_config = {
+    ping_config = {
         "ping": True,
     }
-    context.ard_ping = pyard.init("3440", data_dir="/tmp/py-ard", config=my_config)
+    context.ard_ping = pyard.init("3440", data_dir="/tmp/py-ard", config=ping_config)
+
+    # an ard with ARS suffix for lg
+    lg_ars_config = {
+        "ARS_as_lg": True,
+    }
+    context.ard_ars = pyard.init("3440", data_dir="/tmp/py-ard", config=lg_ars_config)
