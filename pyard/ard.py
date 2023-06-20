@@ -170,8 +170,6 @@ class ARD(object):
         :rtype: str
         """
 
-        validate_reduction_type(redux_type)
-
         # deal with leading 'HLA-'
         if HLA_regex.search(allele):
             hla, allele_name = allele.split("-")
@@ -642,14 +640,18 @@ class ARD(object):
             if allele.endswith(("P", "G")):
                 # remove the last character
                 allele = allele[:-1]
-                if self._is_valid_allele(allele):
-                    return True
-                else:
-                    allele = get_2field_allele(allele)
-                    if self._is_valid_allele(allele):
-                        return True
+            # validate format: there are no empty fields eg, 2 :: together
+            if "*" in allele:
+                _, fields = allele.split("*")
+                if not all(map(str.isalnum, fields.split(":"))):
+                    return False
+            # The allele is valid as whole or as a 2 field version
+            if self._is_valid_allele(allele):
+                return True
+            else:
+                allele = get_2field_allele(allele)
+                return self._is_valid_allele(allele)
 
-            return self._is_valid_allele(allele)
         return True
 
     def _is_valid_gl(self, glstring: str) -> bool:
