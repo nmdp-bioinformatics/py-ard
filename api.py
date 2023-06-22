@@ -17,18 +17,26 @@ def validate_controller():
             gl_string = request.json["gl_string"]
         except KeyError:
             return {"message": "gl_string not provided"}, 404
-        # Validate
-        try:
-            ard.validate(gl_string)
-            return {"valid": True}, 200
-        except InvalidAlleleError as e:
-            return {
-                "valid": False,
-                "message": f"Provided GL String is invalid: {gl_string}",
-                "cause": e.message,
-            }, 404
-        except PyArdError as e:
-            return {"message": e.message}, 400
+        return validate_gl(gl_string)
+
+
+def validate_controller_get(gl_string: str):
+    return validate_gl(gl_string)
+
+
+def validate_gl(gl_string):
+    # Validate
+    try:
+        ard.validate(gl_string)
+        return "Yes", 200
+    except InvalidAlleleError as e:
+        return {
+            "valid": False,
+            "message": f"Provided GL String is invalid: {gl_string}",
+            "cause": e.message,
+        }, 404
+    except PyArdError as e:
+        return {"message": e.message}, 400
 
 
 def redux_controller():
