@@ -292,6 +292,63 @@ paths:
                     description: Describes what went wrong
                     type: string
                     example: "Invalid HLA locus"
+  /valid:
+    get:
+      tags:
+        - Validation
+      operationId: api.validate_controller_get
+      summary: Validate GL String
+      description: |
+        Given a GL String report whether it is valid or not
+      parameters:
+        - name: gl_string
+          in: query
+          description: GL String
+          schema:
+            type: string
+            example: "B*08:ASXJP+B*07:02"
+      responses:
+        200:
+          description: Validation Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    description: Is GL String valid
+                    type: boolean
+                    example: true
+        404:
+          description: GL String didn't validate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    description: Is GL String valid
+                    type: boolean
+                    example: false
+                  message:
+                    description: Describes what went wrong
+                    type: string
+                    example: "Provided GL String is invalid: HLA-A*01:BLAH"
+                  cause:
+                    description: Explanation of why the GL String is not valid
+                    type: string
+                    example: "HLA-A*01:BLAH is not a valid GL Allele"
+        400:
+          description: Invalid GL String Form
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: Describes what went wrong
+                    type: string
+                    example: "Invalid HLA locus"
   /blend:
     post:
       tags:
