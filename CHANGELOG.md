@@ -1,3 +1,18 @@
+<a name="1.0.1"></a>
+# [Bug Fixes for 1.0.0 Release (1.0.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.1) - 23 Jun 2023
+
+Fixed bugs and added some niceties
+
+[#237](https://github.com/nmdp-bioinformatics/py-ard/issues/237)	Additional functionalities for `pyard` CLI command	enhancement	
+[#235](https://github.com/nmdp-bioinformatics/py-ard/issues/235)	Invalid allele in CWD2 mapping	bug	
+[#234](https://github.com/nmdp-bioinformatics/py-ard/issues/234)	Success with lgx when given Invalid format	bug	
+[#233](https://github.com/nmdp-bioinformatics/py-ard/issues/233)	`validate` endpoint can be a GET request	enhancement	
+[#230](https://github.com/nmdp-bioinformatics/py-ard/issues/230)	Redux with a "P" option does not return P-groups for two-field or three-field alleles	bug	
+
+
+[Changes][1.0.1]
+
+
 <a name="1.0.0"></a>
 # [Final Release 1.0.0](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0) - 04 May 2023
 
@@ -522,6 +537,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc7...1.0.0
 [1.0.0rc7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc6...1.0.0rc7
 [1.0.0rc6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc5...1.0.0rc6
