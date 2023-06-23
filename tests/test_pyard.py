@@ -142,6 +142,11 @@ class TestPyArd(unittest.TestCase):
         with self.assertRaises(InvalidTypingError):
             self.ard.redux("A*0.123", "lgx")
 
+    def test_empty_fields(self):
+        with self.assertRaises(InvalidTypingError):
+            # : without any data
+            self.ard.redux("DQA1*01:01:01:G", "lgx")
+
     def test_invalid_serology(self):
         # Test that A10 works and the first one is 'A*25:01'
         serology_a10 = self.ard.redux("A10", "lgx")
