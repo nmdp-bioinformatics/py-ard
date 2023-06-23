@@ -26,7 +26,7 @@ import sys
 
 from pyard.constants import VALID_REDUCTION_TYPES
 import pyard.misc
-from pyard.exceptions import InvalidAlleleError
+from pyard.exceptions import InvalidAlleleError, InvalidTypingError
 from pyard.misc import get_data_dir, get_imgt_version
 
 if __name__ == "__main__":
@@ -63,6 +63,13 @@ if __name__ == "__main__":
         help="Reduction Method",
     )
     parser.add_argument("--splits", dest="splits", help="Find Broad and Splits")
+    parser.add_argument(
+        "--validate",
+        dest="validate",
+        action="store_true",
+        help="Validate the provided GL String",
+    )
+    parser.add_argument("--cwd", dest="cwd", help="Perform CWD redux")
 
     args = parser.parse_args()
 
@@ -83,6 +90,15 @@ if __name__ == "__main__":
         sys.exit(0)
 
     try:
+        if args.validate:
+            ard.validate(args.cwd)
+        if args.cwd:
+            if args.validate:
+                ard.validate(args.cwd)
+            cwd_redux = ard.cwd_redux(args.cwd)
+            print(cwd_redux)
+            sys.exit(0)
+
         if args.redux_type:
             print(ard.redux(args.gl_string, args.redux_type))
         else:
@@ -93,7 +109,12 @@ if __name__ == "__main__":
                 print(ard.redux(args.gl_string, redux_type))
                 print()
     except InvalidAlleleError as e:
-        print("Error:", e)
-
-    # Remove ard and close db connection
-    del ard
+        print("Allele Error:", e.message, file=sys.stderr)
+        sys.exit(1)
+    except InvalidTypingError as e:
+        print("Typing Error:", e.message, file=sys.stderr)
+        sys.exit(2)
+    else:
+        # Remove ard and close db connection
+        print("Removing")
+        del ard
