@@ -23,6 +23,7 @@
 #
 import functools
 import re
+import sqlite3
 import sys
 from typing import Iterable, List
 
@@ -473,7 +474,11 @@ class ARD(object):
         """
         if ":" in allele:
             code = allele.split(":")[1]
-            return db.is_valid_mac_code(self.db_connection, code)
+            try:
+                if code.isalpha():
+                    return db.is_valid_mac_code(self.db_connection, code)
+            except sqlite3.OperationalError as e:
+                print("Error: ", e)
         return False
 
     def is_v2(self, allele: str) -> bool:
