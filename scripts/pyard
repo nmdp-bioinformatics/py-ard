@@ -116,5 +116,4 @@ if __name__ == "__main__":
         sys.exit(2)
     else:
         # Remove ard and close db connection
-        print("Removing")
         del ard
