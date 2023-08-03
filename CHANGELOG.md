@@ -1,5 +1,14 @@
+<a name="1.0.2"></a>
+# [Fixes issue with using py-ard without MAC (1.0.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.2) - 03 Aug 2023
+
+Fixes issue with using py-ard without MAC 
+ - When using py-ard with `load_mac=False`, check if the allele looks like a MAC
+
+[Changes][1.0.2]
+
+
 <a name="1.0.1"></a>
-# [Bug Fixes for 1.0.0 Release (1.0.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.1) - 23 Jun 2023
+# [1.0.1 → Bug Fixes for 1.0.0 Release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.1) - 23 Jun 2023
 
 Fixed bugs and added some niceties
 
@@ -537,6 +546,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc7...1.0.0
 [1.0.0rc7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc6...1.0.0rc7
