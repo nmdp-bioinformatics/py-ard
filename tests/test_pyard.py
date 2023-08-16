@@ -186,3 +186,17 @@ class TestPyArd(unittest.TestCase):
             another_ard._redux_allele.cache_info().maxsize, higher_cache_size
         )
         self.assertEqual(another_ard.redux.cache_info().maxsize, higher_cache_size)
+
+    def test_is_null(self):
+        # a null allele
+        allele = "A*01:01N"
+        self.assertTrue(self.ard.is_null(allele))
+        # not null allele
+        allele = "A*01:01"
+        self.assertFalse(self.ard.is_null(allele))
+        # MACs ending with N shouldn't be called as Nulls
+        allele = "A*01:MN"
+        self.assertFalse(self.ard.is_null(allele))
+        # MACs shouldn't be called as Nulls
+        allele = "A*01:AB"
+        self.assertFalse(self.ard.is_null(allele))
