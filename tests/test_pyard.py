@@ -190,13 +190,18 @@ class TestPyArd(unittest.TestCase):
     def test_is_null(self):
         # a null allele
         allele = "A*01:01N"
-        self.assertTrue(self.ard.is_null(allele))
+        self.assertTrue(self.ard.is_null(allele), msg="A Null Allele")
         # not null allele
         allele = "A*01:01"
-        self.assertFalse(self.ard.is_null(allele))
+        self.assertFalse(self.ard.is_null(allele), msg="not null allele")
         # MACs ending with N shouldn't be called as Nulls
         allele = "A*01:MN"
-        self.assertFalse(self.ard.is_null(allele))
+        self.assertFalse(
+            self.ard.is_null(allele),
+            msg="MACs ending with N shouldn't be called as Nulls",
+        )
         # MACs shouldn't be called as Nulls
         allele = "A*01:AB"
-        self.assertFalse(self.ard.is_null(allele))
+        self.assertFalse(
+            self.ard.is_null(allele), msg="MACs shouldn't be called as Nulls"
+        )
