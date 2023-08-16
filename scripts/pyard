@@ -26,7 +26,7 @@ import sys
 
 from pyard.constants import VALID_REDUCTION_TYPES
 import pyard.misc
-from pyard.exceptions import InvalidAlleleError, InvalidTypingError
+from pyard.exceptions import InvalidAlleleError, InvalidTypingError, InvalidMACError
 from pyard.misc import get_data_dir, get_imgt_version
 
 if __name__ == "__main__":
@@ -70,6 +70,7 @@ if __name__ == "__main__":
         help="Validate the provided GL String",
     )
     parser.add_argument("--cwd", dest="cwd", help="Perform CWD redux")
+    parser.add_argument("--lookup-mac", dest="lookup_mac", help="Lookup Mac ")
 
     args = parser.parse_args()
 
@@ -87,6 +88,15 @@ if __name__ == "__main__":
         mapping = pyard.find_broad_splits(args.splits)
         if mapping:
             print(f"{mapping[0]} = {'/'.join(mapping[1])}")
+        sys.exit(0)
+
+    # Handle --lookup-mac option
+    if args.lookup_mac:
+        try:
+            mac = ard.lookup_mac(args.lookup_mac)
+            print(mac)
+        except InvalidMACError as e:
+            print(e.message, file=sys.stderr)
         sys.exit(0)
 
     try:
