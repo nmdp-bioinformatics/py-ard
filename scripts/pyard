@@ -70,7 +70,12 @@ if __name__ == "__main__":
         help="Validate the provided GL String",
     )
     parser.add_argument("--cwd", dest="cwd", help="Perform CWD redux")
-    parser.add_argument("--lookup-mac", dest="lookup_mac", help="Lookup Mac ")
+    parser.add_argument(
+        "--expand-mac", dest="expand_mac", help="Expand MAC to Allele List"
+    )
+    parser.add_argument(
+        "--lookup-mac", dest="lookup_mac", help="Lookup MAC for an Allele List"
+    )
 
     args = parser.parse_args()
 
@@ -88,6 +93,15 @@ if __name__ == "__main__":
         mapping = pyard.find_broad_splits(args.splits)
         if mapping:
             print(f"{mapping[0]} = {'/'.join(mapping[1])}")
+        sys.exit(0)
+
+    # Handle --expand-mac option
+    if args.expand_mac:
+        try:
+            allele_list = ard.expand_mac(args.expand_mac)
+            print(allele_list)
+        except InvalidMACError as e:
+            print(e.message, file=sys.stderr)
         sys.exit(0)
 
     # Handle --lookup-mac option
