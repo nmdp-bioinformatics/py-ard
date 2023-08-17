@@ -1,3 +1,12 @@
+<a name="1.0.3"></a>
+# [1.0.3 – Permission Errors and pyard updates](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.3) - 17 Aug 2023
+
+- Alert permission Errors when `data_dir` is not writable
+- Add `--lookup-mac` and `--expand-mac` to `pyard` command
+
+[Changes][1.0.3]
+
+
 <a name="1.0.2"></a>
 # [Fixes issue with using py-ard without MAC (1.0.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.2) - 03 Aug 2023
 
@@ -546,6 +555,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc7...1.0.0
