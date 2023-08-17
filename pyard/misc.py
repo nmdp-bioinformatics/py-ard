@@ -19,6 +19,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
 import pathlib
 import tempfile
 from typing import List
@@ -142,7 +143,8 @@ def get_imgt_version(imgt_version):
 
 
 def get_default_db_directory():
-    return pathlib.Path(tempfile.gettempdir()) / "pyard"
+    username = os.getlogin()
+    return pathlib.Path(tempfile.gettempdir()) / f"pyard-{username}"
 
 
 def validate_reduction_type(ars_type):

@@ -20,8 +20,10 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
 import pathlib
 import sqlite3
+import sys
 from typing import Tuple, Dict, Set, List
 
 from .mappings import ARSMapping, CodeMappings, AlleleGroups
@@ -67,8 +69,25 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     if not pathlib.Path(data_dir).exists():
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
 
-    if not pathlib.Path(db_filename).exists():
-        print(f"Creating {db_filename} as cache.")
+    # Check for permission to read/write
+    if pathlib.Path(db_filename).exists():
+        # Check file is readable
+        if not os.access(db_filename, os.R_OK):
+            print(
+                f"Permission Error reading {db_filename}"
+                "Please specify accessible --data-dir."
+            )
+            sys.exit(1)
+    else:
+        # Check directory is writeable
+        if os.access(data_dir, os.W_OK):
+            print(f"Creating {db_filename} as cache.")
+        else:
+            print(
+                f"Directory {data_dir} is not writeable."
+                "Please specify accessible --data-dir."
+            )
+            sys.exit(1)
 
     # Open the database for read/write
     file_uri = f"file:{db_filename}"
