@@ -529,6 +529,15 @@ class ARD(object):
         """
         return allele in self.shortnulls and self._config["reduce_shortnull"]
 
+    def is_null(self, allele):
+        """
+        Check if allele is a null allele.
+
+        @param allele: Allele to check for null
+        @return: boolean indicating whether allele is null or not
+        """
+        return allele.endswith("N") and not self.is_mac(allele)
+
     def is_exp_allele(self, allele):
         """
         Test if allele is valid as a shortening (WHO rules)
