@@ -42,6 +42,13 @@ allele_tables = [
     "who_alleles",
 ]
 
+serology_tables = [
+    "serology_broad_split_mapping",
+    "serology_mapping",
+]
+
+misc_tables = ["cwd2", "shortnulls", "v2_mapping", "mac_codes"]
+
 ARSMapping = namedtuple("ARSMapping", ars_mapping_tables)
 CodeMappings = namedtuple("CodeMappings", code_mapping_tables)
 AlleleGroups = namedtuple("AlleleGroups", allele_tables)
