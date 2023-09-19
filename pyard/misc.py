@@ -19,7 +19,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-import os
+import getpass
 import pathlib
 import tempfile
 from typing import List
@@ -143,7 +143,10 @@ def get_imgt_version(imgt_version):
 
 
 def get_default_db_directory():
-    username = os.getlogin()
+    try:
+        username = getpass.getuser()
+    except OSError:
+        username = "nonuser"
     return pathlib.Path(tempfile.gettempdir()) / f"pyard-{username}"
 
 
