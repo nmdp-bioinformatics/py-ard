@@ -1,3 +1,11 @@
+<a name="1.0.4"></a>
+# [Fixes when used without login user (1.0.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.4) - 19 Sep 2023
+
+Fixed the OSError when running without a login user.
+
+[Changes][1.0.4]
+
+
 <a name="1.0.3"></a>
 # [1.0.3 – Permission Errors and pyard updates](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.3) - 17 Aug 2023
 
@@ -555,6 +563,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0...1.0.1
