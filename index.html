@@ -1,18 +1,287 @@
-<!doctype html>
-<html lang="">
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>py-ard</title>
+    <title>py-ard: Swiss army knife of HLA Nomenclature</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="assets/css/main.css"/>
+    <noscript>
+        <link rel="stylesheet" href="assets/css/noscript.css"/>
+    </noscript>
 </head>
+<body class="is-preload">
 
-<body>
+<!-- Sidebar -->
+<section id="sidebar">
+    <div class="inner">
+        <nav>
+            <ul>
+                <li><a href="#intro">py-ard</a></li>
+                <li><a href="#one">ARD Reduction</a></li>
+                <li><a href="#two">Using py-ard</a></li>
+                <li><a href="#three">Contribute</a></li>
+            </ul>
+        </nav>
+    </div>
+</section>
 
-<h1>py-ard</h1>
+<!-- Wrapper -->
+<div id="wrapper">
 
-<p>
-Swiss army knife of HLA Nomenclature
-</p>
+    <!-- Intro -->
+    <section id="intro" class="wrapper style1 fullscreen fade-up">
+        <div class="inner">
+            <h1>py-ard</h1>
+            <p>Swiss army knife of HLA Nomenclature</p>
+            <img src="https://raw.githubusercontent.com/nmdp-bioinformatics/py-ard/master/images/py-ard-logo.png"
+                 alt="py-ard logo">
+            <p dir="auto"><code>py-ard</code> works with Python 3.8 and higher.</p>
+            <ul class="actions">
+                <li><a href="#one" class="button scrolly">Learn more</a></li>
+                <li><a href="https://github.com/nmdp-bioinformatics/py-ard" class="button scrolly">Get Code</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- One -->
+    <section id="one" class="wrapper style2 spotlights">
+        <section>
+            <a href="#" class="image"><img src="images/hla_a010101.png" alt="HLA-A Background" data-position="top center"/></a>
+            <div class="content">
+                <div class="inner">
+                    <h1>py-ard</h1>
+                    <h2>ARD reduction for HLA in Python</h2>
+                    <p dir="auto">Human leukocyte antigen (HLA) genes encode cell surface proteins that are important
+                        for immune regulation. Exons encoding the Antigen Recognition Domain (ARD) are the most
+                        polymorphic region of HLA genes and are important for donor/recipient <a
+                                href="https://bethematch.org/patients-and-families/before-transplant/find-a-donor/hla-matching/"
+                                rel="nofollow">HLA matching</a>. The history of allele typing methods has played a major
+                        role in determining resolution and ambiguity of reported HLA values. Although HLA <a
+                                href="https://www.theatlantic.com/magazine/archive/2023/04/clint-smith-nomenclature-poem/673097/"
+                                rel="nofollow">nomenclature</a> has not always conformed to the same standard, it is now
+                        defined by <a href="https://hla.alleles.org/nomenclature/committee.html" rel="nofollow">The WHO
+                            Nomenclature Committee for Factors of the HLA System</a>. <code>py-ard</code> is aware of
+                        the variation in historical resolutions and grouping and is able to translate from one
+                        representation to another based on alleles published quarterly by <a
+                                href="https://github.com/ANHIG/IMGTHLA/">IPD/IMGT-HLA</a>.</p>
+                </div>
+            </div>
+        </section>
+        <section>
+            <a href="#" class="image"><img src="images/hla_b07.png" alt="HLA-B Background" data-position="top center"/></a>
+            <div class="content">
+                <div class="inner">
+                    <h2>Open Source</h2>
+                    <p>Freely available to use with source</p>
+                    <h3>Install from</h3>
+                    <ul class="actions">
+                        <li><a href="https://pypi.org/project/py-ard/" class="button">The Python Package Index
+                            (PyPI)</a></li>
+                    </ul>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Install-With-Homebrew"
+                               class="button">Homebrew on Mac OS</a></li>
+                    </ul>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Install-from-source"
+                               class="button">Source</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section>
+            <a href="#" class="image"><img src="images/hla_c03.png" alt="HLA-C Background" data-position="center"/></a>
+            <div class="content">
+                <div class="inner">
+                    <h2>Reduction Types</h2>
+                    <p>Use <code>py-ard</code> to reduce and convert HLA typings to and from various representations.
+                    </p>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Reduction Type</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><code>G</code></td>
+                            <td>Reduce to G Group Level</td>
+                        </tr>
+                        <tr>
+                            <td><code>P</code></td>
+                            <td>Reduce to P Group Level</td>
+                        </tr>
+                        <tr>
+                            <td><code>lg</code></td>
+                            <td>Reduce to 2 field ARD level (append <code>g</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><code>lgx</code></td>
+                            <td>Reduce to 2 field ARD level</td>
+                        </tr>
+                        <tr>
+                            <td><code>W</code></td>
+                            <td>Reduce/Expand to 3 field WHO nomenclature level</td>
+                        </tr>
+                        <tr>
+                            <td><code>exon</code></td>
+                            <td>Reduce/Expand to exon level</td>
+                        </tr>
+                        <tr>
+                            <td><code>U2</code></td>
+                            <td>Reduce to 2 field unambiguous level</td>
+                        </tr>
+                        <tr>
+                            <td><code>S</code></td>
+                            <td>Reduce to Serological level</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- Two -->
+    <section id="two" class="wrapper style3 fade-up">
+        <div class="inner">
+            <h2>Using <code>py-ard</code></h2>
+            <p><code>py-ard</code> can reduce typings from NMDP multiple allele code (MAC) designations, XX codes, as
+                well as serologic nomenclature.
+                Typings represented in <a href="https://glstring.org">GL String</a> format is also well-supported.</p>
+            <div class="features">
+                <section>
+                    <span class="icon solid major fa-code"></span>
+                    <h3>Using <code>py-ard</code> in Python</h3>
+                    <p>
+                        <code>import pyard</code>
+                        <br/>
+                        <code>ard = pyard.init()</code>
+                        <br/>
+                        <code>ard.redux(...)</code>
+                    </p>
+                    <p>
+                        Import <code>pyard</code> and make reduction happen in your own <strong>Python</strong> code.
+                    </p>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-py%E2%80%90ard-in-Python"
+                               class="button">Learn More</a></li>
+                    </ul>
+
+                </section>
+                <section>
+                    <span class="icon solid major fa-code"></span>
+                    <h3>Using <code>py-ard</code> in R</h3>
+                    <p>
+                        <code>pyard <- import('pyard')</code>
+                        <br/>
+                        <code>ard <- pyard$init()</code>
+                        <br/>
+                        <code>ard$redux(...)</code>
+                    </p>
+                    <p>
+                        Import <code>pyard</code> library and make reduction happen in your own <strong>R</strong> code.
+                    </p>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-py%E2%80%90ard-in-R"
+                               class="button">Learn More</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <span class="icon solid major fa-terminal"></span>
+                    <h3>Command Line Tools</h3>
+                    <p>Varieties of Command Line Tools to reduce, manipulate local cache from the Terminal</p>
+                    <ul class="actions">
+                        <li>
+                            <a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-py%E2%80%90ard-from-the-command-line"
+                               class="button">Learn More</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <span class="icon solid major fa-file-csv"></span>
+                    <h3>Batch Reduce</h3>
+                    <p>Do you have CSV files you need to reduce ? <code>pyard-reduce-csv</code> to the rescue.</p>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/blob/master/extras/README.md"
+                               class="button">Learn More</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <span class="icon solid major fa-flask"></span>
+                    <h3>Web Service</h3>
+                    <p>Deploy it as a web service so other web applications and services can use it.</p>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Run-as-a-REST-Web-Service"
+                               class="button">Learn More</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <span class="icon solid major fa-file"></span>
+                    <h3>Deploy using Docker</h3>
+                    <p>Deploy to Kubernetes Cluster or other container services as a Docker Container.</p>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/wiki/Deploy-as-a-Docker-Container"
+                               class="button">Learn more</a></li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- Three -->
+    <section id="three" class="wrapper style1 fade-up">
+        <div class="inner">
+            <h2>
+                Join Us
+                <span class="icon solid brands fa-github"></span>
+            </h2>
+            <p>Help us improve <code>py-ard</code> by contributing code, creating issues and providing feedback.</p>
+            <div class="features">
+                <section>
+                    <h2>Contribute Code</h2>
+                    See how you can contribution code.
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/blob/master/CONTRIBUTING.rst"
+                               class="button">Contribute Code</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Create Issue</h2>
+                    Tell us any issues you find or new features you want to see in <code>py-ard</code>
+                    <ul class="actions">
+                        <li><a href="https://github.com/nmdp-bioinformatics/py-ard/blob/issues"
+                               class="button">Issues</a></li>
+                    </ul>
+                </section>
+
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Footer -->
+<footer id="footer" class="wrapper style1-alt">
+    <div class="inner">
+        <ul class="menu">
+            <li>&copy; Be The Match. All rights reserved.
+                <a href="https://github.com/nmdp-bioinformatics/py-ard"
+                   class="icon brands fa-github" alt="py-ard GitHub Site"></a>
+            </li>
+            <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+        </ul>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 
 </body>
-
 </html>
