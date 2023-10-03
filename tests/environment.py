@@ -36,3 +36,9 @@ def before_all(context):
         "ARS_as_lg": True,
     }
     context.ard_ars = pyard.init("3440", data_dir="/tmp/py-ard", config=lg_ars_config)
+
+    # use non-strict mode
+    non_strict_config = {"strict": False}
+    context.ard_non_strict = pyard.init(
+        "3440", data_dir="/tmp/py-ard", config=non_strict_config
+    )

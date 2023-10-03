@@ -57,3 +57,17 @@ Feature: Alleles
       | DRB1*14:06:01  | lg    | DRB1*14:06ARS  |
       | C*02:02        | lg    | C*02:02ARS     |
       | C*02:10        | lg    | C*02:02ARS     |
+
+  Scenario Outline: Allele reduction in non-strict mode
+
+  The canon of HLA Nomenclature includes Deleted Alleles like A*24:329 that were renamed to add an expression character. https://hla.alleles.org/alleles/deleted.html
+  Such alleles can be included by using non-strict mode where py-ard will try alleles with expression characters when the original allele is not valid
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level in non-strict mode
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele      | Level | Redux Allele |
+      | A*24:329    | lgx   | A*24:329Q    |
+      | DQB1*03:276 | lgx   | DQB1*03:01   |
