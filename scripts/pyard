@@ -131,8 +131,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     try:
-        if args.validate:
-            ard.validate(args.cwd)
+        if args.validate and args.gl_string:
+            ard.validate(args.gl_string)
         if args.cwd:
             if args.validate:
                 ard.validate(args.cwd)
