@@ -76,12 +76,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--lookup-mac", dest="lookup_mac", help="Lookup MAC for an Allele List"
     )
+    parser.add_argument(
+        "--non-strict",
+        dest="non_strict",
+        action="store_true",
+        help="Use non-strict mode",
+    )
+    parser.add_argument(
+        "--verbose", dest="verbose", action="store_true", help="Use verbose mode"
+    )
 
     args = parser.parse_args()
 
     imgt_version = get_imgt_version(args.imgt_version)
     data_dir = get_data_dir(args.data_dir)
-    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir)
+
+    new_config = {}
+    if args.non_strict:
+        new_config["strict"] = False
+
+    if args.verbose:
+        new_config["verbose_log"] = True
+
+    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir, config=new_config)
 
     if args.version:
         version = ard.get_db_version()

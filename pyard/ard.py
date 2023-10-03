@@ -54,7 +54,7 @@ default_config = {
     "reduce_shortnull": True,
     "ping": False,
     "map_drb345_to_drbx": True,
-    "verbose_log": True,
+    "verbose_log": False,
     "ARS_as_lg": False,
     "strict": True,
 }
