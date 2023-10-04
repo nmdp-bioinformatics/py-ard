@@ -92,3 +92,9 @@ def step_impl(context, level):
 @then("the expanded allele is found to be {expanded_alleles}")
 def step_impl(context, expanded_alleles):
     assert_that(context.expanded_alleles, is_(expanded_alleles))
+
+
+@when("reducing on the {level} level in non-strict mode")
+def step_impl(context, level):
+    context.level = level
+    context.redux_allele = context.ard_non_strict.redux(context.allele, level)

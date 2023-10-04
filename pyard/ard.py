@@ -54,8 +54,9 @@ default_config = {
     "reduce_shortnull": True,
     "ping": False,
     "map_drb345_to_drbx": True,
-    "verbose_log": True,
+    "verbose_log": False,
     "ARS_as_lg": False,
+    "strict": True,
 }
 
 
@@ -180,6 +181,15 @@ class ARD(object):
                 return "HLA-" + redux_allele
             else:
                 return redux_allele
+
+        # In non-strict mode, if the allele is not valid,
+        # try it with expression characters suffixed
+        if not self._config["strict"] and not self._is_valid_allele(allele):
+            for expr_char in expression_chars:
+                if self._is_valid_allele(allele + expr_char):
+                    if self._config["verbose_log"]:
+                        print(f"{allele} is not valid. Using {allele}{expr_char}")
+                    allele = allele + expr_char
 
         # g_group maps alleles to their g_group
         # note: this includes mappings for shortened version of alleles
@@ -335,7 +345,8 @@ class ARD(object):
 
         validate_reduction_type(redux_type)
 
-        self.validate(glstring)
+        if self._config["strict"]:
+            self.validate(glstring)
 
         if "^" in glstring:
             return self._sorted_unique_gl(
