@@ -1,3 +1,43 @@
+<a name="1.0.5"></a>
+# [1.0.5 Non strict mode](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.5) - 04 Oct 2023
+
+Supports non-strict mode makes valid alleles by adding expression characters to invalid alleles.
+
+## Use non `strict` mode in config to reduce alleles that may be valid with expression characters.
+
+```python
+>>> my_configs = {'strict': False, 'verbose_log': True}
+>>> import pyard
+>>> ard = pyard.init(config=my_configs, load_mac=False)
+
+>>> ard.redux('A*24:329', 'lgx')
+A*24:329 is not valid. Using A*24:329Q
+'A*24:329Q'
+
+>>> ard.redux('DQB1*03:276', 'lgx')
+DQB1*03:276 is not valid. Using DQB1*03:276N
+'DQB1*03:01'
+```
+
+## Add non-strict and verbose modes to pyard CLI.
+
+```bash
+❯ pyard --gl "DQB1*03:276" -r lgx
+Typing Error: DQB1*03:276 is not valid GL String.
+ DQB1*03:276 is not a valid Allele
+
+❯ pyard --non-strict --gl "DQB1*03:276" -r lgx
+DQB1*03:01
+
+❯ pyard --non-strict --verbose --gl "DQB1*03:276" -r lgx
+DQB1*03:276 is not valid. Using DQB1*03:276N
+DQB1*03:01
+```
+
+
+[Changes][1.0.5]
+
+
 <a name="1.0.4"></a>
 # [Fixes when used without login user (1.0.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.4) - 19 Sep 2023
 
@@ -563,6 +603,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.1...1.0.2
