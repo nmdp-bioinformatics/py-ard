@@ -50,7 +50,14 @@ Feature: MAC (Multiple Allele Code)
       | HLA-A*02:01/HLA-A*02:09/HLA-A*02:43N | HLA-A*02:GNF  |
 
 
-  Scenario Outline: Invalid MACs
+  Scenario Outline: Validate allele specific antigen MACs
+
+  MAC validation rules for allele specific antigen codes:
+  - The 1st field with the most allele designations in the request is
+  the 1st field of the allele code designation
+  - If there is a tie in the number of alleles designations sharing the 1st field,
+  the 1st field with the lowest numeric value is selected.
+
 
     Given the MAC code is <MAC>
     When checking for validity of the MAC
@@ -59,5 +66,8 @@ Feature: MAC (Multiple Allele Code)
     Examples:
       | MAC          | Validity |
       | DRB1*07:DFJR | Invalid  |
+      | DRB1*15:DFJR | Valid    |
       | DPB1*08:BHHE | Invalid  |
+      | DPB1*19:BHHE | Valid    |
       | A*31:CMZEY   | Invalid  |
+      | A*02:CMZEY   | Valid    |

@@ -172,21 +172,6 @@ def alleles_to_mac_code(
     return None
 
 
-def is_valid_mac_code(connection: sqlite3.Connection, code: str) -> bool:
-    """
-    Check db if the MAC code exists.
-
-    :param connection: db connection of type sqlite.Connection
-    :param code: MAC code
-    :return: code is MAC code ?
-    """
-    mac_query = "SELECT count(alleles) from mac_codes where code = ?"
-    cursor = connection.execute(mac_query, (code,))
-    result = cursor.fetchone()
-    cursor.close()
-    return result[0] > 0
-
-
 def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[str]:
     """
     Look up Serology in the database and return corresponding list of alleles.

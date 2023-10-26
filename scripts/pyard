@@ -155,6 +155,9 @@ if __name__ == "__main__":
     except InvalidTypingError as e:
         print("Typing Error:", e.message, file=sys.stderr)
         sys.exit(2)
+    except InvalidMACError as e:
+        print("MAC Error:", e.message, file=sys.stderr)
+        sys.exit(3)
     else:
         # Remove ard and close db connection
         del ard
