@@ -409,8 +409,8 @@ class ARD(object):
                     )
 
         # Handle MAC
-        if self._config["reduce_MAC"] and self.is_mac(glstring):
-            if db.is_valid_mac_code(self.db_connection, code):
+        if self._config["reduce_MAC"] and code.isalpha():
+            if self.is_mac(glstring):  # Make sure it's a valid MAC
                 if HLA_regex.search(glstring):
                     # Remove HLA- prefix
                     allele_name = glstring.split("-")[1]
@@ -487,15 +487,16 @@ class ARD(object):
         if ":" in allele:
             allele_split = allele.split(":")
             if len(allele_split) == 2:  # MACs have only single :
-                locus_antigen, code = allele.split(":")
+                locus_antigen, code = allele_split
                 if code.isalpha():
                     try:
                         alleles = db.mac_code_to_alleles(self.db_connection, code)
                         if alleles:
                             if any(map(lambda a: ":" in a, alleles)):
-                                # allele specific antigen codes has ':' in the MAC mapping
+                                # allele specific antigen codes have ':' in the MAC mapping
                                 # e.g. CFWRN -> 15:01/15:98/15:157/15:202/
                                 #               15:239/15:280/15:340/35:43/35:67/35:79/35:102/35:118/35:185/51:220
+                                # Extract the antigens from the mapped alleles
                                 antigen_groups = map(lambda a: a.split(":")[0], alleles)
                                 # Rule 1: The 1st field with the most allele designations in the request is
                                 #         the 1st field of the allele code designation
@@ -746,8 +747,8 @@ class ARD(object):
         :return: GL String of expanded alleles
         :rtype: str
         """
-        locus_antigen, code = mac_code.split(":")
-        if db.is_valid_mac_code(self.db_connection, code):
+        if self.is_mac(mac_code):  # Validate MAC first
+            locus_antigen, code = mac_code.split(":")
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
                 return "/".join(
