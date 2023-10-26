@@ -437,12 +437,7 @@ class ARD(object):
         :param glstring: GL String to validate
         :return: boolean indicating success
         """
-        try:
-            return self._is_valid_gl(glstring)
-        except InvalidAlleleError as e:
-            raise InvalidTypingError(
-                f"{glstring} is not valid GL String. \n {e.message}", e
-            ) from None
+        return self._is_valid_gl(glstring)
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
