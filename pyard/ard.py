@@ -43,6 +43,7 @@ from .constants import (
     VALID_REDUCTION_TYPES,
     expression_chars,
     DEFAULT_CACHE_SIZE,
+    G_GROUP_LOCI,
 )
 
 default_config = {
@@ -388,6 +389,10 @@ class ARD(object):
             loc_allele = glstring.split(":")
             loc_antigen, code = loc_allele[0], loc_allele[1]
         else:
+            if "*" in glstring:
+                locus, _ = glstring.split("*")
+                if locus not in G_GROUP_LOCI:
+                    return glstring
             raise InvalidTypingError(
                 f"{glstring} is not a valid V2 or Serology typing."
             )
@@ -535,6 +540,7 @@ class ARD(object):
             self._config["reduce_v2"]
             and "*" in allele
             and ":" not in allele
+            and allele.split("*")[0] not in ["MICA", "MICB"]
             and allele != self._map_v2_to_v3(allele)
         )
 

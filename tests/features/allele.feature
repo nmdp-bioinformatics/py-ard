@@ -71,3 +71,18 @@ Feature: Alleles
       | Allele      | Level | Redux Allele |
       | A*24:329    | lgx   | A*24:329Q    |
       | DQB1*03:276 | lgx   | DQB1*03:01   |
+
+
+  Scenario Outline: Single field MICA, MICB Alleles
+
+  For MICA, MICB alleles with single field, their reduced version is self.
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele   | Level | Redux Allele |
+      | MICA*040 | lgx   | MICA*040     |
+      | MICB*006 | lgx   | MICB*006     |
+      | MICB*029 | lgx   | MICB*029     |
