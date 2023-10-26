@@ -48,3 +48,16 @@ Feature: MAC (Multiple Allele Code)
       | A*01:01/A*01:02                      | A*01:AB       |
       | HLA-A*25:01/HLA-A*26:01              | HLA-A*25:BYHR |
       | HLA-A*02:01/HLA-A*02:09/HLA-A*02:43N | HLA-A*02:GNF  |
+
+
+  Scenario Outline: Invalid MACs
+
+    Given the MAC code is <MAC>
+    When checking for validity of the MAC
+    Then the validness is <Validity>
+
+    Examples:
+      | MAC          | Validity |
+      | DRB1*07:DFJR | Invalid  |
+      | DPB1*08:BHHE | Invalid  |
+      | A*31:CMZEY   | Invalid  |

@@ -1,6 +1,8 @@
 from behave import *
 from hamcrest import assert_that, is_
 
+from pyard.exceptions import InvalidTypingError
+
 
 @given("the MAC code is {mac_code}")
 def step_impl(context, mac_code):
@@ -30,3 +32,17 @@ def step_impl(context):
 @then("the decoded MAC is {mac_code}")
 def step_impl(context, mac_code):
     assert_that(context.mac_code, is_(mac_code))
+
+
+@when("checking for validity of the MAC")
+def step_impl(context):
+    try:
+        context.is_valid = context.ard.validate(context.mac_code)
+    except InvalidTypingError:
+        context.is_valid = False
+
+
+@then("the validness is {validity}")
+def step_impl(context, validity):
+    valid = validity == "Valid"
+    assert_that(context.is_valid, is_(valid))
