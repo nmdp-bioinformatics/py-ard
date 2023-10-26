@@ -34,7 +34,7 @@ import unittest
 
 import pyard
 from pyard.constants import DEFAULT_CACHE_SIZE
-from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
+from pyard.exceptions import InvalidAlleleError
 from pyard.misc import validate_reduction_type
 
 
@@ -135,15 +135,15 @@ class TestPyArd(unittest.TestCase):
             validate_reduction_type("XX")
 
     def test_empty_allele(self):
-        with self.assertRaises(InvalidTypingError):
+        with self.assertRaises(InvalidAlleleError):
             self.ard.redux("A*", "lgx")
 
     def test_fp_allele(self):
-        with self.assertRaises(InvalidTypingError):
+        with self.assertRaises(InvalidAlleleError):
             self.ard.redux("A*0.123", "lgx")
 
     def test_empty_fields(self):
-        with self.assertRaises(InvalidTypingError):
+        with self.assertRaises(InvalidAlleleError):
             # : without any data
             self.ard.redux("DQA1*01:01:01:G", "lgx")
 
@@ -152,7 +152,7 @@ class TestPyArd(unittest.TestCase):
         serology_a10 = self.ard.redux("A10", "lgx")
         self.assertEqual(serology_a10.split("/")[0], "A*25:01")
         # And A100 isn't a valid typing
-        with self.assertRaises(InvalidTypingError):
+        with self.assertRaises(InvalidAlleleError):
             self.ard.redux("A100", "lgx")
 
     def test_allele_duplicated(self):

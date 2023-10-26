@@ -1,7 +1,7 @@
 from behave import *
 from hamcrest import assert_that, is_
 
-from pyard.exceptions import InvalidTypingError
+from pyard.exceptions import InvalidAlleleError
 
 
 @given("the MAC code is {mac_code}")
@@ -38,7 +38,7 @@ def step_impl(context, mac_code):
 def step_impl(context):
     try:
         context.is_valid = context.ard.validate(context.mac_code)
-    except InvalidTypingError:
+    except InvalidAlleleError:
         context.is_valid = False
 
 
