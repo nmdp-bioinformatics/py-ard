@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: ARD Reduction
   description: Reduce to ARD Level
-  version: "1.0.5"
+  version: "1.0.6"
 servers:
   - url: 'http://localhost:8080'
 tags:
