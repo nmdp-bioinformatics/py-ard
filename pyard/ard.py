@@ -25,6 +25,7 @@ import functools
 import re
 import sqlite3
 import sys
+from collections import Counter
 from typing import Iterable, List
 
 from . import broad_splits, smart_sort
@@ -408,8 +409,8 @@ class ARD(object):
                     )
 
         # Handle MAC
-        if self._config["reduce_MAC"] and self.is_mac(glstring):
-            if db.is_valid_mac_code(self.db_connection, code):
+        if self._config["reduce_MAC"] and code.isalpha():
+            if self.is_mac(glstring):  # Make sure it's a valid MAC
                 if HLA_regex.search(glstring):
                     # Remove HLA- prefix
                     allele_name = glstring.split("-")[1]
@@ -436,12 +437,7 @@ class ARD(object):
         :param glstring: GL String to validate
         :return: boolean indicating success
         """
-        try:
-            return self._is_valid_gl(glstring)
-        except InvalidAlleleError as e:
-            raise InvalidTypingError(
-                f"{glstring} is not valid GL String. \n {e.message}", e
-            ) from None
+        return self._is_valid_gl(glstring)
 
     def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
         if loc_antigen is None or code is None:
@@ -484,12 +480,39 @@ class ARD(object):
         :return: True if MAC
         """
         if ":" in allele:
-            code = allele.split(":")[1]
-            try:
+            allele_split = allele.split(":")
+            if len(allele_split) == 2:  # MACs have only single :
+                locus_antigen, code = allele_split
                 if code.isalpha():
-                    return db.is_valid_mac_code(self.db_connection, code)
-            except sqlite3.OperationalError as e:
-                print("Error: ", e)
+                    try:
+                        alleles = db.mac_code_to_alleles(self.db_connection, code)
+                        if alleles:
+                            if any(map(lambda a: ":" in a, alleles)):
+                                # allele specific antigen codes have ':' in the MAC mapping
+                                # e.g. CFWRN -> 15:01/15:98/15:157/15:202/
+                                #               15:239/15:280/15:340/35:43/35:67/35:79/35:102/35:118/35:185/51:220
+                                # Extract the antigens from the mapped alleles
+                                antigen_groups = map(lambda a: a.split(":")[0], alleles)
+                                # Rule 1: The 1st field with the most allele designations in the request is
+                                #         the 1st field of the allele code designation
+                                # Rule 2: If there is a tie in the number of alleles designations sharing the 1st field,
+                                #         the 1st field with the lowest numeric value is selected.
+                                antigen_counts = Counter(antigen_groups)
+                                # Create a table of antigen to it's counts
+                                # '15': 7
+                                # '35': 6
+                                # '51': 1
+                                # Valid antigen is the first most common one.
+                                # As it's presorted in db, also satisfies Rule 2.
+                                valid_antigen = antigen_counts.most_common(1).pop()[0]
+                                # Get antigen value 15 from 'DRB1*15'
+                                provided_antigen = locus_antigen.split("*").pop()
+                                # The MAC is only valid if the given antigen satisfies the antigen matching Rule 1 and 2
+                                return provided_antigen == valid_antigen
+                            # Valid when antigen group codes
+                            return True
+                    except sqlite3.OperationalError as e:
+                        print("Error: ", e)
         return False
 
     def is_v2(self, allele: str) -> bool:
@@ -719,8 +742,8 @@ class ARD(object):
         :return: GL String of expanded alleles
         :rtype: str
         """
-        locus_antigen, code = mac_code.split(":")
-        if db.is_valid_mac_code(self.db_connection, code):
+        if self.is_mac(mac_code):  # Validate MAC first
+            locus_antigen, code = mac_code.split(":")
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]  # Remove HLA- prefix
                 return "/".join(
