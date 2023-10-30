@@ -1,3 +1,12 @@
+<a name="1.0.6"></a>
+# [1.0.6 Validation of allele specific MAC codes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.6) - 30 Oct 2023
+
+- Use allele specific antigen code rules when validating MACs that cross antigen group similar to [MAC Service](https://hml.nmdp.org/macui/)
+- Returns the original `InvalidAlleleError` instead of wrapping it in `InvalidTypingError` when an allele is not valid.
+
+[Changes][1.0.6]
+
+
 <a name="1.0.5"></a>
 # [1.0.5 Non strict mode](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.5) - 04 Oct 2023
 
@@ -603,6 +612,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.2...1.0.3
