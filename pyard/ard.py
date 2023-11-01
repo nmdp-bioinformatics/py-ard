@@ -540,7 +540,7 @@ class ARD(object):
             self._config["reduce_v2"]
             and "*" in allele
             and ":" not in allele
-            and allele.split("*")[0] not in ["MICA", "MICB"]
+            and allele.split("*")[0] not in ["MICA", "MICB", "HFE"]
             and allele != self._map_v2_to_v3(allele)
         )
 

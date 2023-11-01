@@ -83,6 +83,7 @@ Feature: Alleles
 
     Examples:
       | Allele   | Level | Redux Allele |
+      | HFE*002  | lgx   | HFE*002      |
       | MICA*040 | lgx   | MICA*040     |
       | MICB*006 | lgx   | MICB*006     |
       | MICB*029 | lgx   | MICB*029     |
