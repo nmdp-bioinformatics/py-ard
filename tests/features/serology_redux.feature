@@ -19,3 +19,4 @@ Feature: Serology Reduction
       | B*13:03                         | S     | B13                 |
       | B*13:04                         | S     | B15/B21             |
       | B*15:01/B*15:02/B*15:03/B*15:04 | S     | B15/B62/B70/B72/B75 |
+      | B*15:10                         | S     | B15/B70/B71         |

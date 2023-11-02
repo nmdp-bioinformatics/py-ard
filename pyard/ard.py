@@ -272,14 +272,13 @@ class ARD(object):
             # find serology equivalent in serology_mapping
             serology_mapping = db.find_serology_for_allele(self.db_connection, allele)
             serology_set = set()
-            if is_2_field_allele(allele):
+            for serology, allele_list in serology_mapping.items():
+                if allele in allele_list.split("/"):
+                    serology_set.add(serology)
+            if not serology_set and is_2_field_allele(allele):
                 for serology, allele_list in serology_mapping.items():
                     allele_list_lgx = self.redux(allele_list, "lgx")
-                    if allele in allele_list_lgx:
-                        serology_set.add(serology)
-            else:
-                for serology, allele_list in serology_mapping.items():
-                    if allele in allele_list:
+                    if allele in allele_list_lgx.split("/"):
                         serology_set.add(serology)
             return "/".join(
                 sorted(
