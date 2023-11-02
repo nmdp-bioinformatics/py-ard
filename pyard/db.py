@@ -356,22 +356,40 @@ def load_dict(
     return table_as_dict
 
 
-def similar_alleles(connection: sqlite3.Connection, allele_name: str) -> Set[str]:
+def similar_alleles(connection: sqlite3.Connection, allele_prefix: str) -> Set[str]:
     """
-    Find similar alleles starting with the provided allele_name.
+    Find similar alleles starting with the provided prefix.
 
     :param connection: db connection of type sqlite.Connection
-    :param allele_name: Allele name to use as a prefix to find similar alleles
+    :param allele_prefix: Allele name to use as a prefix to find similar alleles
     :return: list of similar alleles
     """
     query = "SELECT allele FROM alleles WHERE allele LIKE ?"
-    cursor = connection.execute(query, (f"{allele_name}%",))
+    cursor = connection.execute(query, (f"{allele_prefix}%",))
     result = cursor.fetchall()
     # fetchall() returns a list of tuples of results
     # e.g. [('C*04:09N',)]
     # Get out the first value of the tuple from the result list
     alleles = set(map(lambda t: t[0], result))
     return alleles
+
+
+def similar_mac(connection: sqlite3.Connection, mac_prefix: str) -> Set[str]:
+    """
+    Find similar MAC codes starting with the provided prefix.
+
+    :param connection: db connection of type sqlite.Connection
+    :param mac_prefix: MAC fragment to use as a prefix to find similar MACs
+    :return: list of similar MAC codes
+    """
+    query = "SELECT code FROM mac_codes WHERE code LIKE ?"
+    cursor = connection.execute(query, (f"{mac_prefix}%",))
+    result = cursor.fetchall()
+    # fetchall() returns a list of tuples of results
+    # e.g. [('DJZUP',)]
+    # Get out the first value of the tuple from the result list
+    codes = set(map(lambda t: t[0], result))
+    return codes
 
 
 def find_serology_for_allele(
