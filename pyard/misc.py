@@ -24,7 +24,7 @@ import pathlib
 import tempfile
 from typing import List
 
-from pyard.constants import VALID_REDUCTION_TYPES, expression_chars, PandG_chars
+from pyard.constants import VALID_REDUCTION_TYPES, expression_chars, P_and_G_chars
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -47,7 +47,7 @@ def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
 
 def get_3field_allele(a: str) -> str:
     last_char = a[-1]
-    if last_char in PandG_chars:
+    if last_char in P_and_G_chars:
         a = a[:-1]
 
     return get_n_field_allele(a, 3)
@@ -55,7 +55,7 @@ def get_3field_allele(a: str) -> str:
 
 def get_2field_allele(a: str) -> str:
     last_char = a[-1]
-    if last_char in PandG_chars:
+    if last_char in P_and_G_chars:
         a = a[:-1]
     return get_n_field_allele(a, 2)
 
@@ -76,7 +76,7 @@ def is_2_field_allele(allele: str) -> bool:
 def get_G_name(a: str) -> str:
     a = a.split("/")[0]
     last_char = a[-1]
-    if last_char in PandG_chars + expression_chars:
+    if last_char in P_and_G_chars + expression_chars:
         a = a[:-1]
     if len(a.split(":")) == 2:
         return ":".join([a, "01"]) + "G"
@@ -88,7 +88,7 @@ def get_G_name(a: str) -> str:
 def get_P_name(a: str) -> str:
     a = a.split("/")[0]
     last_char = a[-1]
-    if last_char in PandG_chars + expression_chars:
+    if last_char in P_and_G_chars + expression_chars:
         a = a[:-1]
     return ":".join(a.split(":")[0:2]) + "P"
 
