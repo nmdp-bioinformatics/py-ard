@@ -22,7 +22,7 @@
 from behave import given, when, then
 from hamcrest import assert_that, is_
 
-from pyard.exceptions import PyArdError
+from pyard.exceptions import PyArdError, InvalidAlleleError
 
 
 @given("the allele as {allele}")
@@ -70,6 +70,20 @@ def step_impl(context, serology):
 @given("the version 2 typing is {v2_allele}")
 def step_impl(context, v2_allele):
     context.allele = v2_allele
+
+
+@when("validating the V2 typing")
+def step_impl(context):
+    try:
+        context.is_valid = context.ard.validate(context.allele)
+    except InvalidAlleleError:
+        context.is_valid = False
+
+
+@then("the validness of V2 typing is {validity}")
+def step_impl(context, validity):
+    valid = validity == "Valid"
+    assert_that(context.is_valid, is_(valid))
 
 
 @given("the typing is {allele}")
