@@ -535,13 +535,22 @@ class ARD(object):
         :param allele: Possible allele
         :return: Is the allele in V2 nomenclature
         """
-        return (
+        matches_v2_format = (
             self._config["reduce_v2"]
             and "*" in allele
             and ":" not in allele
             and allele.split("*")[0] not in ["MICA", "MICB", "HFE"]
-            and allele != self._map_v2_to_v3(allele)
         )
+
+        if matches_v2_format:
+            v3_format_allele = self._map_v2_to_v3(allele)
+            if v3_format_allele != allele:
+                # If the last field of the allele is alpha, check if it's a MAC
+                if v3_format_allele.split(":").pop().isalpha():
+                    return self.is_mac(v3_format_allele)
+                return self._is_valid_allele(v3_format_allele)
+
+        return False
 
     def _is_who_allele(self, allele):
         """
