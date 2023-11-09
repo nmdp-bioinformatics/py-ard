@@ -1,3 +1,16 @@
+<a name="1.0.7"></a>
+# [Find Similar Alleles (1.0.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.7) - 09 Nov 2023
+
+Features:
+ - Find similar Alleles options with `pyard` command [#264](https://github.com/nmdp-bioinformatics/py-ard/issues/264) 
+
+Bug Fixes:
+ - V2 formats that are not valid [#283](https://github.com/nmdp-bioinformatics/py-ard/issues/283) 
+ - MICA, MICB, HFE alleles that show up as V2 formats [#280](https://github.com/nmdp-bioinformatics/py-ard/issues/280) 
+
+[Changes][1.0.7]
+
+
 <a name="1.0.6"></a>
 # [1.0.6 Validation of allele specific MAC codes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.6) - 30 Oct 2023
 
@@ -612,6 +625,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.3...1.0.4
