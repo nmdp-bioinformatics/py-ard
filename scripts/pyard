@@ -33,36 +33,15 @@ from pyard.exceptions import InvalidAlleleError, InvalidTypingError, InvalidMACE
 from pyard.misc import get_data_dir, get_imgt_version
 
 
-def find_similar_alleles(ard, prefix):
-    if "*" in prefix:  # Only for those that have locus
-        locus, fields = prefix.split("*")
-        if fields:  # Only if at least a field is specified after *
-            if len(fields.split(":")) == 2:  # Check for MACs
-                first_field, mac_prefix = fields.split(":")
-                if mac_prefix.isalpha():
-                    similar_mac_names = similar_mac(ard.db_connection, mac_prefix)
-                    if similar_mac_names:
-                        locus_prefix = f"{locus}*{first_field}"
-                        # TODO: validate all the mac codes with the prefix
-                        #       show only the valid macs
-                        for code in sorted(similar_mac_names):
-                            print(f"{locus_prefix}:{code}")
-        else:
-            # Nothing after *
-            sys.exit(2)
+def find_similar_alleles(prefix):
+    alleles = ard.similar_alleles(prefix)
+    if alleles:
+        for allele in alleles:
+            print(allele)
+        sys.exit(0)
     else:
         # No *
         sys.exit(1)
-
-    # find similar alleles
-    similar_allele_names = similar_alleles(ard.db_connection, prefix)
-    if similar_allele_names:
-        for allele in sorted(
-            similar_allele_names,
-            key=functools.cmp_to_key(smart_sort.smart_sort_comparator),
-        ):
-            print(allele)
-    sys.exit(0)
 
 
 def lookup_mac_codes():
@@ -202,7 +181,7 @@ if __name__ == "__main__":
 
     # Handle --similar option
     if args.similar_allele:
-        find_similar_alleles(ard, args.similar_allele)
+        find_similar_alleles(args.similar_allele)
 
     try:
         if args.cwd:
