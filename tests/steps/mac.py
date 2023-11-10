@@ -42,7 +42,7 @@ def step_impl(context):
         context.is_valid = False
 
 
-@then("the validness is {validity}")
+@then("the validness of MAC is {validity}")
 def step_impl(context, validity):
     valid = validity == "Valid"
     assert_that(context.is_valid, is_(valid))

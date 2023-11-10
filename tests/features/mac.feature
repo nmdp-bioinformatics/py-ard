@@ -61,7 +61,7 @@ Feature: MAC (Multiple Allele Code)
 
     Given the MAC code is <MAC>
     When checking for validity of the MAC
-    Then the validness is <Validity>
+    Then the validness of MAC is <Validity>
 
     Examples:
       | MAC          | Validity |

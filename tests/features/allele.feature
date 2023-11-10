@@ -72,6 +72,21 @@ Feature: Alleles
       | A*24:329    | lgx   | A*24:329Q    |
       | DQB1*03:276 | lgx   | DQB1*03:01   |
 
+  Scenario Outline: Allele validation in non-strict mode
+
+    Similar to reduction, handle non-strict mode when validating an allele.
+    The test version of IPD/IMGT-HLA database (see environment.py),
+    A*11:403 is invalid and A*24:329 is valid for A*24:329Q
+
+    Given the allele as <Allele>
+    When checking for validity of the allele in non-strict mode
+    Then the validness of the allele is <Validity>
+
+    Examples:
+      | Allele   | Validity |
+      | A*11:403 | Invalid  |
+      | A*24:329 | Valid    |
+
 
   Scenario Outline: Single field MICA, MICB Alleles
 

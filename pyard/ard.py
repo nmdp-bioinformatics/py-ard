@@ -184,14 +184,8 @@ class ARD(object):
             else:
                 return redux_allele
 
-        # In non-strict mode, if the allele is not valid,
-        # try it with expression characters suffixed
-        if not self._config["strict"] and not self._is_valid_allele(allele):
-            for expr_char in expression_chars:
-                if self._is_valid_allele(allele + expr_char):
-                    if self._config["verbose_log"]:
-                        print(f"{allele} is not valid. Using {allele}{expr_char}")
-                    allele = allele + expr_char
+        if not self._config["strict"]:
+            allele = self._get_non_strict_allele(allele)
 
         # g_group maps alleles to their g_group
         # note: this includes mappings for shortened version of alleles
@@ -300,6 +294,23 @@ class ARD(object):
                 return allele
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
+
+    def _get_non_strict_allele(self, allele):
+        """
+        In non-strict mode, if the allele is not valid,
+        try it with expression characters suffixed
+
+        @param allele: allele that might have non-strict version
+        @return: non-strict version of the allele if it exists
+        """
+        if not self._is_valid_allele(allele):
+            for expr_char in expression_chars:
+                if self._is_valid_allele(allele + expr_char):
+                    if self._config["verbose_log"]:
+                        print(f"{allele} is not valid. Using {allele}{expr_char}")
+                    allele = allele + expr_char
+                    break
+        return allele
 
     def _sorted_unique_gl(self, gls: List[str], delim: str) -> str:
         """
@@ -694,6 +705,9 @@ class ARD(object):
             alphanum_allele = allele.replace("*", "").replace(":", "")
             if not alphanum_allele.isalnum():
                 return False
+
+        if not self._config["strict"]:
+            allele = self._get_non_strict_allele(allele)
 
         if (
             not self.is_mac(allele)
