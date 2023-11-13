@@ -143,3 +143,12 @@ def cwd_redux_controller():
 
     # if no data is sent
     return {"message": "No input data provided"}, 404
+
+
+def similar_controller(allele_prefix: str):
+    if allele_prefix:
+        alleles = ard.similar_alleles(allele_prefix)
+        if alleles:
+            return alleles, 200
+        return {"message": "No similar alleles found."}, 400
+    return {"message": "No input data provided"}, 404

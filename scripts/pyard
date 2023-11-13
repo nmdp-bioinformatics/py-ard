@@ -45,7 +45,6 @@ def find_similar_alleles(prefix):
 
 
 def lookup_mac_codes():
-    global e
     try:
         mac = ard.lookup_mac(args.lookup_mac)
         print(mac)
@@ -55,7 +54,6 @@ def lookup_mac_codes():
 
 
 def expand_mac_code():
-    global allele_list, e
     try:
         allele_list = ard.expand_mac(args.expand_mac)
         print(allele_list)
@@ -79,7 +77,6 @@ def show_version():
 
 
 def perform_cwd_redux():
-    global cwd_redux
     if args.validate:
         ard.validate(args.cwd)
     cwd_redux = ard.cwd_redux(args.cwd)
