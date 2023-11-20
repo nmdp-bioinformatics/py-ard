@@ -112,3 +112,17 @@ def step_impl(context, expanded_alleles):
 def step_impl(context, level):
     context.level = level
     context.redux_allele = context.ard_non_strict.redux(context.allele, level)
+
+
+@when("checking for validity of the allele in non-strict mode")
+def step_impl(context):
+    try:
+        context.is_valid = context.ard_non_strict.validate(context.allele)
+    except InvalidAlleleError:
+        context.is_valid = False
+
+
+@then("the validness of the allele is {validity}")
+def step_impl(context, validity):
+    valid = validity == "Valid"
+    assert_that(context.is_valid, is_(valid))
