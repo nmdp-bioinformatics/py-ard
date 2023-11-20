@@ -26,24 +26,24 @@ import re
 import sqlite3
 import sys
 from collections import Counter
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 from . import broad_splits, smart_sort
 from . import data_repository as dr
 from . import db
-from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from .misc import (
-    get_n_field_allele,
-    get_2field_allele,
-    is_2_field_allele,
-    validate_reduction_type,
-)
 from .constants import (
     HLA_regex,
     VALID_REDUCTION_TYPES,
     expression_chars,
     DEFAULT_CACHE_SIZE,
     G_GROUP_LOCI,
+)
+from .exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
+from .misc import (
+    get_n_field_allele,
+    get_2field_allele,
+    is_2_field_allele,
+    validate_reduction_type,
 )
 
 default_config = {
@@ -851,3 +851,47 @@ class ARD(object):
         @return:
         """
         return dr.get_db_version(self.db_connection)
+
+    def similar_alleles(self, prefix: str) -> Union[List, None]:
+        """
+        Given a prefix, find similar alleles or MACs starting with the prefix.
+        The minimum prefix needs to specify is the locus with a `*`,
+        and a first field of the allele/MAC.
+
+        @param prefix:  The prefix for allele or MAC
+        @return: List of alleles/MACs that start with the prefix
+        """
+
+        if "*" not in prefix:  # Only for those that have locus
+            return None
+
+        locus, fields = prefix.split("*")
+        #  if at least a field is specified after *
+        if fields:
+            # Will check only for and after 2 fields
+            if len(fields.split(":")) == 2:
+                first_field, mac_prefix = fields.split(":")
+                if mac_prefix.isalpha():  # Check for MACs
+                    similar_mac_names = db.similar_mac(self.db_connection, mac_prefix)
+                    if similar_mac_names:
+                        locus_prefix = f"{locus}*{first_field}"
+                        # Build all the mac codes with the prefix
+                        mac_codes = [
+                            f"{locus_prefix}:{code}" for code in similar_mac_names
+                        ]
+                        # show only the valid macs
+                        real_mac_codes = sorted(
+                            filter(lambda mac: self.is_mac(mac), mac_codes)
+                        )
+                        return real_mac_codes
+
+            # find similar alleles
+            similar_allele_names = db.similar_alleles(self.db_connection, prefix)
+            if similar_allele_names:
+                alleles = sorted(
+                    similar_allele_names,
+                    key=functools.cmp_to_key(smart_sort.smart_sort_comparator),
+                )
+                return alleles
+
+        return None

@@ -6,16 +6,20 @@ info:
 servers:
   - url: 'http://localhost:8080'
 tags:
-  - name: Database
-    description: IPD-IMGT/HLA DB Information
   - name: ARD Reduction
     description: Reduce GL String to ARD
+  - name: CWD Reduction
+    description: Reduce GL String to CWD (version 2)
   - name: MAC
     description: Expand/Collapse MAC to/from alleles
-  - name: DRBX Blender
-    description: Blend DRBX based on DRB1 and DRB3/4/5
   - name: Validation
     description: Validate a GL String or Allele
+  - name: DRBX Blender
+    description: Blend DRBX based on DRB1 and DRB3/4/5
+  - name: Broad Splits
+    description: Broad Split Mappings
+  - name: Database
+    description: IPD-IMGT/HLA DB Information
 paths:
   /version:
     get:
@@ -462,10 +466,58 @@ paths:
             Broad/Split mapping not found for the given allele
           content:
             application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      description: Mapping not found
-                      type: string
-                      example: "Broad/Split not found"
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: Mapping not found
+                    type: string
+                    example: "Broad/Split not found"
+  /similar/{allele_prefix}:
+    get:
+      tags:
+        - Database
+      operationId: api.similar_controller
+      summary: Search For Similar Alleles and MACs
+      description: |
+        Given a prefix of an allele or MAC, find all the alleles
+        beginning with the prefix.
+      parameters:
+        - name: allele_prefix
+          in: path
+          description: |
+            Prefix of an Allele/MAC with a minimum of locus and a first field
+          required: true
+          schema:
+            type: string
+          example: A*01:9
+      responses:
+        200:
+          description: List of alleles with the given prefix
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  example:
+                    - A*01:91
+                    - A*01:92
+                    - A*01:93
+                    - A*01:94
+                    - A*01:95
+                    - A*01:96
+                    - A*01:97
+                    - A*01:98
+                    - A*01:99
+        404:
+          description: |
+            No matching alleles or MACs found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    description: No similar alleles
+                    type: string
+                    example: "No similar alleles"

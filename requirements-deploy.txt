@@ -1,2 +1,2 @@
-connexion[swagger-ui]==2.13.0
+connexion[swagger-ui, flask]==2.14.2
 gunicorn==20.1.0
