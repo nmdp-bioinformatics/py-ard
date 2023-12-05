@@ -144,7 +144,7 @@ if __name__ == "__main__":
     del ard
 
     if v2_to_v3_dict:
-        db_connection = db.create_db_connection(data_dir, imgt_version, ro=False)
+        db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         db.save_dict(
             db_connection,
             table_name="v2_mapping",
