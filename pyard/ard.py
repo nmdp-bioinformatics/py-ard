@@ -123,6 +123,9 @@ class ARD(object):
         dr.generate_serology_mapping(
             self.db_connection, self.serology_mapping, imgt_version
         )
+        dr.generate_serology_mapping(
+            self.db_connection, imgt_version, self.serology_mapping, self._redux_allele
+        )
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
         # Save IMGT database version
@@ -271,6 +274,11 @@ class ARD(object):
                 return self._redux_allele(allele, "lgx")
         elif redux_type == "S":
             # find serology equivalent in serology_mapping
+            if is_2_field_allele(allele):
+                serology_mapping = db.find_serology_for_allele(
+                    self.db_connection,
+                    allele,
+                )
             serology_mapping = db.find_serology_for_allele(self.db_connection, allele)
             serology_set = set()
             for serology, allele_list in serology_mapping.items():

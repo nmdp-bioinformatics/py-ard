@@ -393,18 +393,17 @@ def similar_mac(connection: sqlite3.Connection, mac_prefix: str) -> Set[str]:
 
 
 def find_serology_for_allele(
-    connection: sqlite3.Connection, allele_name: str
+    connection: sqlite3.Connection, allele_name: str, column: str = "allele_list"
 ) -> Dict[str, str]:
     """
     Find similar alleles starting with the provided allele_name.
 
     :param connection: db connection of type sqlite.Connection
     :param allele_name: Allele name to use as a prefix to find similar alleles
+    :param column: Column to look for allele
     :return: list of similar alleles
     """
-    query = (
-        "SELECT serology, allele_list FROM serology_mapping WHERE allele_list LIKE ?"
-    )
+    query = f"SELECT serology, {column} FROM serology_mapping WHERE {column} LIKE ?"
     cursor = connection.execute(query, (f"%{allele_name}%",))
     results = cursor.fetchall()
     # fetchall() returns a list of tuples of results
@@ -574,12 +573,26 @@ def save_mac_codes(db_connection, mac, mac_table_name):
 
 def save_serology_mappings(db_connection, sero_mapping):
     # Save the serology mapping to db
-    save_dict(
-        db_connection,
-        table_name="serology_mapping",
-        dictionary=sero_mapping,
-        columns=("serology", "allele_list"),
-    )
+    cursor = db_connection.cursor()
+    # Drop the table first
+    cursor.execute("DROP TABLE IF EXISTS serology_mapping")
+    # Create table
+    create_table_sql = f"""CREATE TABLE serology_mapping (
+                            serology TEXT PRIMARY KEY,
+                            allele_list TEXT NOT NULL,
+                            lgx_allele_list TEXT NOT NULL
+                    )"""
+    cursor.execute(create_table_sql)
+
+    rows = ((k, v[0], v[1]) for k, v in sero_mapping.items())
+
+    # insert
+    cursor.executemany(f"INSERT INTO serology_mapping VALUES (?, ?, ?)", rows)
+
+    # commit transaction - writes to the db
+    db_connection.commit()
+    # close the cursor
+    cursor.close()
 
 
 def load_v2_v3_mappings(db_connection):

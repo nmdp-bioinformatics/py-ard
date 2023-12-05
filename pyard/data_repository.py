@@ -356,7 +356,7 @@ def to_serological_name(locus_name: str):
 
 
 def generate_serology_mapping(
-    db_connection: sqlite3.Connection, serology_mapping, imgt_version
+    db_connection: sqlite3.Connection, imgt_version, serology_mapping, redux_function
 ):
     if not db.table_exists(db_connection, "serology_mapping"):
         df_sero = load_serology_mappings(imgt_version)
@@ -390,10 +390,12 @@ def generate_serology_mapping(
         sero_mapping_combined["Sero"] = sero_mapping_combined["Sero"].apply(
             to_serological_name
         )
-
+        sero_mapping_combined["lgx"] = sero_mapping_combined["Allele"].apply(
+            lambda allele: redux_function(allele, "lgx")
+        )
         sero_mapping = (
             sero_mapping_combined.groupby("Sero")
-            .apply(lambda x: "/".join(sorted(x["Allele"])))
+            .apply(lambda x: (set(x["Allele"]), set(x["lgx"])))
             .to_dict()
         )
 
@@ -402,8 +404,9 @@ def generate_serology_mapping(
         for broad, splits in serology_mapping.broad_splits_map.items():
             for split in splits:
                 try:
-                    sero_mapping[broad] = "/".join(
-                        [sero_mapping[broad], sero_mapping[split]]
+                    sero_mapping[broad] = (
+                        sero_mapping[broad][0].union(sero_mapping[split][0]),
+                        sero_mapping[broad][1].union(sero_mapping[split][1]),
                     )
                 except KeyError:
                     if split in sero_mapping:
@@ -411,11 +414,19 @@ def generate_serology_mapping(
 
         # re-sort allele lists into smartsort order
         for sero in sero_mapping.keys():
-            sero_mapping[sero] = "/".join(
-                sorted(
-                    sero_mapping[sero].split("/"),
-                    key=functools.cmp_to_key(smart_sort_comparator),
-                )
+            sero_mapping[sero] = (
+                "/".join(
+                    sorted(
+                        sero_mapping[sero][0],
+                        key=functools.cmp_to_key(smart_sort_comparator),
+                    )
+                ),
+                "/".join(
+                    sorted(
+                        sero_mapping[sero][1],
+                        key=functools.cmp_to_key(smart_sort_comparator),
+                    ),
+                ),
             )
 
         db.save_serology_mappings(db_connection, sero_mapping)
