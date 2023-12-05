@@ -123,6 +123,7 @@ class ARD(object):
         dr.generate_serology_mapping(
             self.db_connection, imgt_version, self.serology_mapping, self._redux_allele
         )
+
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
         # Save IMGT database version
