@@ -126,7 +126,7 @@ paths:
                   cwd_mac:
                     description: MAC of reduced CWD if available
                     type: string
-                    example: "A*26:BYHR"
+                    example: ""
         400:
           description: Invalid GL String Form
           content:
