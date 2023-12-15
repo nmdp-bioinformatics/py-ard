@@ -1,3 +1,13 @@
+<a name="1.0.9"></a>
+# [1.0.9 Updated CWD2 Reference Data](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.9) - 15 Dec 2023
+
+- Updated CWD2 Reference Data from igdawg
+- `cwd_redux()` can handle CWD2 allele that are Nulls 
+
+
+[Changes][1.0.9]
+
+
 <a name="1.0.8"></a>
 # [1.0.8 - `/similar` endpoint and validation fix](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.8) - 05 Dec 2023
 
@@ -635,6 +645,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.8...1.0.9
 [1.0.8]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.7...1.0.8
 [1.0.7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.5...1.0.6
