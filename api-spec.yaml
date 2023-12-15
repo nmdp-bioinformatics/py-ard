@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: ARD Reduction
   description: Reduce to ARD Level
-  version: "1.0.8"
+  version: "1.0.9"
 servers:
   - url: 'http://localhost:8080'
 tags:
@@ -126,7 +126,7 @@ paths:
                   cwd_mac:
                     description: MAC of reduced CWD if available
                     type: string
-                    example: "A*26:BYHR"
+                    example: ""
         400:
           description: Invalid GL String Form
           content:

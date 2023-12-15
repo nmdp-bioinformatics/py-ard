@@ -258,7 +258,7 @@ class ARD(object):
                 return allele
             # If the 2 field reduction is unambiguous, reduce to 2 field level
             allele_2_fields = get_n_field_allele(allele, 2, preserve_expression=True)
-            if self._is_valid_allele(allele_2_fields):
+            if self._is_allele_in_db(allele_2_fields):
                 return allele_2_fields
             else:
                 # If ambiguous, reduce to G group level
@@ -290,7 +290,7 @@ class ARD(object):
                 if allele in self.ars_mappings.g_group.values():
                     return allele
 
-            if self._is_valid_allele(allele):
+            if self._is_allele_in_db(allele):
                 return allele
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
@@ -303,9 +303,9 @@ class ARD(object):
         @param allele: allele that might have non-strict version
         @return: non-strict version of the allele if it exists
         """
-        if not self._is_valid_allele(allele):
+        if not self._is_allele_in_db(allele):
             for expr_char in expression_chars:
-                if self._is_valid_allele(allele + expr_char):
+                if self._is_allele_in_db(allele + expr_char):
                     if self._config["verbose_log"]:
                         print(f"{allele} is not valid. Using {allele}{expr_char}")
                     allele = allele + expr_char
@@ -559,7 +559,7 @@ class ARD(object):
                 # If the last field of the allele is alpha, check if it's a MAC
                 if v3_format_allele.split(":").pop().isalpha():
                     return self.is_mac(v3_format_allele)
-                return self._is_valid_allele(v3_format_allele)
+                return self._is_allele_in_db(v3_format_allele)
 
         return False
 
@@ -571,7 +571,7 @@ class ARD(object):
         """
         return allele in self.allele_group.who_alleles
 
-    def _is_valid_allele(self, allele):
+    def _is_allele_in_db(self, allele):
         """
         Test if allele is valid in the current imgt database
         :param allele: Allele to test
@@ -623,11 +623,11 @@ class ARD(object):
         else:
             alleles = [f"{locus_antigen}:{a}" for a in alleles]
 
-        return list(filter(self._is_valid_allele, alleles))
+        return list(filter(self._is_allele_in_db, alleles))
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
-        return filter(self._is_valid_allele, alleles)
+        return filter(self._is_allele_in_db, alleles)
 
     @staticmethod
     def _combine_with_colon(digits_field):
@@ -716,23 +716,32 @@ class ARD(object):
             and not self.is_v2(allele)
             and not self.is_shortnull(allele)
         ):
-            # Alleles ending with P or G are valid_alleles
-            if allele.endswith(("P", "G")):
-                # remove the last character
-                allele = allele[:-1]
-            # validate format: there are no empty fields eg, 2 :: together
-            if "*" in allele:
-                _, fields = allele.split("*")
-                if not all(map(str.isalnum, fields.split(":"))):
-                    return False
-            # The allele is valid as whole or as a 2 field version
-            if self._is_valid_allele(allele):
-                return True
-            else:
-                allele = get_2field_allele(allele)
-                return self._is_valid_allele(allele)
+            return self._is_valid_allele(allele)
 
         return True
+
+    def _is_valid_allele(self, allele):
+        """
+        Is the given allele valid?
+
+        @param allele:
+        @return:
+        """
+        # Alleles ending with P or G are valid_alleles
+        if allele.endswith(("P", "G")):
+            # remove the last character
+            allele = allele[:-1]
+        # validate format: there are no empty fields eg, 2 :: together
+        if "*" in allele:
+            _, fields = allele.split("*")
+            if not all(map(str.isalnum, fields.split(":"))):
+                return False
+        # The allele is valid as whole or as a 2 field version
+        if self._is_allele_in_db(allele):
+            return True
+        else:
+            allele = get_2field_allele(allele)
+            return self._is_allele_in_db(allele)
 
     def _is_valid_gl(self, glstring: str) -> bool:
         """
@@ -815,16 +824,38 @@ class ARD(object):
         raise InvalidMACError(f"{allelelist_gl} does not have a MAC.")
 
     def cwd_redux(self, allele_list_gl):
-        lgx_redux = self.redux(allele_list_gl, "lgx")
+        """
+        Reduce alleles from allele_list_gl to a list that
+        consists of only ones appearing in CWD 2
+
+        If it's a MAC, use the expanded list to compare with CWD list
+        if it's an allele(may have null), use the allele.
+
+        @param allele_list_gl:  allele, allele list or MAC
+        @return: CWD alleles as an allele list GL String
+        """
+        alleles = []
+        for allele in allele_list_gl.split("/"):
+            if self.is_mac(allele):
+                alleles.extend(self.expand_mac(allele).split("/"))
+            elif is_2_field_allele(allele) and not self.is_mac(allele):
+                alleles.append(allele)
+            else:
+                alleles.extend(self.redux(allele, "lgx").split("/"))
+
+        # get the CWD for the locus and find the containing CWD alleles
         locus = allele_list_gl.split("*")[0]
         if HLA_regex.search(locus):
             locus = locus.split("-")[1]
         ciwd_for_locus = db.load_cwd(self.db_connection, locus)
-        lgx_redux_alleles = set(lgx_redux.split("/"))
-        alleles_in_ciwd = ciwd_for_locus.intersection(lgx_redux_alleles)
-        sorted_alleles = sorted(
-            alleles_in_ciwd, key=functools.cmp_to_key(self.smart_sort_comparator)
-        )
+
+        alleles_in_ciwd = ciwd_for_locus.intersection(alleles)
+        sorted_alleles = sorted(alleles_in_ciwd)
+        # TODO: doesn't sort when compared with sorting with null
+        # E.g. B*15:01/B*15:01N
+        # sorted_alleles = sorted(
+        #     alleles_in_ciwd, key=functools.cmp_to_key(self.smart_sort_comparator)
+        # )
         return "/".join(sorted_alleles)
 
     def v2_to_v3(self, v2_allele) -> str:

@@ -30,4 +30,4 @@ def step_impl(context, gl_string):
 
 @when("we find CWD alleles for the GL String")
 def step_impl(context):
-    context.cwd = context.ard.cwd_redux(context.gl_string)
+    context.cwd = context.ard_non_strict.cwd_redux(context.gl_string)
