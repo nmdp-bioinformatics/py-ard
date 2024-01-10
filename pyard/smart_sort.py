@@ -28,6 +28,7 @@ from pyard import constants
 
 expr_regex = re.compile("[PNQLSGg]")
 glstring_chars = re.compile("[/|+^~]")
+serology_splitter = re.compile(r"(\D+)(\d+)")
 
 
 @functools.lru_cache(maxsize=constants.DEFAULT_CACHE_SIZE)
@@ -63,7 +64,11 @@ def smart_sort_comparator(a1, a2):
 
     # Handle serology
     if ":" not in a1:
-        return 1 if a1 > a2 else -1
+        serology1_match = serology_splitter.match(a1)
+        serology1_num = int(serology1_match.group(2))
+        serology2_match = serology_splitter.match(a2)
+        serology2_num = int(serology2_match.group(2))
+        return 1 if serology1_num > serology2_num else -1
 
     # Extract and Compare 1st fields first
     a1_f1 = int(a1[a1.find("*") + 1 : a1.find(":")])

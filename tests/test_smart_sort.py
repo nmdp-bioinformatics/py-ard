@@ -104,6 +104,11 @@ class TestSmartSort(unittest.TestCase):
         allele2 = "HLA-A*01:01:01:09"
         self.assertEqual(smart_sort_comparator(allele1, allele2), 1)
 
+    def test_serology_le(self):
+        serology1 = "Cw10"
+        serology2 = "Cw3"
+        self.assertEqual(smart_sort_comparator(serology1, serology2), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
