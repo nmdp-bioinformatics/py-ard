@@ -7,16 +7,20 @@ Feature: Serology Reduction
 
     Given the allele as <Allele>
     When reducing on the <Level> level with ping
-    Then the reduced allele is found to be <Redux Allele>
+    Then the reduced allele is found to be <Redux Serology>
 
-    Examples:
-      | Allele                          | Level | Redux Allele        |
-      | A*01:01:01:01                   | S     | A1                  |
-      | A*01:01                         | S     | A1                  |
-      | A*01:AABJE                      | S     | A1/A36              |
-      | A*03:XX                         | S     | A3                  |
-      | B*44:02:01:11/B*44:02:01:12     | S     | B12/B44             |
-      | B*13:03                         | S     | B13                 |
-      | B*13:04                         | S     | B15/B21             |
-      | B*15:01/B*15:02/B*15:03/B*15:04 | S     | B15/B62/B70/B72/B75 |
-      | B*15:10                         | S     | B15/B70/B71         |
+    Examples: Alleles to Serology
+      | Allele                      | Level | Redux Serology |
+      | A*01:01:01:01               | S     | A1             |
+      | A*01:01                     | S     | A1             |
+      | A*01:AABJE                  | S     | A1/A36         |
+      | A*03:XX                     | S     | A3             |
+      | B*44:02:01:11/B*44:02:01:12 | S     | B12/B44        |
+      | B*13:03                     | S     | B13            |
+      | B*13:04                     | S     | B15/B21        |
+
+    Examples: Serology Sorted Properly
+      | Allele                                   | Level | Redux Serology      |
+      | B*15:01/B*15:02/B*15:03/B*15:04          | S     | B15/B62/B70/B72/B75 |
+      | B*15:10                                  | S     | B15/B70/B71         |
+      | A*24:03/A*24:10/A*24:23/A*24:33/A*24:374 | S     | A9/A24/A2403        |
