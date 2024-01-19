@@ -1,3 +1,15 @@
+<a name="1.0.10"></a>
+# [1.0.10](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.10) - 19 Jan 2024
+
+## What's Changed
+* Fix serology sort by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/297
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.9...1.0.10
+
+[Changes][1.0.10]
+
+
 <a name="1.0.9"></a>
 # [1.0.9 Updated CWD2 Reference Data](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.9) - 15 Dec 2023
 
@@ -645,6 +657,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.0.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.9...1.0.10
 [1.0.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.8...1.0.9
 [1.0.8]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.7...1.0.8
 [1.0.7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.6...1.0.7
