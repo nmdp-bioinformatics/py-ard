@@ -173,8 +173,8 @@ ard.redux('B14', 'lg')
 | `P`            | Reduce to P Group Level                         |
 | `lg`           | Reduce to 2 field ARD level (append `g`)        |
 | `lgx`          | Reduce to 2 field ARD level                     |
-| `W`            | Reduce/Expand to 3 field WHO nomenclature level |
-| `exon`         | Reduce/Expand to exon level                     |
+| `W`            | Reduce/Expand to 4 field WHO nomenclature level |
+| `exon`         | Reduce/Expand to 3 field level                     |
 | `U2`           | Reduce to 2 field unambiguous level             |
 | `S`            | Reduce to Serological level                     |
 
