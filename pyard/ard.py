@@ -328,8 +328,11 @@ class ARD(object):
 
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
+            non_empty_gls = filter(lambda s: s != "", gls)
             return delim.join(
-                sorted(gls, key=functools.cmp_to_key(self.smart_sort_comparator))
+                sorted(
+                    non_empty_gls, key=functools.cmp_to_key(self.smart_sort_comparator)
+                )
             )
 
         # generate a unique list over a delimiter
