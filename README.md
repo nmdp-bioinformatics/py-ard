@@ -8,10 +8,19 @@ Swiss army knife of **HLA** Nomenclature
 
 ### `py-ard` is ARD reduction for HLA in Python
 
-Human leukocyte antigen (HLA) genes encode cell surface proteins that are important for immune regulation. Exons encoding the Antigen Recognition Domain (ARD) are the most polymorphic region of HLA genes and are important for donor/recipient [HLA matching](https://bethematch.org/patients-and-families/before-transplant/find-a-donor/hla-matching/). The history of allele typing methods has played a major role in determining resolution and ambiguity of reported HLA values. Although HLA [nomenclature](https://www.theatlantic.com/magazine/archive/2023/04/clint-smith-nomenclature-poem/673097/) has not always conformed to the same standard, it is now defined by [The WHO Nomenclature Committee for Factors of the HLA System](https://hla.alleles.org/nomenclature/committee.html). `py-ard` is aware of the variation in historical resolutions and grouping and is able to translate from one representation to another based on alleles published quarterly by [IPD/IMGT-HLA](https://github.com/ANHIG/IMGTHLA/).
-
+Human leukocyte antigen (HLA) genes encode cell surface proteins that are important for immune regulation. Exons
+encoding the Antigen Recognition Domain (ARD) are the most polymorphic region of HLA genes and are important for
+donor/recipient [HLA matching](https://bethematch.org/patients-and-families/before-transplant/find-a-donor/hla-matching/).
+The history of allele typing methods has played a major role in determining resolution and ambiguity of reported HLA
+values. Although
+HLA [nomenclature](https://www.theatlantic.com/magazine/archive/2023/04/clint-smith-nomenclature-poem/673097/) has not
+always conformed to the same standard, it is now defined
+by [The WHO Nomenclature Committee for Factors of the HLA System](https://hla.alleles.org/nomenclature/committee.html). `py-ard`
+is aware of the variation in historical resolutions and grouping and is able to translate from one representation to
+another based on alleles published quarterly by [IPD/IMGT-HLA](https://github.com/ANHIG/IMGTHLA/).
 
 ## Table of Contents
+
 1. [Installation](#installation)
     * [Install From PyPi](#install-from-pypi)
     * [Install With Homebrew](#install-with-homebrew)
@@ -31,6 +40,7 @@ Human leukocyte antigen (HLA) genes encode cell surface proteins that are import
 5. [Docker Deployment](#docker-deployment-of-py-ard-rest-web-service)
 
 ## Installation
+
 `py-ard` works with Python 3.8 and higher.
 
 ### Install from PyPi
@@ -38,8 +48,9 @@ Human leukocyte antigen (HLA) genes encode cell surface proteins that are import
 ```shell
 pip install py-ard
 ```
-Note: With `py-ard` version *1.0.0* and higher, the redux API has changed. If your use requires the older API, please install with `pip install py-ard==0.9.2`
 
+Note: With `py-ard` version *1.0.0* and higher, the redux API has changed. If your use requires the older API, please
+install with `pip install py-ard==0.9.2`
 
 ### Install With Homebrew
 
@@ -75,7 +86,8 @@ See [Our Contribution Guide](CONTRIBUTING.rst) for open source contribution to `
 
 ### Using `py-ard` from Python code
 
-`py-ard` can be used in a program to reduce/expand HLA GL String representation. If pyard discovers an invalid Allele, it'll throw an Invalid Exception, not silently return an empty result.
+`py-ard` can be used in a program to reduce/expand HLA GL String representation. If pyard discovers an invalid Allele,
+it'll throw an Invalid Exception, not silently return an empty result.
 
 #### Initialize `py-ard`
 
@@ -85,7 +97,6 @@ Import `pyard` package.
 import pyard
 ```
 
-
 Initialize `ARD` object with a version of IMGT HLA database
 
 ```python
@@ -94,7 +105,10 @@ import pyard
 ard = pyard.init('3510')
 ```
 
-When processing a large numbers of typings, it's helpful to have a cache of previously calculated reductions to make similar typings reduce faster. The cache size of pre-computed reductions can be changed from the default of 1,000 by setting `cache_size` argument. This increases the memory footprint but will significantly increase the processing times for large number of reductions.
+When processing a large numbers of typings, it's helpful to have a cache of previously calculated reductions to make
+similar typings reduce faster. The cache size of pre-computed reductions can be changed from the default of 1,000 by
+setting `cache_size` argument. This increases the memory footprint but will significantly increase the processing times
+for large number of reductions.
 
 ```python
 import pyard
@@ -103,7 +117,8 @@ max_cache_size = 1_000_000
 ard = pyard.init('3510', cache_size=max_cache_size)
 ```
 
-By default, the IPD-IMGT/HLA data is stored locally in `$TMPDIR/pyard`. This may be removed when your computer restarts. You can specify a different, more permanent directory for the cached data.
+By default, the IPD-IMGT/HLA data is stored locally in `$TMPDIR/pyard`. This may be removed when your computer restarts.
+You can specify a different, more permanent directory for the cached data.
 
 ```python
 import pyard.ard
@@ -126,13 +141,15 @@ ard = pyard.init()
 ```
 
 You can check the current version of IPD-IMGT/HLA database.
+
 ```python
 ard.get_db_version()
 ```
 
 ### Reduce Typings
 
-**Note**: Previous to version of 1.0.0 release of `py-ard`, there was `redux` and `redux_gl` methods on `ard`. They have been consolidated so that `redux` handles both GL Strings and individual alleles.
+**Note**: Previous to version of 1.0.0 release of `py-ard`, there was `redux` and `redux_gl` methods on `ard`. They have
+been consolidated so that `redux` handles both GL Strings and individual alleles.
 
 Reduce a single locus HLA Typing by specifying the allele/MAC/XX code and the reduction method to `redux` method.
 
@@ -167,16 +184,16 @@ ard.redux('B14', 'lg')
 
 ## Valid Reduction Types
 
-| Reduction Type | Description                                     |
-|----------------|-------------------------------------------------|
-| `G`            | Reduce to G Group Level                         |
-| `P`            | Reduce to P Group Level                         |
-| `lg`           | Reduce to 2 field ARD level (append `g`)        |
-| `lgx`          | Reduce to 2 field ARD level                     |
-| `W`            | Reduce/Expand to 4 field WHO nomenclature level |
-| `exon`         | Reduce/Expand to 3 field level                     |
-| `U2`           | Reduce to 2 field unambiguous level             |
-| `S`            | Reduce to Serological level                     |
+| Reduction Type | Description                                               |
+|----------------|-----------------------------------------------------------|
+| `G`            | Reduce to G Group Level                                   |
+| `P`            | Reduce to P Group Level                                   |
+| `lg`           | Reduce to 2 field ARD level (append `g`)                  |
+| `lgx`          | Reduce to 2 field ARD level                               |
+| `W`            | Reduce/Expand to full field(4,3,2) WHO nomenclature level |
+| `exon`         | Reduce/Expand to 3 field level                            |
+| `U2`           | Reduce to 2 field unambiguous level                       |
+| `S`            | Reduce to Serological level                               |
 
 ### Perform DRB1 blending with DRB3, DRB4 and DRB5
 
@@ -195,6 +212,7 @@ looking up MAC representation. See [MAC Service UI](https://hml.nmdp.org/MacUI/)
 ### Expand MAC
 
 You can also use `py-ard` to expand MAC codes. Use `expand_mac` method on `ard`.
+
 ```python
 ard.expand_mac('HLA-A*01:BC')
 # 'HLA-A*01:02/HLA-A*01:03'
@@ -212,6 +230,7 @@ ard.lookup_mac('A*01:02/A*01:01/A*01:03')
 ### CWD Reduction
 
 Reduce a MAC code or an allele list GL String to CWD reduced list.
+
 ```python
 ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*15:27")
 # => B*15:01/B*15:07
@@ -226,19 +245,24 @@ ard.lookup_mac(ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*1
 
 ### Using `py-ard` from R code
 
-`py-ard` works well from `R` as well. Please see [Using pyard from R language](https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-pyard-library-from-R-language) page for detailed walkthrough.
+`py-ard` works well from `R` as well. Please
+see [Using pyard from R language](https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-pyard-library-from-R-language)
+page for detailed walkthrough.
 
 ## Command Line Tools
 
-Various command line interface (CLI) tools are available to use for managing local IPD-IMGT/HLA cache database, running impromptu reduction queries and batch processing of CSV files.
+Various command line interface (CLI) tools are available to use for managing local IPD-IMGT/HLA cache database, running
+impromptu reduction queries and batch processing of CSV files.
 
-For all tools, use `--imgt-version` and `--data-dir` to specify the IPD-IMGT/HLA database version and the directory where the SQLite files are created.
+For all tools, use `--imgt-version` and `--data-dir` to specify the IPD-IMGT/HLA database version and the directory
+where the SQLite files are created.
 
 ### `pyard-import` Import the latest IPD-IMGT/HLA database
 
 `pyard-import` helps with importing and reinstalling of prepared IPD-IMGT/HLA and MAC data.
 
 Use `pyard-import -h` to see all the options available.
+
 ```shell
 $ pyard-import -h
 usage: pyard-import [-h] [--list] [-i IMGT_VERSION] [-d DATA_DIR] [--v2-to-v3-mapping V2_V3_MAPPING] [--refresh-mac] [--re-install] [--skip-mac]
@@ -313,13 +337,15 @@ $ pyard-import --imgt-version 3150 --skip-mac
 
 Show the statuses of all `py-ard` databases
 
-`pyard-status` goes through all the available databases and checks all the tables that should be available. This is very helpful to show all the databases, number of rows in each table, any missing tables and the stored IPD-IMGT/HLA version.
+`pyard-status` goes through all the available databases and checks all the tables that should be available. This is very
+helpful to show all the databases, number of rows in each table, any missing tables and the stored IPD-IMGT/HLA version.
 
 ```shell
 $ pyard-status
 ```
 
 Use ` --data-dir` to specify an alternate directory for cached database files.
+
 ```shell
 $ pyard-status  --data-dir ~/.pyard/
 IMGT DB Version: Latest (3440)
@@ -348,7 +374,9 @@ Size: 533.37MB
 
 ### `pyard` Redux quickly
 
-`pyard` command can be used for quick reductions from the command line. Use `--help` option to see all the available options.
+`pyard` command can be used for quick reductions from the command line. Use `--help` option to see all the available
+options.
+
 ```shell
 $ pyard --help
 usage: pyard [-h] [-v] [-d DATA_DIR] [-i IMGT_VERSION] [-g GL_STRING]
@@ -371,7 +399,8 @@ options:
 
 ```
 
-Reduce from command line by specifying any typing with `-g` or `--gl` option and the reduction method with `-r` or `--redux-type` option.
+Reduce from command line by specifying any typing with `-g` or `--gl` option and the reduction method with `-r`
+or `--redux-type` option.
 
 ```shell
 $ pyard -g 'A*01:AB' -r lgx
@@ -429,14 +458,16 @@ B14 = B64/B65
 
 ### `pyard-csv-reduce` Batch Reduce a CSV file
 
-`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for detailed information about all the options.
-
+`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for
+detailed information about all the options.
 
 ## `py-ard` REST Web Service
 
 Run `py-ard` as a service so that it can be accessed as a REST service endpoint.
 
-To start in debug mode, you can run the `app.py` script. The endpoint should then be available at [localhost:8080](http://0.0.0.0:8080)
+To start in debug mode, you can run the `app.py` script. The endpoint should then be available
+at [localhost:8080](http://0.0.0.0:8080)
+
 ```shell
 $ python app.py
  * Serving Flask app 'app'
@@ -453,6 +484,7 @@ Press CTRL+C to quit
 For deploying to production, build a Docker image and use that image for deploying to a server.
 
 Build the docker image:
+
 ```shell
 make docker-build
 ```
@@ -460,6 +492,7 @@ make docker-build
 builds a Docker image named `pyard-service:latest`
 
 Build the docker and run it with:
+
 ```shell
 make docker
 ```
