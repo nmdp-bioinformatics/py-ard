@@ -45,3 +45,9 @@ Feature: CWD Reduction
       | C*04:KBG                           | C*04:01/C*04:09N |
       | C*04:01:01G/C*04:09N               | C*04:01/C*04:09N |
       | B*15:01/B*15:01N/B*15:102/B*15:104 | B*15:01/B*15:01N |
+
+  Scenario: CWD reduction of XX alleles
+
+    Given the GL String we want to find CWD of is "DRB1*14:XX"
+    When we find CWD alleles for the GL String
+    Then the CWD alleles should be "DRB1*14:01/DRB1*14:02/DRB1*14:03/DRB1*14:04/DRB1*14:05/DRB1*14:06/DRB1*14:07/DRB1*14:08/DRB1*14:09/DRB1*14:10/DRB1*14:11/DRB1*14:12/DRB1*14:13/DRB1*14:14/DRB1*14:15/DRB1*14:16/DRB1*14:17/DRB1*14:18/DRB1*14:19/DRB1*14:20/DRB1*14:21/DRB1*14:22/DRB1*14:24/DRB1*14:25/DRB1*14:28/DRB1*14:29/DRB1*14:33/DRB1*14:48/DRB1*14:61/DRB1*14:70"
