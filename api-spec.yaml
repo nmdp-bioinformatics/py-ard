@@ -65,6 +65,7 @@ paths:
                     - W
                     - exon
                     - U2
+                    - S
                   example: "lgx"
       responses:
         200:
