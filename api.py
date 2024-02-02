@@ -126,7 +126,7 @@ def cwd_redux_controller():
             return {"message": "gl_string and reduction_method not provided"}, 404
         # Perform redux
         try:
-            cwd = ard.cwd_redux(ard.redux(gl_string, "lgx"))
+            cwd = ard.cwd_redux(gl_string)
         except PyArdError as e:
             return {"message": e.message}, 400
 

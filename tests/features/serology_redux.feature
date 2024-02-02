@@ -24,3 +24,8 @@ Feature: Serology Reduction
       | B*15:01/B*15:02/B*15:03/B*15:04          | S     | B15/B62/B70/B72/B75 |
       | B*15:10                                  | S     | B15/B70/B71         |
       | A*24:03/A*24:10/A*24:23/A*24:33/A*24:374 | S     | A9/A24/A2403        |
+
+
+    Examples:  Skip Loci that don't have Serology mappings
+      | Allele                                                                          | Level | Redux Serology      |
+      | A*01:01+A*01:01^B*08:ASXJP+B*07:02^C*02:02+C*07:HTGM^DPB1*28:01:01G+DPB1*296:01 | S     | A1+A1^B7+B8^Cw2+Cw7 |

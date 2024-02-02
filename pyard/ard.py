@@ -328,8 +328,11 @@ class ARD(object):
 
         if delim == "+":
             # No need to make unique. eg. homozygous cases are valid for SLUGs
+            non_empty_gls = filter(lambda s: s != "", gls)
             return delim.join(
-                sorted(gls, key=functools.cmp_to_key(self.smart_sort_comparator))
+                sorted(
+                    non_empty_gls, key=functools.cmp_to_key(self.smart_sort_comparator)
+                )
             )
 
         # generate a unique list over a delimiter
@@ -838,7 +841,7 @@ class ARD(object):
         for allele in allele_list_gl.split("/"):
             if self.is_mac(allele):
                 alleles.extend(self.expand_mac(allele).split("/"))
-            elif is_2_field_allele(allele) and not self.is_mac(allele):
+            elif is_2_field_allele(allele) and not self.is_XX(allele):
                 alleles.append(allele)
             else:
                 alleles.extend(self.redux(allele, "lgx").split("/"))
