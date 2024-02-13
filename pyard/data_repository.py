@@ -177,7 +177,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
 
 
 def generate_alleles_and_xx_codes_and_who(
-    db_connection: sqlite3.Connection, imgt_version, ars_mappings
+        db_connection: sqlite3.Connection, imgt_version, ars_mappings
 ):
     if db.tables_exist(db_connection, code_mapping_tables + allele_tables):
         return db.load_code_mappings(db_connection)
@@ -319,7 +319,7 @@ def generate_short_nulls(db_connection, who_group):
 
 
 def generate_mac_codes(
-    db_connection: sqlite3.Connection, refresh_mac: bool = False, load_mac: bool = True
+        db_connection: sqlite3.Connection, refresh_mac: bool = False, load_mac: bool = True
 ):
     """
     :param db_connection: Database connection to the sqlite database
