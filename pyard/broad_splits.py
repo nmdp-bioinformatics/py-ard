@@ -20,7 +20,8 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-import re
+
+from pyard.constants import HLA_regex
 
 #
 # Broad, Splits and Associated Antigens
@@ -46,35 +47,35 @@ broad_splits_dna_mapping = {
     "DRB1*06": ["DRB1*13", "DRB1*14"],
 }
 
-# Loaded at runtime
-broad_splits_ser_mapping = None
 
-HLA_regex = re.compile("^HLA-")
+class SerologyMapping:
+    def __init__(self, broad_splits_mapping, associated_mapping):
+        self.broad_splits_map = broad_splits_mapping
+        self.serology_associated_map = associated_mapping
 
+    def find_splits(self, allele: str) -> tuple:
+        if HLA_regex.search(allele):
+            prefix = True
+            allele_name = allele.split("-")[1]
+        else:
+            prefix = False
+            allele_name = allele
 
-def find_splits(allele: str) -> tuple:
-    if HLA_regex.search(allele):
-        prefix = True
-        allele_name = allele.split("-")[1]
-    else:
-        prefix = False
-        allele_name = allele
+        if "*" in allele_name:
+            mapping = broad_splits_dna_mapping
+        else:
+            mapping = self.broad_splits_map
 
-    if "*" in allele_name:
-        mapping = broad_splits_dna_mapping
-    else:
-        mapping = broad_splits_ser_mapping
+        if allele_name in mapping:
+            return self._get_mapping(allele_name, mapping, prefix)
 
-    if allele_name in mapping:
-        return _get_mapping(allele_name, mapping, prefix)
+        for broad in mapping:
+            if allele_name in mapping[broad]:
+                return self._get_mapping(broad, mapping, prefix)
 
-    for broad in mapping:
-        if allele_name in mapping[broad]:
-            return _get_mapping(broad, mapping, prefix)
-
-
-def _get_mapping(broad, mapping, prefix):
-    if prefix:
-        return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
-    else:
-        return broad, mapping[broad]
+    @staticmethod
+    def _get_mapping(broad, mapping, prefix):
+        if prefix:
+            return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
+        else:
+            return broad, mapping[broad]

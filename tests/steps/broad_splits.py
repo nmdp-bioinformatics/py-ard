@@ -32,7 +32,7 @@ def step_impl(context, broad):
 
 @when("it is expanded to the splits")
 def step_impl(context):
-    mapping = pyard.find_broad_splits(context.broad)
+    mapping = context.ard.find_broad_splits(context.broad)
     splits = mapping[1]
     context.splits = "/".join(splits)
 
@@ -49,7 +49,7 @@ def step_impl(context, split):
 
 @when("split is searched in the mappings")
 def step_impl(context):
-    mapping = pyard.find_broad_splits(context.split)
+    mapping = context.ard.find_broad_splits(context.split)
     context.broad = mapping[0]
     splits = mapping[1]
     splits.remove(context.split)
@@ -64,3 +64,18 @@ def step_impl(context, siblings):
 @step("the corresponding broad is {broad}")
 def step_impl(context, broad):
     assert_that(context.broad, is_(broad))
+
+
+@given("the serology antigen is {serology}")
+def step_impl(context, serology):
+    context.serology = serology
+
+
+@when("looking for associated serology")
+def step_impl(context):
+    context.associated_antigen = context.ard.find_associated_antigen(context.serology)
+
+
+@then("the associated serology is found to be {associated_antigen}")
+def step_impl(context, associated_antigen):
+    assert_that(context.associated_antigen, is_(associated_antigen))

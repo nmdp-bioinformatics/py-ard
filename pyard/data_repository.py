@@ -26,7 +26,8 @@ import sqlite3
 
 import pyard.load
 from pyard.smart_sort import smart_sort_comparator
-from . import db, broad_splits
+from . import db
+from .broad_splits import broad_splits_dna_mapping
 from .load import (
     load_g_group,
     load_p_group,
@@ -216,7 +217,7 @@ def generate_alleles_and_xx_codes_and_who(
     xx_codes = xx_df.groupby(["1d"]).apply(lambda x: list(x["Allele"])).to_dict()
 
     # Update xx codes with broads and splits
-    for broad, splits in broad_splits.broad_splits_dna_mapping.items():
+    for broad, splits in broad_splits_dna_mapping.items():
         for split in splits:
             if broad in xx_codes:
                 xx_codes[broad].extend(xx_codes[split])
@@ -354,7 +355,9 @@ def to_serological_name(locus_name: str):
     return sero_name
 
 
-def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
+def generate_serology_mapping(
+    db_connection: sqlite3.Connection, serology_mapping, imgt_version
+):
     if not db.table_exists(db_connection, "serology_mapping"):
         df_sero = load_serology_mappings(imgt_version)
 
@@ -396,7 +399,7 @@ def generate_serology_mapping(db_connection: sqlite3.Connection, imgt_version):
 
         # map alleles for split serology to their corresponding broad
         # Update xx codes with broads and splits
-        for broad, splits in broad_splits.broad_splits_ser_mapping.items():
+        for broad, splits in serology_mapping.broad_splits_map.items():
             for split in splits:
                 try:
                     sero_mapping[broad] = "/".join(
@@ -450,15 +453,19 @@ def get_db_version(db_connection: sqlite3.Connection):
     return db.get_user_version(db_connection)
 
 
-def generate_serology_broad_split_mapping(
-    db_connection: sqlite3.Connection, imgt_version
-):
+def generate_broad_splits_mapping(db_connection: sqlite3.Connection, imgt_version):
     if not db.table_exists(db_connection, "serology_broad_split_mapping"):
-        sero_mapping = pyard.load.load_serology_broad_split_mapping(imgt_version)
+        sero_mapping, associated_mapping = pyard.load.load_serology_broad_split_mapping(
+            imgt_version
+        )
         db.save_serology_broad_split_mappings(db_connection, sero_mapping)
-        return sero_mapping
+        db.save_serology_associated_mappings(db_connection, associated_mapping)
+        return sero_mapping, associated_mapping
 
-    return db.load_serology_broad_split_mappings(db_connection)
+    sero_mapping = db.load_serology_broad_split_mappings(db_connection)
+    associated_mapping = db.load_serology_associated_mappings(db_connection)
+
+    return sero_mapping, associated_mapping
 
 
 def generate_cwd_mapping(db_connection: sqlite3.Connection):

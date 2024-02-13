@@ -609,10 +609,17 @@ def load_v2_v3_mappings(db_connection):
 
 def load_serology_broad_split_mappings(db_connection):
     sero_mapping = load_dict(
-        db_connection, "serology_broad_split_mapping", ("serology", "splits")
+        db_connection, "serology_broad_split_mapping", ("broad", "splits")
     )
     sero_splits = {k: v.split("/") for k, v in sero_mapping.items()}
     return sero_splits
+
+
+def load_serology_associated_mappings(db_connection):
+    associated_mapping = load_dict(
+        db_connection, "serology_associated_mappings", ("associated", "antigen")
+    )
+    return associated_mapping
 
 
 def save_serology_broad_split_mappings(db_connection, sero_mapping):
@@ -622,7 +629,16 @@ def save_serology_broad_split_mappings(db_connection, sero_mapping):
         db_connection,
         table_name="serology_broad_split_mapping",
         dictionary=sero_splits,
-        columns=("serology", "splits"),
+        columns=("broad", "splits"),
+    )
+
+
+def save_serology_associated_mappings(db_connection, associated_mapping):
+    save_dict(
+        db_connection,
+        table_name="serology_associated_mappings",
+        dictionary=associated_mapping,
+        columns=("associated", "antigen"),
     )
 
 

@@ -20,7 +20,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import sys
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from urllib.error import URLError
 
 from pyard.misc import get_G_name, get_2field_allele, get_3field_allele, get_P_name
@@ -38,7 +38,7 @@ def add_locus_name(locus: str, splits: str) -> List:
 # Derived from rel_ser_ser.txt
 # https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_ser_ser.txt
 #
-def load_serology_broad_split_mapping(imgt_version: str) -> Dict:
+def load_serology_broad_split_mapping(imgt_version: str) -> Tuple[Dict, Dict]:
     import pandas as pd
 
     ser_ser_url = f"{IMGT_HLA_URL}{imgt_version}/wmda/rel_ser_ser.txt"
@@ -47,21 +47,36 @@ def load_serology_broad_split_mapping(imgt_version: str) -> Dict:
             ser_ser_url,
             skiprows=6,
             names=["Locus", "A", "Splits", "Associated"],
-            usecols=[0, 1, 2],
             dtype="string",
             sep=";",
-        ).dropna()
+        )
     except URLError as e:
         print(f"Error downloading {ser_ser_url}", e, file=sys.stderr)
         sys.exit(1)
 
-    df_p["Sero"] = df_p["Locus"] + df_p["A"]
-    df_p["Splits"] = df_p[["Locus", "Splits"]].apply(
+    splits_df = df_p[["Locus", "A", "Splits"]].dropna()
+    associated_df = df_p[["Locus", "A", "Associated"]].dropna()
+
+    splits_df["Sero"] = splits_df["Locus"] + splits_df["A"]
+    splits_df["Splits"] = splits_df[["Locus", "Splits"]].apply(
         lambda x: add_locus_name(x["Locus"], x["Splits"]), axis=1
     )
+    splits_df = splits_df.astype({"A": "int32"}).sort_values(by=["Locus", "A"])
 
-    sero_mapping = df_p[["Sero", "Splits"]].set_index("Sero")["Splits"].to_dict()
-    return sero_mapping
+    associated_df["Sero"] = associated_df["Locus"] + associated_df["A"]
+    associated_df["Associated"] = associated_df[["Locus", "Associated"]].apply(
+        lambda x: add_locus_name(x["Locus"], x["Associated"]), axis=1
+    )
+    associated_df = associated_df.astype({"A": "int32"}).sort_values(by=["Locus", "A"])
+
+    splits_mapping = splits_df[["Sero", "Splits"]].set_index("Sero")["Splits"].to_dict()
+    associated_mapping = (
+        associated_df.explode("Associated")[["Associated", "Sero"]]
+        .set_index("Associated")["Sero"]
+        .to_dict()
+    )
+
+    return splits_mapping, associated_mapping
 
 
 def load_g_group(imgt_version):
