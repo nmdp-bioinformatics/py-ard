@@ -113,10 +113,16 @@ class ARD(object):
         )
 
         # Load Serology mappings
-        broad_splits.broad_splits_ser_mapping = (
-            dr.generate_serology_broad_split_mapping(self.db_connection, imgt_version)
+        broad_splits_mapping, associated_mapping = dr.generate_broad_splits_mapping(
+            self.db_connection, imgt_version
         )
-        dr.generate_serology_mapping(self.db_connection, imgt_version)
+        self.serology_mapping = broad_splits.SerologyMapping(
+            broad_splits_mapping, associated_mapping
+        )
+
+        dr.generate_serology_mapping(
+            self.db_connection, self.serology_mapping, imgt_version
+        )
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
         # Save IMGT database version
@@ -607,6 +613,12 @@ class ARD(object):
         :return: bool to indicate if allele is valid
         """
         return allele in self.allele_group.exp_alleles
+
+    def find_broad_splits(self, allele) -> tuple:
+        return self.serology_mapping.find_splits(allele)
+
+    def find_associated_antigen(self, serology) -> str:
+        return self.serology_mapping.serology_associated_map.get(serology, serology)
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """

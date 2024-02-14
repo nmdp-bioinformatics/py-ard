@@ -22,12 +22,11 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 from .blender import blender as dr_blender
-from .broad_splits import find_splits as find_broad_splits
 from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "1.0.11"
+__version__ = "1.1.0"
 
 
 def init(

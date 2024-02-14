@@ -33,7 +33,7 @@ from pyard.exceptions import InvalidAlleleError, InvalidTypingError, InvalidMACE
 from pyard.misc import get_data_dir, get_imgt_version
 
 
-def find_similar_alleles(prefix):
+def find_similar_alleles(ard, prefix):
     alleles = ard.similar_alleles(prefix)
     if alleles:
         for allele in alleles:
@@ -62,8 +62,8 @@ def expand_mac_code():
     sys.exit(0)
 
 
-def find_broad_splits():
-    mapping = pyard.find_broad_splits(args.splits)
+def find_broad_splits(ard):
+    mapping = ard.find_broad_splits(args.splits)
     if mapping:
         print(f"{mapping[0]} = {'/'.join(mapping[1])}")
     sys.exit(0)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
 
     # Handle --splits option
     if args.splits:
-        find_broad_splits()
+        find_broad_splits(ard)
 
     # Handle --expand-mac option
     if args.expand_mac:
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
     # Handle --similar option
     if args.similar_allele:
-        find_similar_alleles(args.similar_allele)
+        find_similar_alleles(ard, args.similar_allele)
 
     try:
         if args.cwd:
