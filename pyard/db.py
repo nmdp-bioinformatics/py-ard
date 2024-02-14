@@ -400,7 +400,7 @@ def find_serology_for_allele(
 
     :param connection: db connection of type sqlite.Connection
     :param allele_name: Allele name to use as a prefix to find similar alleles
-    :param column: Column to look for allele
+    :param column: Column to look for allele, "allele_list" or "lgx_allele_list"
     :return: list of similar alleles
     """
     query = f"SELECT serology, {column} FROM serology_mapping WHERE {column} LIKE ?"

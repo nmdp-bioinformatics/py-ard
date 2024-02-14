@@ -275,11 +275,14 @@ class ARD(object):
         elif redux_type == "S":
             # find serology equivalent in serology_mapping
             if is_2_field_allele(allele):
+                allele = self._redux_allele(allele, "lgx")
                 serology_mapping = db.find_serology_for_allele(
-                    self.db_connection,
-                    allele,
+                    self.db_connection, allele, "lgx_allele_list"
                 )
-            serology_mapping = db.find_serology_for_allele(self.db_connection, allele)
+            else:
+                serology_mapping = db.find_serology_for_allele(
+                    self.db_connection, allele
+                )
             serology_set = set()
             for serology, allele_list in serology_mapping.items():
                 if allele in allele_list.split("/"):
