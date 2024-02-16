@@ -39,7 +39,11 @@ def step_impl(context, level):
 @when("reducing on the {level} level with ping")
 def step_impl(context, level):
     context.level = level
-    context.redux_allele = context.ard_ping.redux(context.allele, level)
+    redux_allele = context.ard_ping.redux(context.allele, level)
+    if not redux_allele:
+        context.redux_allele = "X"
+    else:
+        context.redux_allele = redux_allele
 
 
 @when("reducing on the {level} level with ARS suffix enabled")
