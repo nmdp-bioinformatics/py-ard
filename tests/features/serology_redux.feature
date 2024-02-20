@@ -29,3 +29,11 @@ Feature: Serology Reduction
     Examples:  Skip Loci that don't have Serology mappings
       | Allele                                                                          | Level | Redux Serology      |
       | A*01:01+A*01:01^B*08:ASXJP+B*07:02^C*02:02+C*07:HTGM^DPB1*28:01:01G+DPB1*296:01 | S     | A1+A1^B7+B8^Cw2+Cw7 |
+
+    Examples: 2 field Serology Reduction uses lgx version of serology mapping
+
+      | Allele        | Level | Redux Serology |
+      | DRB1*07:34    | S     | DR7            |
+      | DRB1*07:34:01 | S     | DR7            |
+      | DRB1*07:34:02 | S     | DR7            |
+      | DRB4*01:03N   | S     | X              |
