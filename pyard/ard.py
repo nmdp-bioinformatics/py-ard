@@ -28,9 +28,11 @@ import sys
 from collections import Counter
 from typing import Iterable, List, Union
 
-from . import broad_splits, smart_sort
+import pyard.serology
 from . import data_repository as dr
 from . import db
+from . import smart_sort
+from .serology import SerologyMapping
 from .constants import (
     HLA_regex,
     VALID_REDUCTION_TYPES,
@@ -112,17 +114,17 @@ class ARD(object):
             self.db_connection, self.code_mappings.who_group
         )
 
-        # Load Serology mappings
+        # Load Serology mappings (Broad/Splits, Associated, Recognized)
         broad_splits_mapping, associated_mapping = dr.generate_broad_splits_mapping(
             self.db_connection, imgt_version
         )
-        self.serology_mapping = broad_splits.SerologyMapping(
+        self.serology_mapping = SerologyMapping(
             broad_splits_mapping, associated_mapping
         )
-
         dr.generate_serology_mapping(
             self.db_connection, imgt_version, self.serology_mapping, self._redux_allele
         )
+        self.valid_serology_set = dr.build_valid_serology_set(self.db_connection)
 
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
@@ -411,7 +413,11 @@ class ARD(object):
         # Handle Serology
         if self._config["reduce_serology"] and self.is_serology(glstring):
             alleles = self._get_alleles_from_serology(glstring)
-            return self.redux("/".join(alleles), redux_type)
+            # If there's corresponding alleles, return / delimited alleles
+            if alleles:
+                return self.redux("/".join(alleles), redux_type)
+            # If there's no DNA Mapping for a serology, e.g. DPw6, return empty
+            return ""
 
         if ":" in glstring:
             loc_allele = glstring.split(":")
@@ -498,7 +504,7 @@ class ARD(object):
         if "*" in allele or ":" in allele:
             return False
 
-        return db.is_valid_serology(self.db_connection, allele)
+        return allele in self.valid_serology_set
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def is_mac(self, allele: str) -> bool:
@@ -651,7 +657,7 @@ class ARD(object):
 
     def _get_alleles_from_serology(self, serology) -> Iterable[str]:
         alleles = db.serology_to_alleles(self.db_connection, serology)
-        return filter(self._is_allele_in_db, alleles)
+        return set(filter(self._is_allele_in_db, alleles))
 
     @staticmethod
     def _combine_with_colon(digits_field):
