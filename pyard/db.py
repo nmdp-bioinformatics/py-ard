@@ -272,7 +272,7 @@ def save_set(
 
     :param connection: db connection of type sqlite.Connection
     :param table_name: name of the table to create
-    :param rows: set which will become the the column in the table
+    :param rows: set which will become the column in the table
     :param column: name of the column in the table
     :return: success status
     """

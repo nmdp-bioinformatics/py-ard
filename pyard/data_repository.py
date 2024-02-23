@@ -27,7 +27,7 @@ import sqlite3
 import pyard.load
 from pyard.smart_sort import smart_sort_comparator
 from . import db
-from .broad_splits import broad_splits_dna_mapping
+from .serology import broad_splits_dna_mapping, get_all_valid_serology_names
 from .load import (
     load_g_group,
     load_p_group,
@@ -483,3 +483,12 @@ def generate_cwd_mapping(db_connection: sqlite3.Connection):
     if not db.table_exists(db_connection, "cwd2"):
         cwd2_map = pyard.load.load_cwd2()
         db.save_cwd2(db_connection, cwd2_map)
+
+
+def build_valid_serology_set(db_connection: sqlite3.Connection):
+    valid_serology_names = get_all_valid_serology_names()
+    # Save to db if `valid_serology` table is not present
+    if not db.table_exists(db_connection, "valid_serology"):
+        db.save_set(db_connection, "valid_serology", valid_serology_names, "serology")
+
+    return set(valid_serology_names)
