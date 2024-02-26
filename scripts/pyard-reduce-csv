@@ -209,15 +209,21 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
     # New columns DRBX_1 and DRBX_2 are created
     if ard_config.get("map_drb345_to_drbx"):
         drbx_loci = ["DRB3", "DRB4", "DRB5"]
-        drbx_columns = [
-            col_name for col_name in df.columns if col_name.split("_")[1] in drbx_loci
-        ]
-        if len(drbx_columns) == len(drbx_loci) * 2:  # For Type1/Type2
-            locus_in_allele_name = ard_config["keep_locus_in_allele_name"]
-            df_drbx = df[drbx_columns].apply(
-                create_drbx, axis=1, args=(locus_in_allele_name,)
-            )
-            df["DRBX_1"], df["DRBX_2"] = zip(*df_drbx)
+        for subject in ard_config["locus_column_mapping"].keys():
+            subject_loci = ard_config["locus_column_mapping"][subject]
+            subject_drbs = []
+            for locus in ard_config["locus_column_mapping"][subject].keys():
+                if locus.upper() in drbx_loci:
+                    subject_drbs.extend(subject_loci[locus])
+
+            # If all the DRBs are there
+            # ['DRB3_1', 'DRB3_2', 'DRB4_1', 'DRB4_2', 'DRB5_1', 'DRB5_2']
+            if len(subject_drbs) == 6:
+                locus_in_allele_name = ard_config["keep_locus_in_allele_name"]
+                df_drbx = df[subject_drbs].apply(
+                    create_drbx, axis=1, args=(locus_in_allele_name,)
+                )
+                df[f"{subject}_DRBX_1"], df[f"{subject}_DRBX_2"] = zip(*df_drbx)
 
     if ard_config.get("generate_glstring"):
         for subject in locus_column_mapping:
