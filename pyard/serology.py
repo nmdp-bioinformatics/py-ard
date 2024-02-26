@@ -20,15 +20,85 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from pyard.constants import HLA_regex
+import re
 
+from pyard.constants import HLA_regex
 
 #
 # HLA Antigens
 # List of all recognised serological collected from:
 # https://hla.alleles.org/antigens/recognised_serology.html
 #
-def get_all_valid_serology_names():
+
+
+# -#
+# Broad, Splits and Associated Antigens
+# http://hla.alleles.org/antigens/broads_splits.html
+#
+#
+# Mapping Generated from `dna_relshp.csv` file
+#
+broad_splits_dna_mapping = {
+    "A*09": ["A*23", "A*24"],
+    "A*10": ["A*25", "A*26", "A*34", "A*66"],
+    "A*19": ["A*29", "A*30", "A*31", "A*32", "A*33", "A*74"],
+    "A*28": ["A*68", "A*69"],
+    "B*05": ["B*51", "B*52"],
+    "B*12": ["B*44", "B*45"],
+    "B*16": ["B*38", "B*39"],
+    "B*17": ["B*57", "B*58"],
+    "B*21": ["B*49", "B*50"],
+    "B*22": ["B*54", "B*55", "B*56"],
+    "C*10": ["C*03", "C*04"],
+    "DQB1*01": ["DQB1*05", "DQB1*06"],
+    "DRB1*02": ["DRB1*15", "DRB1*16"],
+    "DRB1*06": ["DRB1*13", "DRB1*14"],
+}
+
+serology_xx_exception_mapping = {
+    # Locus B
+    # Broad B40
+    "B60": "B*40:XX",
+    "B61": "B*40:XX",
+    # Broad B14
+    "B64": "B*14:XX",
+    "B65": "B*14:XX",
+    # Broad B15
+    "B62": "B*15:XX",
+    "B63": "B*15:XX",
+    "B70": "B*15:XX",
+    "B75": "B*15:XX",
+    "B76": "B*15:XX",
+    "B77": "B*15:XX",
+    # Broad B70
+    "B71": "B*15:XX",
+    "B72": "B*15:XX",
+    # Locus DQB1
+    # Broad DQ3
+    "DQ7": "DQB1*03:XX",
+    "DQ8": "DQB1*03:XX",
+    "DQ9": "DQB1*03:XX",
+}
+
+sero_antigen_regex = re.compile(r"(\D+)(\d+)")
+
+
+def map_serology_to_xx(locus, serology):
+    if serology in serology_xx_exception_mapping.keys():
+        return serology_xx_exception_mapping[serology]
+
+    # Extract just the digits
+    antigen_group = sero_antigen_regex.match(serology).group(2)
+    # Pad numbers with 0 for single digit numbers
+    antigen_group_num = int(antigen_group)
+    if antigen_group_num < 10:
+        antigen_group = f"{antigen_group_num:02}"
+
+    # Build the XX allele
+    return f"{locus}*{antigen_group}:XX"
+
+
+class SerologyMapping:
     valid_serology_map = {
         "A": [
             "A1",
@@ -153,7 +223,7 @@ def get_all_valid_serology_names():
             "Dw25",
             "Dw26",
         ],
-        "DR": [
+        "DRB1": [
             "DR1",
             "DR103",
             "DR2",
@@ -179,40 +249,10 @@ def get_all_valid_serology_names():
             "DR52",
             "DR53",
         ],
-        "DQ": ["DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6", "DQ7", "DQ8", "DQ9"],
-        "DP": ["DPw1", "DPw2", "DPw3", "DPw4", "DPw5", "DPw6"],
+        "DQB1": ["DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6", "DQ7", "DQ8", "DQ9"],
+        "DPB1": ["DPw1", "DPw2", "DPw3", "DPw4", "DPw5", "DPw6"],
     }
 
-    all_serology_names = [x for v in valid_serology_map.values() for x in v]
-    return all_serology_names
-
-
-# -#
-# Broad, Splits and Associated Antigens
-# http://hla.alleles.org/antigens/broads_splits.html
-#
-#
-# Mapping Generated from `dna_relshp.csv` file
-#
-broad_splits_dna_mapping = {
-    "A*09": ["A*23", "A*24"],
-    "A*10": ["A*25", "A*26", "A*34", "A*66"],
-    "A*19": ["A*29", "A*30", "A*31", "A*32", "A*33", "A*74"],
-    "A*28": ["A*68", "A*69"],
-    "B*05": ["B*51", "B*52"],
-    "B*12": ["B*44", "B*45"],
-    "B*16": ["B*38", "B*39"],
-    "B*17": ["B*57", "B*58"],
-    "B*21": ["B*49", "B*50"],
-    "B*22": ["B*54", "B*55", "B*56"],
-    "C*10": ["C*03", "C*04"],
-    "DQB1*01": ["DQB1*05", "DQB1*06"],
-    "DRB1*02": ["DRB1*15", "DRB1*16"],
-    "DRB1*06": ["DRB1*13", "DRB1*14"],
-}
-
-
-class SerologyMapping:
     def __init__(self, broad_splits_mapping, associated_mapping):
         self.broad_splits_map = broad_splits_mapping
         self.serology_associated_map = associated_mapping
@@ -238,8 +278,28 @@ class SerologyMapping:
                 return self._get_mapping(broad, mapping, prefix)
 
     @staticmethod
+    def get_valid_serology_names():
+        all_serology_names = {
+            x for v in SerologyMapping.valid_serology_map.values() for x in v
+        }
+        return all_serology_names
+
+    @staticmethod
     def _get_mapping(broad, mapping, prefix):
         if prefix:
             return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
         else:
             return broad, mapping[broad]
+
+    @staticmethod
+    def get_xx_mappings():
+        all_xx_mappings = {}
+        for locus, serologies in SerologyMapping.valid_serology_map.items():
+            xx_mapping = {
+                serology: map_serology_to_xx(locus, serology) for serology in serologies
+            }
+            all_xx_mappings.update(xx_mapping)
+        return all_xx_mappings
+
+    def find_associated_antigen(self, serology):
+        return self.serology_associated_map.get(serology, serology)

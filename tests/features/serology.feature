@@ -42,17 +42,42 @@ Feature: Serology Reduction
 
   All recognized serology are valid, even those with no corresponding DNA alleles.
 
-    Given the allele as <Allele>
+    Given the serology typing is <Serology>
     When checking for validity of the allele in non-strict mode
     Then the validness of the allele is <Validity>
 
     Examples:
-      | Allele | Validity |
-      | DR7    | Valid    |
-      | DR99   | Invalid  |
-      | A10    | Valid    |
-      | A101   | Invalid  |
-      | DQ8    | Valid    |
-      | DQ20   | InValid  |
-      | DPw6   | Valid    |
-      | DPw7   | InValid  |
+      | Serology | Validity |
+      | DR7      | Valid    |
+      | DR99     | Invalid  |
+      | A10      | Valid    |
+      | A101     | Invalid  |
+      | DQ8      | Valid    |
+      | DQ20     | InValid  |
+      | DPw6     | Valid    |
+      | DPw7     | InValid  |
+
+  Scenario Outline: Serology XX Mapping
+
+  Serology to XX Mappings
+
+    Given the serology typing is <Serology>
+    When finding the XX version of the serology
+    Then the XX version is <XX>
+
+    Examples:
+      | Serology | XX         |
+      | A9       | A*09:XX    |
+      | A23      | A*23:XX    |
+      | A24      | A*24:XX    |
+      | B70      | B*15:XX    |
+      | B71      | B*15:XX    |
+      | B72      | B*15:XX    |
+      | B15      | B*15:XX    |
+      | B40      | B*40:XX    |
+      | B60      | B*40:XX    |
+      | DQ1      | DQB1*01:XX |
+      | DQ3      | DQB1*03:XX |
+      | DQ7      | DQB1*03:XX |
+      | DQ8      | DQB1*03:XX |
+      | DQ9      | DQB1*03:XX |

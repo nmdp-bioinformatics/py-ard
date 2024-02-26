@@ -130,3 +130,15 @@ def step_impl(context):
 def step_impl(context, validity):
     valid = validity == "Valid"
     assert_that(context.is_valid, is_(valid))
+
+
+@when("finding the XX version of the serology")
+def step_impl(context):
+    context.xx_version = context.ard_non_strict.find_associated_xx_from_serology(
+        context.allele
+    )
+
+
+@then("the XX version is {XX}")
+def step_impl(context, XX):
+    assert_that(context.xx_version, is_(XX))

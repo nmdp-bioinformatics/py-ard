@@ -412,6 +412,20 @@ def find_serology_for_allele(
     return serology_mapping
 
 
+def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
+    """
+    Find the corresponding XX allele for the given serology
+
+    :param connection: db connection of type sqlite.Connection
+    :param serology: serology for which to find XX allele
+    :return:  XX allele for given serology
+    """
+    query = f"SELECT xx FROM serology_mapping WHERE serology = ?"
+    cursor = connection.execute(query, (serology,))
+    result = cursor.fetchone()
+    return result[0]
+
+
 def get_user_version(connection: sqlite3.Connection) -> int:
     """
     Retrieve user_version from db
@@ -424,9 +438,7 @@ def get_user_version(connection: sqlite3.Connection) -> int:
     version = result[0]
     cursor.close()
 
-    if version:
-        return version
-    return None
+    return version
 
 
 def set_user_version(connection: sqlite3.Connection, version: int):
@@ -579,15 +591,16 @@ def save_serology_mappings(db_connection, sero_mapping):
     # Create table
     create_table_sql = f"""CREATE TABLE serology_mapping (
                             serology TEXT PRIMARY KEY,
-                            allele_list TEXT NOT NULL,
-                            lgx_allele_list TEXT NOT NULL
+                            allele_list TEXT,
+                            lgx_allele_list TEXT,
+                            xx TEXT NOT NULL
                     )"""
     cursor.execute(create_table_sql)
 
-    rows = ((k, v[0], v[1]) for k, v in sero_mapping.items())
+    rows = ((k, v[0], v[1], v[2]) for k, v in sero_mapping.items())
 
     # insert
-    cursor.executemany(f"INSERT INTO serology_mapping VALUES (?, ?, ?)", rows)
+    cursor.executemany(f"INSERT INTO serology_mapping VALUES (?, ?, ?, ?)", rows)
 
     # commit transaction - writes to the db
     db_connection.commit()
