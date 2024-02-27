@@ -436,16 +436,23 @@ class ARD(object):
             is_hla_prefix = HLA_regex.search(loc_antigen)
             if is_hla_prefix:
                 loc_antigen = loc_antigen.split("-")[1]
-            if self.is_XX(glstring, loc_antigen, code):
-                if is_hla_prefix:
-                    reduced_alleles = self.redux(
-                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
-                    )
-                    return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
+            if code == "XX":
+                if self.is_XX(glstring, loc_antigen, code):
+                    if is_hla_prefix:
+                        reduced_alleles = self.redux(
+                            "/".join(self.code_mappings.xx_codes[loc_antigen]),
+                            redux_type,
+                        )
+                        return "/".join(
+                            ["HLA-" + a for a in reduced_alleles.split("/")]
+                        )
+                    else:
+                        return self.redux(
+                            "/".join(self.code_mappings.xx_codes[loc_antigen]),
+                            redux_type,
+                        )
                 else:
-                    return self.redux(
-                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
-                    )
+                    raise InvalidTypingError(f"{glstring} is not valid XX code")
 
         # Handle MAC
         if self._config["reduce_MAC"] and code.isalpha():
@@ -637,7 +644,10 @@ class ARD(object):
 
     @functools.lru_cache()
     def find_associated_xx_from_serology(self, serology):
-        return db.find_xx_for_serology(self.db_connection, serology)
+        if self.is_serology(serology):
+            serology = self.find_associated_antigen(serology)
+            return db.find_xx_for_serology(self.db_connection, serology)
+        raise InvalidAlleleError(f"{serology} is not a valid serology")
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """

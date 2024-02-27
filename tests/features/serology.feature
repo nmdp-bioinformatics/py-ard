@@ -70,12 +70,14 @@ Feature: Serology Reduction
       | A9       | A*09:XX    |
       | A23      | A*23:XX    |
       | A24      | A*24:XX    |
+      | A2403    | A*24:XX    |
       | B70      | B*15:XX    |
       | B71      | B*15:XX    |
       | B72      | B*15:XX    |
       | B15      | B*15:XX    |
       | B40      | B*40:XX    |
       | B60      | B*40:XX    |
+      | B703     | B*07:XX    |
       | DQ1      | DQB1*01:XX |
       | DQ3      | DQB1*03:XX |
       | DQ7      | DQB1*03:XX |

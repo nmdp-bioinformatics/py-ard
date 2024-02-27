@@ -422,8 +422,10 @@ def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
     """
     query = f"SELECT xx FROM serology_mapping WHERE serology = ?"
     cursor = connection.execute(query, (serology,))
-    result = cursor.fetchone()
-    return result[0]
+    results = cursor.fetchone()
+    if results:
+        return results[0]
+    return None
 
 
 def get_user_version(connection: sqlite3.Connection) -> int:
