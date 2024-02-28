@@ -134,9 +134,7 @@ def step_impl(context, validity):
 
 @when("finding the XX version of the serology")
 def step_impl(context):
-    context.xx_version = context.ard_non_strict.find_associated_xx_from_serology(
-        context.allele
-    )
+    context.xx_version = context.ard_non_strict.find_xx_from_serology(context.allele)
 
 
 @then("the XX version is {XX}")

@@ -643,7 +643,7 @@ class ARD(object):
         return self.serology_mapping.find_associated_antigen(serology)
 
     @functools.lru_cache()
-    def find_associated_xx_from_serology(self, serology):
+    def find_xx_from_serology(self, serology):
         if self.is_serology(serology):
             return db.find_xx_for_serology(self.db_connection, serology)
         raise InvalidAlleleError(f"{serology} is not a valid serology")
