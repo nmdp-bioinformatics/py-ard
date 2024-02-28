@@ -416,7 +416,7 @@ def generate_serology_mapping(
                         sero_mapping[broad] = sero_mapping[split]
 
         # Create a mapping of serology to alleles, lgx_alleles and associated XX allele
-        serology_xx_mapping = SerologyMapping.get_xx_mappings()
+        serology_xx_mapping = serology_mapping.get_xx_mappings()
         # re-sort allele lists into smart-sort order
         for sero in serology_xx_mapping:
             if sero in sero_mapping:

@@ -83,21 +83,6 @@ serology_xx_exception_mapping = {
 sero_antigen_regex = re.compile(r"(\D+)(\d+)")
 
 
-def map_serology_to_xx(locus, serology):
-    if serology in serology_xx_exception_mapping.keys():
-        return serology_xx_exception_mapping[serology]
-
-    # Extract just the digits
-    antigen_group = sero_antigen_regex.match(serology).group(2)
-    # Pad numbers with 0 for single digit numbers
-    antigen_group_num = int(antigen_group)
-    if antigen_group_num < 10:
-        antigen_group = f"{antigen_group_num:02}"
-
-    # Build the XX allele
-    return f"{locus}*{antigen_group}:XX"
-
-
 class SerologyMapping:
     valid_serology_map = {
         "A": [
@@ -277,29 +262,44 @@ class SerologyMapping:
             if allele_name in mapping[broad]:
                 return self._get_mapping(broad, mapping, prefix)
 
-    @staticmethod
-    def get_valid_serology_names():
-        all_serology_names = {
-            x for v in SerologyMapping.valid_serology_map.values() for x in v
-        }
-        return all_serology_names
+    def find_associated_antigen(self, serology):
+        return self.serology_associated_map.get(serology, serology)
 
-    @staticmethod
-    def _get_mapping(broad, mapping, prefix):
-        if prefix:
-            return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
-        else:
-            return broad, mapping[broad]
-
-    @staticmethod
-    def get_xx_mappings():
+    def get_xx_mappings(self):
         all_xx_mappings = {}
         for locus, serologies in SerologyMapping.valid_serology_map.items():
             xx_mapping = {
-                serology: map_serology_to_xx(locus, serology) for serology in serologies
+                serology: self._map_serology_to_xx(locus, serology)
+                for serology in serologies
             }
             all_xx_mappings.update(xx_mapping)
         return all_xx_mappings
 
-    def find_associated_antigen(self, serology):
-        return self.serology_associated_map.get(serology, serology)
+    @classmethod
+    def get_valid_serology_names(cls):
+        all_serology_names = {x for v in cls.valid_serology_map.values() for x in v}
+        return all_serology_names
+
+    def _map_serology_to_xx(self, locus, serology):
+        if serology in serology_xx_exception_mapping.keys():
+            return serology_xx_exception_mapping[serology]
+
+        # Use the associated serology for XX version
+        serology = self.find_associated_antigen(serology)
+
+        # Extract just the digits
+        antigen_group = sero_antigen_regex.match(serology).group(2)
+        # Pad numbers with 0 for single digit numbers
+        antigen_group_num = int(antigen_group)
+        if antigen_group_num < 10:
+            antigen_group = f"{antigen_group_num:02}"
+
+        # Build the XX allele
+        return f"{locus}*{antigen_group}:XX"
+
+    @classmethod
+    def _get_mapping(cls, broad, mapping, prefix):
+        if prefix:
+            return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
+        else:
+            return broad, mapping[broad]
