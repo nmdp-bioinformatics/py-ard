@@ -73,6 +73,8 @@ serology_xx_exception_mapping = {
     # Broad B70
     "B71": "B*15:XX",
     "B72": "B*15:XX",
+    "DR17": "DRB1*03:XX",
+    "DR18": "DRB1*03:XX",
     # Locus DQB1
     # Broad DQ3
     "DQ7": "DQB1*03:XX",
