@@ -14,6 +14,12 @@
     "r_drb1_typ2",
     "r_dpb1_typ1",
     "r_dpb1_typ2",
+    "r_drb3_typ1",
+    "r_drb3_typ2",
+    "r_drb4_typ1",
+    "r_drb4_typ2",
+    "r_drb5_typ1",
+    "r_drb5_typ2",
     "d_a_typ1",
     "d_a_typ2",
     "d_b_typ1",
@@ -23,7 +29,13 @@
     "d_drb1_typ1",
     "d_drb1_typ2",
     "d_dpb1_typ1",
-    "d_dpb1_typ2"
+    "d_dpb1_typ2",
+    "d_drb3_typ1",
+    "d_drb3_typ2",
+    "d_drb4_typ1",
+    "d_drb4_typ2",
+    "d_drb5_typ1",
+    "d_drb5_typ2"
   ],
   "locus_column_mapping": {
     "recipient": {
@@ -39,13 +51,25 @@
         "r_c_typ1",
         "r_c_typ2"
       ],
+      "dqb1": [
+        "r_dpb1_typ1",
+        "r_dpb1_typ2"
+      ],
       "drb1": [
         "r_drb1_typ1",
         "r_drb1_typ2"
       ],
-      "dqb1": [
-        "r_dpb1_typ1",
-        "r_dpb1_typ2"
+      "drb3": [
+        "r_drb3_typ1",
+        "r_drb3_typ2"
+      ],
+      "drb4": [
+        "r_drb4_typ1",
+        "r_drb4_typ2"
+      ],
+      "drb5": [
+        "r_drb5_typ1",
+        "r_drb5_typ2"
       ]
     },
     "donor": {
@@ -61,20 +85,30 @@
         "d_c_typ1",
         "d_c_typ2"
       ],
+      "dqb1": [
+        "d_dpb1_typ1",
+        "d_dpb1_typ2"
+      ],
       "drb1": [
         "d_drb1_typ1",
         "d_drb1_typ2"
       ],
-      "dqb1": [
-        "d_dpb1_typ1",
-        "d_dpb1_typ2"
+      "drb3": [
+        "d_drb3_typ1",
+        "d_drb3_typ2"
+      ],
+      "drb4": [
+        "d_drb4_typ1",
+        "d_drb4_typ2"
+      ],
+      "drb5": [
+        "d_drb5_typ1",
+        "d_drb5_typ2"
       ]
     }
   },
-
   "redux_type": "lgx",
   "redux_cache_size": 1000,
-
   "reduce_serology": false,
   "reduce_v2": true,
   "convert_v2_to_v3": false,
@@ -84,17 +118,12 @@
   "reduce_XX": false,
   "reduce_MAC": true,
   "map_drb345_to_drbx": false,
-
   "locus_in_allele_name": true,
   "keep_locus_in_allele_name": true,
-
   "new_column_for_redux": true,
   "reduced_column_prefix": "reduced_",
-
   "generate_glstring": true,
-
   "output_file_format": "csv",
   "apply_compression": "gzip",
-
   "verbose_log": true
 }
