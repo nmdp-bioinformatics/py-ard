@@ -124,7 +124,7 @@ class ARD(object):
         dr.generate_serology_mapping(
             self.db_connection, imgt_version, self.serology_mapping, self._redux_allele
         )
-        self.valid_serology_set = dr.build_valid_serology_set(self.db_connection)
+        self.valid_serology_set = SerologyMapping.get_valid_serology_names()
 
         # Load V2 to V3 mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
@@ -436,16 +436,23 @@ class ARD(object):
             is_hla_prefix = HLA_regex.search(loc_antigen)
             if is_hla_prefix:
                 loc_antigen = loc_antigen.split("-")[1]
-            if self.is_XX(glstring, loc_antigen, code):
-                if is_hla_prefix:
-                    reduced_alleles = self.redux(
-                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
-                    )
-                    return "/".join(["HLA-" + a for a in reduced_alleles.split("/")])
+            if code == "XX":
+                if self.is_XX(glstring, loc_antigen, code):
+                    if is_hla_prefix:
+                        reduced_alleles = self.redux(
+                            "/".join(self.code_mappings.xx_codes[loc_antigen]),
+                            redux_type,
+                        )
+                        return "/".join(
+                            ["HLA-" + a for a in reduced_alleles.split("/")]
+                        )
+                    else:
+                        return self.redux(
+                            "/".join(self.code_mappings.xx_codes[loc_antigen]),
+                            redux_type,
+                        )
                 else:
-                    return self.redux(
-                        "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
-                    )
+                    raise InvalidTypingError(f"{glstring} is not valid XX code")
 
         # Handle MAC
         if self._config["reduce_MAC"] and code.isalpha():
@@ -633,7 +640,13 @@ class ARD(object):
         return self.serology_mapping.find_splits(allele)
 
     def find_associated_antigen(self, serology) -> str:
-        return self.serology_mapping.serology_associated_map.get(serology, serology)
+        return self.serology_mapping.find_associated_antigen(serology)
+
+    @functools.lru_cache()
+    def find_xx_from_serology(self, serology):
+        if self.is_serology(serology):
+            return db.find_xx_for_serology(self.db_connection, serology)
+        raise InvalidAlleleError(f"{serology} is not a valid serology")
 
     def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """
