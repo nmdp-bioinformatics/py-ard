@@ -1,3 +1,22 @@
+<a name="1.1.1"></a>
+# [Serology Updates (1.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.1) - 05 Mar 2024
+
+Serolgy Updates
+
+Note: This release changes and updates Serology related data. Please rebuild the cache database if there's a missing Serology error.
+```
+pyard-import --re-install
+```
+
+- Support Associated Antigens in addition to broad/splits [#303](https://github.com/nmdp-bioinformatics/py-ard/issues/303) 
+- Fix Serology reduction for 2 field alleles
+- All recognized serology to be valid, not only the ones that have corresponding DNA Alleles [#306](https://github.com/nmdp-bioinformatics/py-ard/issues/306) 
+- Fix batch processing for DRBX column
+- Map Serology to the correct XX version
+
+[Changes][1.1.1]
+
+
 <a name="1.0.11"></a>
 # [Fix CWD and Serology reduction issues (1.0.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.11) - 02 Feb 2024
 
@@ -669,6 +688,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.11...1.1.1
 [1.0.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.9...1.0.10
 [1.0.9]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.8...1.0.9
