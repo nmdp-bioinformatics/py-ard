@@ -6,6 +6,18 @@ Swiss army knife of **HLA** Nomenclature
 
 ![py-ard-logo.png](images/py-ard-logo.png)
 
+**Note:**
+
+Release `1.1.1` has extensive Serolgy related updates and affects Serology related data. Please rebuild the cache database if there's a missing Serology error.
+```
+pyard-import --re-install
+```
+
+Or set `py-ard` requirements to be `py-ard<=1.1.1` for your dependency.
+
+
+---
+
 ### `py-ard` is ARD reduction for HLA in Python
 
 Human leukocyte antigen (HLA) genes encode cell surface proteins that are important for immune regulation. Exons
