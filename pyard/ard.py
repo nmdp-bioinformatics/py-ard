@@ -834,6 +834,7 @@ class ARD(object):
 
         raise InvalidMACError(f"{mac_code} is an invalid MAC.")
 
+    @functools.lru_cache()
     def lookup_mac(self, allelelist_gl: str):
         """
         Finds a MAC code corresponding to
@@ -856,10 +857,18 @@ class ARD(object):
                 locus = allelelist_gl.split("*")[0]
                 return f"{locus}*{antigen_groups[0]}:{mac_code}"
 
-        # Try the list of first_field:second_field combinations
-        mac_expansion = "/".join(sorted(allele_fields))
+        # Try the given list order first with first_field:second_field combinations
+        mac_expansion = "/".join(allele_fields)
         mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
+        if mac_code:
+            locus = allelelist_gl.split("*")[0]
+            return f"{locus}*{antigen_groups[0]}:{mac_code}"
 
+        # Try the sorted list of first_field:second_field combinations
+        mac_expansion = "/".join(
+            sorted(allele_fields, key=functools.cmp_to_key(self.smart_sort_comparator))
+        )
+        mac_code = db.alleles_to_mac_code(self.db_connection, mac_expansion)
         if mac_code:
             locus = allelelist_gl.split("*")[0]
             return f"{locus}*{antigen_groups[0]}:{mac_code}"
