@@ -205,3 +205,9 @@ class TestPyArd(unittest.TestCase):
         self.assertFalse(
             self.ard.is_null(allele), msg="MACs shouldn't be called as Nulls"
         )
+
+    def test_default_redux_is_lgx(self):
+        allele = "HLA-C*04:DTZDE"
+        lgx_redux = self.ard.redux(allele, "lgx")
+        default_redux = self.ard.redux(allele)
+        self.assertEqual(lgx_redux, default_redux, msg="Default redux should be lgx")
