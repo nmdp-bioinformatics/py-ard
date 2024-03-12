@@ -210,4 +210,4 @@ class TestPyArd(unittest.TestCase):
         mac_code = "A*68:AJEBX"
         expanded_mac = self.ard.expand_mac(mac_code)
         lookup_mac = self.ard.lookup_mac(expanded_mac)
-        self.assertEqual(mac_code, lookup_mac)
+        self.assertEqual(mac_code, lookup_mac, msg="MACs should be reversible")
