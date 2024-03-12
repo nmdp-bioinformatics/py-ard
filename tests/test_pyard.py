@@ -207,7 +207,7 @@ class TestPyArd(unittest.TestCase):
         )
 
     def test_default_redux_is_lgx(self):
-        allele = "HLA-C*04:DTZDE"
+        allele = "A*24:BKKPV+A*26:03^B*15:BKNTS+B*15:07"
         lgx_redux = self.ard.redux(allele, "lgx")
         default_redux = self.ard.redux(allele)
         self.assertEqual(lgx_redux, default_redux, msg="Default redux should be lgx")
