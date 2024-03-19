@@ -400,7 +400,7 @@ if __name__ == "__main__":
         df.to_excel(out_file_name, index=False)
     else:
         # Save as compressed CSV
-        out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
+        out_file_name = f"{ard_config['out_csv_filename'] + ('.gz' if ard_config['apply_compression'] else '')}"
         df.to_csv(
             out_file_name, index=False, compression=ard_config["apply_compression"]
         )
