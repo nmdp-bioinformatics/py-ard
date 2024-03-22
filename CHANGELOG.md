@@ -1,3 +1,17 @@
+<a name="1.1.2"></a>
+# [ARD default redux + Bug Fixes (1.1.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.2) - 22 Mar 2024
+
+Feature:
+ - ARD reduction (`lgx`) is the default for `ard.redux()`
+
+Bug Fixes:
+ - When looking up MAC codes for allele list, look up with smart sort
+ - Batch processing failed for zip and no compression
+ 
+
+[Changes][1.1.2]
+
+
 <a name="1.1.1"></a>
 # [Serology Updates (1.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.1) - 05 Mar 2024
 
@@ -688,6 +702,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.1.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.11...1.1.1
 [1.0.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.9...1.0.10
