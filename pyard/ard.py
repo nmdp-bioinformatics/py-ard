@@ -363,7 +363,7 @@ class ARD(object):
         )
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
-    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES) -> str:
+    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES = "lgx") -> str:
         """
         Does ARD reduction with gl string and reduction type
 
