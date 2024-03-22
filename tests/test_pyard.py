@@ -206,17 +206,14 @@ class TestPyArd(unittest.TestCase):
             self.ard.is_null(allele), msg="MACs shouldn't be called as Nulls"
         )
 
-
     def test_default_redux_is_lgx(self):
         allele = "A*24:BKKPV+A*26:03^B*15:BKNTS+B*15:07"
         lgx_redux = self.ard.redux(allele, "lgx")
         default_redux = self.ard.redux(allele)
         self.assertEqual(lgx_redux, default_redux, msg="Default redux should be lgx")
 
-        
     def test_mac_is_reversible(self):
         mac_code = "A*68:AJEBX"
         expanded_mac = self.ard.expand_mac(mac_code)
         lookup_mac = self.ard.lookup_mac(expanded_mac)
         self.assertEqual(mac_code, lookup_mac, msg="MACs should be reversible")
-
