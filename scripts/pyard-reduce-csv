@@ -399,11 +399,16 @@ if __name__ == "__main__":
         out_file_name = f"{ard_config['out_csv_filename']}.xlsx"
         df.to_excel(out_file_name, index=False)
     else:
-        # Save as compressed CSV
-        out_file_name = f"{ard_config['out_csv_filename'] + '.gz' if ard_config['apply_compression'] else ''}"
-        df.to_csv(
-            out_file_name, index=False, compression=ard_config["apply_compression"]
-        )
+        # Save as compressed CSV if specified
+        out_file_name = ard_config["out_csv_filename"]
+        compression_type = ard_config["apply_compression"]
+        # Valid compression_type: gzip, zip, null
+        if compression_type == "gzip":
+            out_file_name = out_file_name + ".gz"
+        elif compression_type == "zip":
+            out_file_name = out_file_name + ".zip"
+
+        df.to_csv(out_file_name, index=False, compression=compression_type)
 
     if len(failed_to_reduce_alleles) == 0:
         print("No Errors", file=sys.stderr)
