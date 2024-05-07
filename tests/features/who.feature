@@ -22,10 +22,13 @@ Feature: WHO expansion and Exon reduction
 
   Scenario Outline: Exon reduction
 
+  Exon reductions will expand 2 field alleles to W level before generating
+  exon level reductions.
+
     Given the typing is <Allele>
     When expanding at the <Level> level
     Then the expanded allele is found to be <Expanded Alleles>
     Examples:
-      | Allele        | Level | Expanded Alleles |
-      | DRB1*11:01    | exon  | DRB1*11:01       |
-      | A*01:01:01:03 | exon  | A*01:01:01       |
+      | Allele        | Level | Expanded Alleles                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+      | A*01:01:01:03 | exon  | A*01:01:01                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+      | DRB1*11:01    | exon  | DRB1*11:01:01/DRB1*11:01:02/DRB1*11:01:03/DRB1*11:01:04/DRB1*11:01:05/DRB1*11:01:06/DRB1*11:01:07/DRB1*11:01:08/DRB1*11:01:09/DRB1*11:01:10/DRB1*11:01:11/DRB1*11:01:12/DRB1*11:01:13/DRB1*11:01:14/DRB1*11:01:15/DRB1*11:01:16/DRB1*11:01:17/DRB1*11:01:18/DRB1*11:01:19/DRB1*11:01:20/DRB1*11:01:21/DRB1*11:01:22/DRB1*11:01:23/DRB1*11:01:24/DRB1*11:01:25/DRB1*11:01:26/DRB1*11:01:27/DRB1*11:01:28/DRB1*11:01:29/DRB1*11:01:30/DRB1*11:01:31/DRB1*11:01:32/DRB1*11:01:33/DRB1*11:01:34/DRB1*11:01:35/DRB1*11:01:36/DRB1*11:01:37/DRB1*11:01:38/DRB1*11:01:39/DRB1*11:01:40/DRB1*11:01:41/DRB1*11:01:42/DRB1*11:01:43 |
