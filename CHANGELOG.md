@@ -1,3 +1,20 @@
+<a name="1.1.3"></a>
+# [Fix `exon` redux for 2 field alleles (1.1.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.3) - 07 May 2024
+
+To correctly reduce to the exon version, it first expands to `W` and then reduce to `exon` level producing all possibilities at exon level.
+
+Fixes [#320](https://github.com/nmdp-bioinformatics/py-ard/issues/320)
+
+## What's Changed
+* Bump gunicorn from 20.1.0 to 22.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/nmdp-bioinformatics/py-ard/pull/319
+* Fix `exon` reductions for 2 field alleles by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/322
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
+
+[Changes][1.1.3]
+
+
 <a name="1.1.2"></a>
 # [ARD default redux + Bug Fixes (1.1.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.2) - 22 Mar 2024
 
@@ -702,6 +719,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.1.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.11...1.1.1
 [1.0.11]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.10...1.0.11
