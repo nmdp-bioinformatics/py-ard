@@ -258,8 +258,15 @@ class ARD(object):
 
                 return exon_group_allele
             else:
-                # for 'exon' return allele with only first 3 fields
-                return ":".join(allele.split(":")[0:3])
+                # Expand to W level and then reduce to exon
+                w_redux = self.redux(allele, "W")
+                # If the W redux produces 2 field allele or the same allele,
+                # don't recurse
+                if w_redux == allele or len(w_redux.split(":")) == 2:
+                    return allele
+                else:
+                    # recurse with the W fields
+                    return self.redux(w_redux, "exon")
         elif redux_type == "U2":
             allele_fields = allele.split(":")
             # If resolved out to second field leave alone
