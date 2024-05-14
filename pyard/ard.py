@@ -206,11 +206,20 @@ class ARD(object):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
         if self._config["ping"] and re_ping:
+            # ping: alleles that are in P group but not in G groups are defined
+            # for 2-field alleles. If not already in 2-field form, reduce it to
+            # 2-field version first then re-reduce it to P group.
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
                     return self.ars_mappings.p_not_g[allele]
                 else:
-                    return self._redux_allele(allele, redux_type, False)
+                    redux_allele = self._redux_allele(allele, redux_type, False)
+                    if (
+                        redux_allele == allele
+                        or redux_allele in self.ars_mappings.p_not_g.values()
+                    ):
+                        return redux_allele
+                    return self._redux_allele(redux_allele, "lgx", True)
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
