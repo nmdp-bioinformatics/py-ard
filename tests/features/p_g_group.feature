@@ -13,6 +13,9 @@ Feature: P and G Groups
 
 
   Scenario Outline: allele reduction with ping
+    `ping` is the default.
+
+    If there is no G group for the allele, it should use the P group allele.
 
     Given the allele as <Allele>
     When reducing on the <Level> level with ping

@@ -25,7 +25,7 @@ Feature: Alleles
       | C*02:02        | lgx   | C*02:02         |
       | C*02:10        | lg    | C*02:02g        |
       | C*02:10        | lgx   | C*02:02         |
-      | C*06:17        | lgx   | C*06:17         |
+      | C*06:17        | lgx   | C*06:02         |
 
 
   Scenario Outline: allele reduction with ARS suffix
