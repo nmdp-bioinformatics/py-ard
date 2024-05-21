@@ -218,9 +218,9 @@ class ARD(object):
                 else:
                     redux_allele = self._redux_allele(allele, redux_type, False)
                     if redux_allele.endswith("g"):
-                        no_suffix_allele = redux_allele.removesuffix("g")
+                        no_suffix_allele = redux_allele[:-1]
                     elif redux_allele.endswith("ARS"):
-                        no_suffix_allele = redux_allele.removesuffix("ARS")
+                        no_suffix_allele = redux_allele[:-3]
                     else:
                         no_suffix_allele = redux_allele
                     if (
