@@ -85,11 +85,21 @@ Homebrew will notify you as new versions of `py-ard` are released.
 
 ### Install from source
 
+Checkout the `py-ard` source code.
+
 ```shell
-python3 -m venv venv
+git clone https://github.com/nmdp-bioinformatics/py-ard.git
+cd py-ard
+```
+
+Create and activate virtual environment. Install the py-ard dependencies.
+
+```shell
+make venv
+
 source venv/bin/activate
 
-python setup.py install
+make install
 ```
 
 See [Our Contribution Guide](CONTRIBUTING.rst) for open source contribution to `py-ard`.
@@ -103,13 +113,16 @@ it'll throw an Invalid Exception, not silently return an empty result.
 
 #### Initialize `py-ard`
 
-Import `pyard` package.
+Import and initialize `pyard` package.
+The default initialization is to use the latest version of IPD-IMGT/HLA database.
 
 ```python
 import pyard
+
+ard = pyard.init()
 ```
 
-Initialize `ARD` object with a version of IMGT HLA database
+Initialize `py-ard` with a particular version of IPD/IMGT-HLA database.
 
 ```python
 import pyard
@@ -144,13 +157,6 @@ As MAC data changes frequently, you can choose to refresh the MAC code for curre
 ard.refresh_mac_codes()
 ```
 
-The default initialization is to use the latest version of IPD-IMGT/HLA database.
-
-```python
-import pyard
-
-ard = pyard.init()
-```
 
 You can check the current version of IPD-IMGT/HLA database.
 
