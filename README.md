@@ -8,9 +8,11 @@ Swiss army knife of **HLA** Nomenclature
 
 **Note:**
 
-Release `1.1.1` has extensive Serolgy related updates and affects Serology related data. Please rebuild the cache database if there's a missing Serology error.
+- `ping` mode is default. When in `ping` mode, alleles that do not have a G group, their corresponding P group is used.
+
+- Release `1.1.1` has extensive Serolgy related updates and affects Serology related data. Please rebuild the cache database if there's a missing Serology error.
 ```
-pyard-import --re-install
+   pyard-import --re-install
 ```
 
 Or set `py-ard` requirements to be `py-ard<=1.1.1` for your dependency.
