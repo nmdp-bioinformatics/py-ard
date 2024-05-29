@@ -56,7 +56,7 @@ default_config = {
     "reduce_XX": True,
     "reduce_MAC": True,
     "reduce_shortnull": True,
-    "ping": False,
+    "ping": True,
     "map_drb345_to_drbx": True,
     "verbose_log": False,
     "ARS_as_lg": False,
@@ -206,11 +206,33 @@ class ARD(object):
             if redux_type in ["lg", "lgx", "G"]:
                 allele = allele[:-1]
         if self._config["ping"] and re_ping:
+            # ping: alleles that are in P group but not in G groups are defined
+            # for 2-field alleles. If not already in 2-field form, reduce it to
+            # 2-field version first then re-reduce it to P group.
             if redux_type in ("lg", "lgx", "U2"):
                 if allele in self.ars_mappings.p_not_g:
-                    return self.ars_mappings.p_not_g[allele]
+                    not_g_allele = self.ars_mappings.p_not_g[allele]
+                    if redux_type == "lg":
+                        return self._add_lg_suffix(not_g_allele)
+                    return not_g_allele
                 else:
-                    return self._redux_allele(allele, redux_type, False)
+                    redux_allele = self._redux_allele(allele, redux_type, False)
+                    if redux_allele.endswith("g"):
+                        no_suffix_allele = redux_allele[:-1]
+                    elif redux_allele.endswith("ARS"):
+                        no_suffix_allele = redux_allele[:-3]
+                    else:
+                        no_suffix_allele = redux_allele
+                    if (
+                        no_suffix_allele == allele
+                        or no_suffix_allele in self.ars_mappings.p_not_g.values()
+                    ):
+                        return redux_allele
+                    redux_allele = self._redux_allele(
+                        no_suffix_allele, redux_type, True
+                    )
+                    if self._is_valid_allele(redux_allele):
+                        return redux_allele
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
@@ -229,11 +251,7 @@ class ARD(object):
                 # return allele with only first 2 field
                 redux_allele = ":".join(allele.split(":")[0:2])
             if redux_type == "lg":
-                # ARS suffix maybe used instead of g
-                if self._config["ARS_as_lg"]:
-                    return redux_allele + "ARS"
-                # lg mode has g appended with lgx reduction
-                return redux_allele + "g"
+                return self._add_lg_suffix(redux_allele)
             return redux_allele
         elif redux_type == "W":
             # new redux_type which is full WHO expansion
@@ -318,6 +336,13 @@ class ARD(object):
                 return allele
             else:
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
+
+    def _add_lg_suffix(self, redux_allele):
+        # ARS suffix maybe used instead of g
+        if self._config["ARS_as_lg"]:
+            return redux_allele + "ARS"
+        # lg mode has g appended with lgx reduction
+        return redux_allele + "g"
 
     def _get_non_strict_allele(self, allele):
         """

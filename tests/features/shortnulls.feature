@@ -11,10 +11,10 @@ Feature: Short Nulls
     Then the reduced allele is found to be <Redux Allele>
 
     Examples: expression characters not propagated
-      | Allele         | Level | Redux Allele                        |
-      | DRB4*01:03N    | lgx   | DRB4*01:01                          |
-      | DRB4*01:03:01N | lgx   | DRB4*01:01                          |
-      | DRB5*01:08N    | lgx   | DRB5*01:02/DRB5*01:08               |
+      | Allele         | Level | Redux Allele |
+      | DRB4*01:03N    | lgx   | DRB4*01:01   |
+      | DRB4*01:03:01N | lgx   | DRB4*01:01   |
+      | DRB5*01:08N    | lgx   | DRB5*01:02   |
 
     Examples: expression characters propagated
       | Allele         | Level | Redux Allele                        |
