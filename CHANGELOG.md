@@ -1,3 +1,18 @@
+<a name="1.2.0"></a>
+# [`ping` mode is default (1.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.0) - 29 May 2024
+
+When in ping mode, alleles that do not have a G group, their corresponding P group is used. This will be the default behavior unless a `"ping": False` is supplied to `pyard.init()` call.
+
+
+## What's Changed
+* Make `ping` mode default by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/323
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
+
+[Changes][1.2.0]
+
+
 <a name="1.1.3"></a>
 # [Fix `exon` redux for 2 field alleles (1.1.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.3) - 07 May 2024
 
@@ -719,6 +734,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.2.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.11...1.1.1
