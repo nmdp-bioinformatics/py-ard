@@ -13,17 +13,17 @@ Feature: P and G Groups
 
 
   Scenario Outline: allele reduction with ping
-    `ping` is the default.
+  `ping` is the default.
 
-    If there is no G group for the allele, it should use the P group allele.
+  If there is no G group for the allele, it should use the P group allele.
 
     Given the allele as <Allele>
     When reducing on the <Level> level with ping
     Then the reduced allele is found to be <Redux Allele>
 
     Examples:
-      | Allele           | Level | Redux Allele |
-      | C*06:17          | lgx   | C*06:02      |
+      | Allele  | Level | Redux Allele |
+      | C*06:17 | lgx   | C*06:02      |
 
     Examples: DRB4*01s
       | Allele           | Level | Redux Allele |
@@ -83,9 +83,17 @@ Feature: P and G Groups
       | DRB4*01:03:02:02 | lgx   | DRB4*01:01   |
 
     Examples: C*02:10s
-      | Allele           | Level | Redux Allele |
-      | C*02:10:02       | lgx   | C*02:02      |
-      | C*02:02          | lg    | C*02:02g     |
-      | C*02:02          | lgx   | C*02:02      |
-      | C*02:10          | lg    | C*02:02g     |
-      | C*02:10          | lgx   | C*02:02      |
+      | Allele     | Level | Redux Allele |
+      | C*02:10:02 | lgx   | C*02:02      |
+      | C*02:02    | lg    | C*02:02g     |
+      | C*02:02    | lgx   | C*02:02      |
+      | C*02:10    | lg    | C*02:02g     |
+      | C*02:10    | lgx   | C*02:02      |
+
+    Examples: lgx with duplicates
+      | Allele        | Level | Redux Allele            |
+      | DPA1*02:12    | lgx   | DPA1*02:02/DPA1*02:07   |
+      | DPA1*02:12    | lg    | DPA1*02:02g/DPA1*02:07g |
+      | DQA1*03:03    | lgx   | DQA1*03:01              |
+      | DQA1*03:03    | lg    | DQA1*03:01g             |
+      | DQA1*03:03:09 | lg    | DQA1*03:03g             |

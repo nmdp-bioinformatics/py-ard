@@ -225,14 +225,18 @@ class ARD(object):
                         no_suffix_allele = redux_allele
                     if (
                         no_suffix_allele == allele
+                        or "/" in no_suffix_allele
                         or no_suffix_allele in self.ars_mappings.p_not_g.values()
                     ):
                         return redux_allele
-                    redux_allele = self._redux_allele(
-                        no_suffix_allele, redux_type, True
+
+                    twice_redux_allele = self._redux_allele(
+                        no_suffix_allele, redux_type, False
                     )
-                    if self._is_valid_allele(redux_allele):
-                        return redux_allele
+                    if "/" in twice_redux_allele:
+                        return twice_redux_allele
+                    if self._is_valid_allele(twice_redux_allele):
+                        return twice_redux_allele
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
             if allele in self.ars_mappings.dup_g:
@@ -338,6 +342,10 @@ class ARD(object):
                 raise InvalidAlleleError(f"{allele} is an invalid allele.")
 
     def _add_lg_suffix(self, redux_allele):
+        if "/" in redux_allele:
+            return "/".join(
+                [self._add_lg_suffix(allele) for allele in redux_allele.split("/")]
+            )
         # ARS suffix maybe used instead of g
         if self._config["ARS_as_lg"]:
             return redux_allele + "ARS"
