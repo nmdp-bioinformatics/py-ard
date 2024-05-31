@@ -1,3 +1,15 @@
+<a name="1.2.1"></a>
+# [Fix for `ping` mode (1.2.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.1) - 31 May 2024
+
+## What's Changed
+* Ping reductions for duplicates by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/326
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
+
+[Changes][1.2.1]
+
+
 <a name="1.2.0"></a>
 # [`ping` mode is default (1.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.0) - 29 May 2024
 
@@ -734,6 +746,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.2.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.1...1.1.2
