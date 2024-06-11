@@ -47,6 +47,9 @@ class TestPyArd(unittest.TestCase):
         cls.db_version = "3440"
         cls.ard = pyard.init(cls.db_version, data_dir="/tmp/py-ard")
 
+    def addDuration(self, test, elapsed):  # Required for Python >= 3.12
+        pass
+
     def test_no_mac(self):
         self.assertEqual(self.ard.redux("A*01:01:01", "G"), "A*01:01:01G")
         self.assertEqual(self.ard.redux("A*01:01:01", "lg"), "A*01:01g")
