@@ -1,5 +1,20 @@
+<a name="1.5.0"></a>
+# [Support for Python 3.12 (1.5.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.0) - 11 Jun 2024
+
+- Able to run in **Python 3.12**
+- Upgraded Pandas to `2.2.2`
+- *Python 3.8* is **deprecated**. Use `py-ard==1.2.1` for Python 3.8.
+
+## What's Changed
+* Support for Python 3.12 by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/328
+
+
+
+[Changes][1.5.0]
+
+
 <a name="1.2.1"></a>
-# [Fix for `ping` mode (1.2.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.1) - 31 May 2024
+# [Fix for ping mode (1.2.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.1) - 31 May 2024
 
 ## What's Changed
 * Ping reductions for duplicates by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/326
@@ -746,6 +761,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.5.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.1...1.5.0
 [1.2.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
