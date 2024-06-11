@@ -28,15 +28,22 @@ paths:
       operationId: api.version_controller
       summary: IPD-IMGT/HLA Version
       description: |
-        Get IPD-IMGT/HLA DB Version used for this service
+        Get IPD-IMGT/HLA DB Version and `py-ard` version used for this service
       responses:
         200:
           description: IPD-IMGT/HLA version number
           content:
             application/json:
               schema:
-                type: integer
-                example: 3440
+                properties:
+                 ipd-version:
+                    description: IPD-IMGT/HLA DB Version
+                    type: integer
+                    example: 3560
+                 py-ard-version:
+                    description: py-ard library version
+                    type: string
+                    example: "1.2.1"
   /redux:
     post:
       tags:
