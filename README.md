@@ -8,6 +8,8 @@ Swiss army knife of **HLA** Nomenclature
 
 **Note:**
 
+- Python Version 3.8 is no longer supported with the latest `py-ard` versions due to latest Pandas library not supporting 3.8. Please use `py-ard==1.2.1` if using Python 3.8
+
 - `ping` mode is default. When in `ping` mode, alleles that do not have a G group, their corresponding P group is used.
 
 - Release `1.1.1` has extensive Serolgy related updates and affects Serology related data. Please rebuild the cache database if there's a missing Serology error.

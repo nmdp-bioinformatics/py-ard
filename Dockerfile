@@ -1,10 +1,10 @@
-FROM python:3.11-slim-buster
+FROM python:3.12-slim-bullseye
 
 LABEL MAINTAINER="Pradeep Bashyal"
 
 WORKDIR /app
 
-ARG PY_ARD_VERSION=1.2.1
+ARG PY_ARD_VERSION=1.5.0
 
 COPY requirements.txt /app
 RUN pip install --no-cache-dir --upgrade pip && \

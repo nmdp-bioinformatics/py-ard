@@ -28,6 +28,9 @@ class TestSmartSort(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
 
+    def addDuration(self, test, elapsed):  # Required for Python >= 3.12
+        pass
+
     def test_same_comparator(self):
         allele = "HLA-A*01:01"
         self.assertEqual(smart_sort_comparator(allele, allele), 0)

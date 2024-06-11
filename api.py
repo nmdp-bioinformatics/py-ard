@@ -105,12 +105,15 @@ def drbx_blender_controller():
 
 
 def version_controller():
-    version = ard.get_db_version()
-    return {"version": version}, 200
+    ipd_version = ard.get_db_version()
+    return {
+        "ipd-version": ipd_version,
+        "py-ard-version": pyard.__version__,
+    }, 200
 
 
 def splits_controller(allele: str):
-    mapping = pyard.find_broad_splits(allele)
+    mapping = ard.find_broad_splits(allele)
     if mapping:
         return {"broad": mapping[0], "splits": mapping[1]}, 200
 

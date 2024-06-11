@@ -98,7 +98,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     # filter out the mg with count > 1, leaving only duplicates
     # take the index from the 2d version the data frame, make that a column
     # and turn that into a list
-    multiple_g_list = mg[mg > 1].reset_index()["index"].to_list()
+    multiple_g_list = mg[mg > 1].index.to_list()
 
     # Keep only the alleles that have more than 1 mapping
     dup_g = (
@@ -111,7 +111,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
 
     # multiple lgx
     mlgx = df_g_group.drop_duplicates(["2d", "lgx"])["2d"].value_counts()
-    multiple_lgx_list = mlgx[mlgx > 1].reset_index()["index"].to_list()
+    multiple_lgx_list = mlgx[mlgx > 1].index.to_list()
 
     # Keep only the alleles that have more than 1 mapping
     dup_lgx = (
