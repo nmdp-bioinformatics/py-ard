@@ -15,12 +15,9 @@ RUN pip install --no-cache-dir -r requirements-deploy.txt
 
 RUN pip install --no-cache-dir py-ard==$PY_ARD_VERSION
 
-RUN pyard-import && \
-    pyard --version && \
-    pyard-status
-
 COPY app.py /app/
 COPY api.py /app/
 COPY api-spec.yaml /app/
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--worker-tmp-dir", "/dev/shm",  "--timeout", "30", "app:app"]
+COPY docker-entrypoint-flask.sh /usr/local/bin/
+CMD ["/usr/local/bin/docker-entrypoint-flask.sh"]
