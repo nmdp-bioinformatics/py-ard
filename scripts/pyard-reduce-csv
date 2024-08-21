@@ -231,20 +231,42 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
             for locus in locus_column_mapping[subject]:
                 slug_column = locus + "_slug"
                 slug_columns.append(slug_column)
-                if len(locus_column_mapping[subject][locus]) > 1:
-                    df[slug_column] = (
-                        df[locus_column_mapping[subject][locus][0]]
-                        + "+"
-                        + df[locus_column_mapping[subject][locus][1]]
+                locus_typ_pair = locus_column_mapping[subject][locus]
+                if len(locus_typ_pair) > 1:
+                    df[slug_column] = df[locus_typ_pair].apply(
+                        create_reduced_slug, axis=1
                     )
                 else:
                     df[slug_column] = df[locus_column_mapping[subject][locus][0]]
+
+                if ard_config.get("suppress_reduced_locus_column"):
+                    df.drop(columns=locus_typ_pair, inplace=True)
 
             df[subject + "_gl"] = df[slug_columns].agg("^".join, axis=1)
             df[subject + "_gl"] = df[subject + "_gl"].apply(
                 lambda gl: gl.replace("^+", "")
             )
             df.drop(columns=slug_columns, inplace=True)
+
+
+def create_reduced_slug(locus_typ1_typ2_pair):
+    typ1 = locus_typ1_typ2_pair.iloc[0]
+    typ2 = locus_typ1_typ2_pair.iloc[1]
+
+    if not typ1 and not typ2:
+        return ""
+
+    if typ1 and typ2:
+        return typ1 + "+" + typ2
+    elif ard_config.get("homozygosify_glstring"):
+        if typ1:
+            return typ1 + "+" + typ1
+        if typ2:
+            return typ2 + "+" + typ2
+    else:
+        if typ2:
+            return typ2
+    return typ1
 
 
 def reduce_glstring(glstring: str) -> str:
