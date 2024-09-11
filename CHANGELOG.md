@@ -1,3 +1,16 @@
+<a name="1.5.1"></a>
+# [1.5.1](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.1) - 11 Sep 2024
+
+## What's Changed
+* pyard-service Docker changes by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/329
+* Homozygosify GL String, Suppress loci by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/332
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.0...1.5.1
+
+[Changes][1.5.1]
+
+
 <a name="1.5.0"></a>
 # [Support for Python 3.12 (1.5.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.0) - 11 Jun 2024
 
@@ -761,6 +774,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.5.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.1...1.5.0
 [1.2.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
