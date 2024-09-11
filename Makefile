@@ -1,5 +1,6 @@
 PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
+PYARD_VERSION := 1.2.1
 
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
@@ -98,10 +99,11 @@ dist: clean ## builds source and wheel package
 	ls -l dist
 
 docker-build: ## build a docker image for the service
-	docker build --platform=linux/amd64 -t nmdpbioinformatics/pyard-service:latest .
+	docker build --platform=linux/amd64 -t nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64 .
+	docker tag nmdpbioinformatics/pyard-service:$(PYARD_VERSION) nmdpbioinformatics/pyard-service:latest
 
 docker: docker-build ## build a docker image and run the service
-	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:latest
+	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
 
 install: clean ## install the package to the active Python's site-packages
 	pip install --upgrade pip
