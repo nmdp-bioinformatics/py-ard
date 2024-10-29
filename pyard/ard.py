@@ -189,6 +189,8 @@ class ARD(object):
             hla, allele_name = allele.split("-")
             redux_allele = self._redux_allele(allele_name, redux_type)
             if redux_allele:
+                if "/" in redux_allele:
+                    return "/".join(["HLA-" + ra for ra in redux_allele.split("/")])
                 return "HLA-" + redux_allele
             else:
                 return redux_allele
