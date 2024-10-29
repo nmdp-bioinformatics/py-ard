@@ -461,9 +461,6 @@ def set_user_version(connection: sqlite3.Connection, version: int):
 
 def load_ars_mappings(db_connection):
     dup_g = load_dict(db_connection, table_name="dup_g", columns=("allele", "g_group"))
-    dup_lgx = load_dict(
-        db_connection, table_name="dup_lgx", columns=("allele", "lgx_group")
-    )
     g_group = load_dict(db_connection, table_name="g_group", columns=("allele", "g"))
     p_group = load_dict(db_connection, table_name="p_group", columns=("allele", "p"))
     lgx_group = load_dict(
@@ -475,7 +472,6 @@ def load_ars_mappings(db_connection):
     p_not_g = load_dict(db_connection, table_name="p_not_g", columns=("allele", "lgx"))
     return ARSMapping(
         dup_g=dup_g,
-        dup_lgx=dup_lgx,
         g_group=g_group,
         p_group=p_group,
         lgx_group=lgx_group,
@@ -496,12 +492,6 @@ def save_ars_mappings(db_connection: sqlite3.Connection, ars_mapping: ARSMapping
         table_name="dup_g",
         dictionary=ars_mapping.dup_g,
         columns=("allele", "g_group"),
-    )
-    save_dict(
-        db_connection,
-        table_name="dup_lgx",
-        dictionary=ars_mapping.dup_lgx,
-        columns=("allele", "lgx_group"),
     )
     save_dict(
         db_connection,

@@ -90,10 +90,10 @@ Feature: P and G Groups
       | C*02:10    | lg    | C*02:02g     |
       | C*02:10    | lgx   | C*02:02      |
 
-    Examples: lgx with duplicates
-      | Allele        | Level | Redux Allele            |
-      | DPA1*02:12    | lgx   | DPA1*02:02/DPA1*02:07   |
-      | DPA1*02:12    | lg    | DPA1*02:02g/DPA1*02:07g |
-      | DQA1*03:03    | lgx   | DQA1*03:01              |
-      | DQA1*03:03    | lg    | DQA1*03:01g             |
-      | DQA1*03:03:09 | lg    | DQA1*03:03g             |
+    Examples: lgx redux with duplicate G groups
+      | Allele        | Level | Redux Allele |
+      | DPA1*02:12    | lgx   | DPA1*02:02   |
+      | DPA1*02:12    | lg    | DPA1*02:02g  |
+      | DQA1*03:03    | lgx   | DQA1*03:01   |
+      | DQA1*03:03    | lg    | DQA1*03:01g  |
+      | DQA1*03:03:09 | lg    | DQA1*03:03g  |
