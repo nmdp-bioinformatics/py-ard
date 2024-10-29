@@ -23,7 +23,6 @@ from collections import namedtuple
 
 ars_mapping_tables = [
     "dup_g",
-    "dup_lgx",
     "g_group",
     "p_group",
     "lgx_group",
