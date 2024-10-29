@@ -114,6 +114,15 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     mlgx = df_g_group.drop_duplicates(["2d", "lgx"])["2d"].value_counts()
     multiple_lgx_list = mlgx[mlgx > 1].index.to_list()
 
+    # Keep only the alleles that have more than 1 mapping
+    dup_lgx = (
+        df_g_group[df_g_group["2d"].isin(multiple_lgx_list)][["lgx", "2d"]]
+        .drop_duplicates()
+        .groupby("2d", as_index=True)
+        .agg("/".join)
+        .to_dict()["lgx"]
+    )
+
     # Extract G group mapping
     df_g = pd.concat(
         [
