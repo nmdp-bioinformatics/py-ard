@@ -50,6 +50,7 @@ from .misc import (
     get_1field_allele,
 )
 from .serology import broad_splits_dna_mapping, SerologyMapping
+from .smart_sort import smart_sort_comparator
 
 
 def expression_reduce(df):
@@ -154,6 +155,24 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     )
     lgx_group = df_lgx.set_index("A")["lgx"].to_dict()
 
+    # Find the alleles that have more than 1 mapping
+    dup_lgx = (
+        df_g_group[df_g_group["2d"].isin(multiple_lgx_list)][["lgx", "2d"]]
+        .drop_duplicates()
+        .groupby("2d", as_index=True)
+        .agg(list)
+        .to_dict()["lgx"]
+    )
+    # Do not keep duplicate alleles for lgx. Issue #333
+    # DPA1*02:02/DPA1*02:07 ==> DPA1*02:02
+    #
+    lowest_numbered_dup_lgx = {
+        k: sorted(v, key=functools.cmp_to_key(smart_sort_comparator))[0]
+        for k, v in dup_lgx.items()
+    }
+    # Update the lgx_group with the allele with the lowest number
+    lgx_group.update(lowest_numbered_dup_lgx)
+
     # Extract exon mapping
     df_exon = pd.concat(
         [
@@ -164,7 +183,6 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
 
     ars_mapping = ARSMapping(
         dup_g=dup_g,
-        dup_lgx=dup_lgx,
         g_group=g_group,
         p_group=p_group,
         lgx_group=lgx_group,

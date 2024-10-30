@@ -189,6 +189,8 @@ class ARD(object):
             hla, allele_name = allele.split("-")
             redux_allele = self._redux_allele(allele_name, redux_type)
             if redux_allele:
+                if "/" in redux_allele:
+                    return "/".join(["HLA-" + ra for ra in redux_allele.split("/")])
                 return "HLA-" + redux_allele
             else:
                 return redux_allele
@@ -246,9 +248,7 @@ class ARD(object):
         elif redux_type == "P" and allele in self.ars_mappings.p_group:
             return self.ars_mappings.p_group[allele]
         elif redux_type in ["lgx", "lg"]:
-            if allele in self.ars_mappings.dup_lgx:
-                redux_allele = self.ars_mappings.dup_lgx[allele]
-            elif allele in self.ars_mappings.lgx_group:
+            if allele in self.ars_mappings.lgx_group:
                 redux_allele = self.ars_mappings.lgx_group[allele]
             else:
                 # for 'lgx' or 'lg' mode when allele is not in G group,
