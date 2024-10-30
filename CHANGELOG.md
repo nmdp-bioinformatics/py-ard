@@ -1,9 +1,22 @@
-<a name="1.5.1"></a>
-# [1.5.1](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.1) - 11 Sep 2024
+<a id="1.5.3"></a>
+# [1.5.3 - Single `lgx` reductions and `/ard` endpoint](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.3) - 2024-10-30
 
 ## What's Changed
-* pyard-service Docker changes by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/329
-* Homozygosify GL String, Suppress loci by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/332
+* Only single `lgx` reductions by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#334](https://github.com/nmdp-bioinformatics/py-ard/pull/334)
+* `/ard/{allele}` endpoint for `lgx` reduction by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#335](https://github.com/nmdp-bioinformatics/py-ard/pull/335)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.1...1.5.3
+
+[Changes][1.5.3]
+
+
+<a id="1.5.1"></a>
+# [1.5.1](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.1) - 2024-09-11
+
+## What's Changed
+* pyard-service Docker changes by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#329](https://github.com/nmdp-bioinformatics/py-ard/pull/329)
+* Homozygosify GL String, Suppress loci by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#332](https://github.com/nmdp-bioinformatics/py-ard/pull/332)
 
 
 **Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.0...1.5.1
@@ -11,26 +24,26 @@
 [Changes][1.5.1]
 
 
-<a name="1.5.0"></a>
-# [Support for Python 3.12 (1.5.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.0) - 11 Jun 2024
+<a id="1.5.0"></a>
+# [Support for Python 3.12 (1.5.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.0) - 2024-06-11
 
 - Able to run in **Python 3.12**
 - Upgraded Pandas to `2.2.2`
 - *Python 3.8* is **deprecated**. Use `py-ard==1.2.1` for Python 3.8.
 
 ## What's Changed
-* Support for Python 3.12 by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/328
+* Support for Python 3.12 by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#328](https://github.com/nmdp-bioinformatics/py-ard/pull/328)
 
 
 
 [Changes][1.5.0]
 
 
-<a name="1.2.1"></a>
-# [Fix for ping mode (1.2.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.1) - 31 May 2024
+<a id="1.2.1"></a>
+# [Fix for ping mode (1.2.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.1) - 2024-05-31
 
 ## What's Changed
-* Ping reductions for duplicates by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/326
+* Ping reductions for duplicates by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#326](https://github.com/nmdp-bioinformatics/py-ard/pull/326)
 
 
 **Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
@@ -38,14 +51,14 @@
 [Changes][1.2.1]
 
 
-<a name="1.2.0"></a>
-# [`ping` mode is default (1.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.0) - 29 May 2024
+<a id="1.2.0"></a>
+# [`ping` mode is default (1.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.2.0) - 2024-05-29
 
 When in ping mode, alleles that do not have a G group, their corresponding P group is used. This will be the default behavior unless a `"ping": False` is supplied to `pyard.init()` call.
 
 
 ## What's Changed
-* Make `ping` mode default by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/323
+* Make `ping` mode default by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#323](https://github.com/nmdp-bioinformatics/py-ard/pull/323)
 
 
 **Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.3...1.2.0
@@ -53,16 +66,16 @@ When in ping mode, alleles that do not have a G group, their corresponding P gro
 [Changes][1.2.0]
 
 
-<a name="1.1.3"></a>
-# [Fix `exon` redux for 2 field alleles (1.1.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.3) - 07 May 2024
+<a id="1.1.3"></a>
+# [Fix `exon` redux for 2 field alleles (1.1.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.3) - 2024-05-07
 
 To correctly reduce to the exon version, it first expands to `W` and then reduce to `exon` level producing all possibilities at exon level.
 
 Fixes [#320](https://github.com/nmdp-bioinformatics/py-ard/issues/320)
 
 ## What's Changed
-* Bump gunicorn from 20.1.0 to 22.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/nmdp-bioinformatics/py-ard/pull/319
-* Fix `exon` reductions for 2 field alleles by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/322
+* Bump gunicorn from 20.1.0 to 22.0.0 by [@dependabot](https://github.com/dependabot) in [#319](https://github.com/nmdp-bioinformatics/py-ard/pull/319)
+* Fix `exon` reductions for 2 field alleles by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#322](https://github.com/nmdp-bioinformatics/py-ard/pull/322)
 
 
 **Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.1.2...1.1.3
@@ -70,8 +83,8 @@ Fixes [#320](https://github.com/nmdp-bioinformatics/py-ard/issues/320)
 [Changes][1.1.3]
 
 
-<a name="1.1.2"></a>
-# [ARD default redux + Bug Fixes (1.1.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.2) - 22 Mar 2024
+<a id="1.1.2"></a>
+# [ARD default redux + Bug Fixes (1.1.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.2) - 2024-03-22
 
 Feature:
  - ARD reduction (`lgx`) is the default for `ard.redux()`
@@ -84,8 +97,8 @@ Bug Fixes:
 [Changes][1.1.2]
 
 
-<a name="1.1.1"></a>
-# [Serology Updates (1.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.1) - 05 Mar 2024
+<a id="1.1.1"></a>
+# [Serology Updates (1.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.1.1) - 2024-03-05
 
 Serolgy Updates
 
@@ -103,8 +116,8 @@ pyard-import --re-install
 [Changes][1.1.1]
 
 
-<a name="1.0.11"></a>
-# [Fix CWD and Serology reduction issues (1.0.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.11) - 02 Feb 2024
+<a id="1.0.11"></a>
+# [Fix CWD and Serology reduction issues (1.0.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.11) - 2024-02-02
 
 
 - CWD reduction issues for XX alleles
@@ -115,11 +128,11 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 [Changes][1.0.11]
 
 
-<a name="1.0.10"></a>
-# [1.0.10](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.10) - 19 Jan 2024
+<a id="1.0.10"></a>
+# [1.0.10](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.10) - 2024-01-19
 
 ## What's Changed
-* Fix serology sort by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/297
+* Fix serology sort by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#297](https://github.com/nmdp-bioinformatics/py-ard/pull/297)
 
 
 **Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.9...1.0.10
@@ -127,8 +140,8 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 [Changes][1.0.10]
 
 
-<a name="1.0.9"></a>
-# [1.0.9 Updated CWD2 Reference Data](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.9) - 15 Dec 2023
+<a id="1.0.9"></a>
+# [1.0.9 Updated CWD2 Reference Data](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.9) - 2023-12-15
 
 - Updated CWD2 Reference Data from igdawg
 - `cwd_redux()` can handle CWD2 allele that are Nulls 
@@ -137,8 +150,8 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 [Changes][1.0.9]
 
 
-<a name="1.0.8"></a>
-# [1.0.8 - `/similar` endpoint and validation fix](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.8) - 05 Dec 2023
+<a id="1.0.8"></a>
+# [1.0.8 - `/similar` endpoint and validation fix](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.8) - 2023-12-05
 
 - [#286](https://github.com/nmdp-bioinformatics/py-ard/issues/286) `similar` endpoint return all alleles/MAC with given prefixes
 - [#287](https://github.com/nmdp-bioinformatics/py-ard/issues/287)  Allele validation in non-strict mode
@@ -147,8 +160,8 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 [Changes][1.0.8]
 
 
-<a name="1.0.7"></a>
-# [Find Similar Alleles (1.0.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.7) - 09 Nov 2023
+<a id="1.0.7"></a>
+# [Find Similar Alleles (1.0.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.7) - 2023-11-09
 
 Features:
  - Find similar Alleles options with `pyard` command [#264](https://github.com/nmdp-bioinformatics/py-ard/issues/264) 
@@ -160,8 +173,8 @@ Bug Fixes:
 [Changes][1.0.7]
 
 
-<a name="1.0.6"></a>
-# [1.0.6 Validation of allele specific MAC codes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.6) - 30 Oct 2023
+<a id="1.0.6"></a>
+# [1.0.6 Validation of allele specific MAC codes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.6) - 2023-10-30
 
 - Use allele specific antigen code rules when validating MACs that cross antigen group similar to [MAC Service](https://hml.nmdp.org/macui/)
 - Returns the original `InvalidAlleleError` instead of wrapping it in `InvalidTypingError` when an allele is not valid.
@@ -169,8 +182,8 @@ Bug Fixes:
 [Changes][1.0.6]
 
 
-<a name="1.0.5"></a>
-# [1.0.5 Non strict mode](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.5) - 04 Oct 2023
+<a id="1.0.5"></a>
+# [1.0.5 Non strict mode](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.5) - 2023-10-04
 
 Supports non-strict mode makes valid alleles by adding expression characters to invalid alleles.
 
@@ -209,16 +222,16 @@ DQB1*03:01
 [Changes][1.0.5]
 
 
-<a name="1.0.4"></a>
-# [Fixes when used without login user (1.0.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.4) - 19 Sep 2023
+<a id="1.0.4"></a>
+# [Fixes when used without login user (1.0.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.4) - 2023-09-19
 
 Fixed the OSError when running without a login user.
 
 [Changes][1.0.4]
 
 
-<a name="1.0.3"></a>
-# [1.0.3 – Permission Errors and pyard updates](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.3) - 17 Aug 2023
+<a id="1.0.3"></a>
+# [1.0.3 – Permission Errors and pyard updates](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.3) - 2023-08-17
 
 - Alert permission Errors when `data_dir` is not writable
 - Add `--lookup-mac` and `--expand-mac` to `pyard` command
@@ -226,8 +239,8 @@ Fixed the OSError when running without a login user.
 [Changes][1.0.3]
 
 
-<a name="1.0.2"></a>
-# [Fixes issue with using py-ard without MAC (1.0.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.2) - 03 Aug 2023
+<a id="1.0.2"></a>
+# [Fixes issue with using py-ard without MAC (1.0.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.2) - 2023-08-03
 
 Fixes issue with using py-ard without MAC 
  - When using py-ard with `load_mac=False`, check if the allele looks like a MAC
@@ -235,8 +248,8 @@ Fixes issue with using py-ard without MAC
 [Changes][1.0.2]
 
 
-<a name="1.0.1"></a>
-# [1.0.1 → Bug Fixes for 1.0.0 Release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.1) - 23 Jun 2023
+<a id="1.0.1"></a>
+# [1.0.1 → Bug Fixes for 1.0.0 Release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.1) - 2023-06-23
 
 Fixed bugs and added some niceties
 
@@ -250,110 +263,24 @@ Fixed bugs and added some niceties
 [Changes][1.0.1]
 
 
-<a name="1.0.0"></a>
-# [Final Release 1.0.0](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0) - 04 May 2023
+<a id="1.0.0"></a>
+# [Final Release 1.0.0](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0) - 2023-05-04
 
 Release YAY!! 🎉
 
 [Changes][1.0.0]
 
 
-<a name="1.0.0rc7"></a>
-# [Fix PyPi Packaging (1.0.0rc7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc7) - 17 Apr 2023
-
-Include `requirements.txt` files
-
-[Changes][1.0.0rc7]
-
-
-<a name="1.0.0rc6"></a>
-# [Batch Reduce Fixes (1.0.0rc6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc6) - 05 Apr 2023
-
-Bug fixes
-- Fix issue when adding locus name to a serology value
-- Fix issue when reducing an allele-list
-- Account for lower case allele names
-
-[Changes][1.0.0rc6]
-
-
-<a name="1.0.0rc5"></a>
-# [Decode MAC and CWD 2.0 Reductions (1.0.0rc5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc5) - 03 Apr 2023
-
-Support looking up MAC code from allele list with `lookup_mac` method.
-
-Support CWD Reduction:
- - add `cwd_redux` method to produce CWD only allele list
- - create `cwd2` table on load
- - `cwd-redux` endpoint to allow CWD reduction
-
-[Changes][1.0.0rc5]
-
-
-<a name="0.9.2"></a>
-# [Fix Pandas dependencies Latest (0.9.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.9.2) - 23 Mar 2023
+<a id="0.9.2"></a>
+# [Fix Pandas dependencies Latest (0.9.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.9.2) - 2023-03-23
 
 Set to `pandas==1.5.3`
 
 [Changes][0.9.2]
 
 
-<a name="1.0.0rc4"></a>
-# [Documentation Update and Cleanup (1.0.0rc4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc4) - 15 Mar 2023
-
-## What's Changed
-* Documentation and cleanup for 1.0 by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in https://github.com/nmdp-bioinformatics/py-ard/pull/219
-
-
-**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc3...1.0.0rc4
-
-[Changes][1.0.0rc4]
-
-
-<a name="1.0.0rc3"></a>
-# [Performance Update (1.0.0rc3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc3) - 07 Mar 2023
-
-This PR gathers all the performance improvements. speed of pyard increased multiple fold. Faster startups.
-
-Update for performance:
-- aggressive caching for most used functions
-- import pandas only during loading of data
-- query for column
-- remove use of regex for simple checks
-- option to choose cache in batch
-
-Refactor/cleanup:
-- make methods private that do not need to be exposed
-- wrap with try/catch all calls to load data
-
-[Changes][1.0.0rc3]
-
-
-<a name="1.0.0rc2"></a>
-# [2nd Release Candidate for 1.0 (1.0.0rc2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc2) - 07 Mar 2023
-
- Supports reduction type of `P` for P-group reduction.
-
-[Changes][1.0.0rc2]
-
-
-<a name="1.0.0rc1"></a>
-# [Release Candidate for 1.0 (1.0.0rc1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.0rc1) - 27 Feb 2023
-
-- A single `redux` does allele and GL String reductions.
-- Added API to show broad/splits
-- Batchmode allows GL String output
-- Set `$TEMPDIR/pyard/` as the default path for storing db files.
-- Use `pyard-reduce-csv --generate-sample` to get sample config/input file
-- Lots of improvements/features in the CLI tools
-- Refactoring of code
-
-
-[Changes][1.0.0rc1]
-
-
-<a name="0.9.1"></a>
-# [Bug fixes, blend endpoint (0.9.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.9.1) - 09 Feb 2023
+<a id="0.9.1"></a>
+# [Bug fixes, blend endpoint (0.9.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.9.1) - 2023-02-09
 
  - `blend` endpoint added to the service
  - removed `lg` tables and dictionaries.
@@ -365,16 +292,16 @@ Refactor/cleanup:
 [Changes][0.9.1]
 
 
-<a name="0.8.2"></a>
-# [Shortnulls for exon mode fixed (0.8.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.2) - 18 Nov 2022
+<a id="0.8.2"></a>
+# [Shortnulls for exon mode fixed (0.8.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.2) - 2022-11-18
 
 See PR [#183](https://github.com/nmdp-bioinformatics/py-ard/issues/183) to fix [#161](https://github.com/nmdp-bioinformatics/py-ard/issues/161) 
 
 [Changes][0.8.2]
 
 
-<a name="0.8.1"></a>
-# [Ping! Mode and DR Blending (0.8.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.1) - 03 Oct 2022
+<a id="0.8.1"></a>
+# [Ping! Mode and DR Blending (0.8.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.1) - 2022-10-03
 
 PING mode
  - When `ping=True` alleles in P-groups are included in addition to the alleles in G-groups in the corresponding lg/lgx groups.
@@ -386,8 +313,8 @@ DR Blending
 [Changes][0.8.1]
 
 
-<a name="0.8.0"></a>
-# [`py-ard` REST Service (0.8.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.0) - 10 Jun 2022
+<a id="0.8.0"></a>
+# [`py-ard` REST Service (0.8.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.0) - 2022-06-10
 
 `py-ard` REST Service
  - REST service with `/redux`, `/validate`, `/mac` endpoints
@@ -397,16 +324,16 @@ DR Blending
 [Changes][0.8.0]
 
 
-<a name="0.7.7"></a>
-# [BugFix for HLA  Prefix (0.7.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.7) - 19 May 2022
+<a id="0.7.7"></a>
+# [BugFix for HLA  Prefix (0.7.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.7) - 2022-05-19
 
 See [#165](https://github.com/nmdp-bioinformatics/py-ard/issues/165) 
 
 [Changes][0.7.7]
 
 
-<a name="0.7.6"></a>
-# [Reduce to Shortnulls (0.7.6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.6) - 29 Mar 2022
+<a id="0.7.6"></a>
+# [Reduce to Shortnulls (0.7.6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.6) - 2022-03-29
 
 Implement **shortnulls** behavior with new config variable set to True by default.
 
@@ -434,8 +361,8 @@ See [#154](https://github.com/nmdp-bioinformatics/py-ard/issues/154) and [#155](
 [Changes][0.7.6]
 
 
-<a name="0.7.5"></a>
-# [Support shortnull (0.7.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.5) - 26 Mar 2022
+<a id="0.7.5"></a>
+# [Support shortnull (0.7.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.5) - 2022-03-26
 
 Implements **shortnulls** behavior with new config variable set to `True` by default.
 
@@ -447,8 +374,8 @@ This will address things like `DRB4*01:03N` and `DRB5*01:08N` both in terms of a
 [Changes][0.7.5]
 
 
-<a name="0.7.4"></a>
-# [Summary Table for Batch (0.7.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.4) - 23 Mar 2022
+<a id="0.7.4"></a>
+# [Summary Table for Batch (0.7.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.4) - 2022-03-23
 
 Show summary table for failed alleles.
 ```
@@ -467,24 +394,24 @@ Summary
 [Changes][0.7.4]
 
 
-<a name="0.7.3"></a>
-# [Fix batch regression error (0.7.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.3) - 21 Mar 2022
+<a id="0.7.3"></a>
+# [Fix batch regression error (0.7.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.3) - 2022-03-21
 
  Fix regression error for MAC reduction [#152](https://github.com/nmdp-bioinformatics/py-ard/issues/152) 
 
 [Changes][0.7.3]
 
 
-<a name="0.7.1.1"></a>
-# [Add reduce_2field reduce option (0.7.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.1.1) - 23 Feb 2022
+<a id="0.7.1.1"></a>
+# [Add reduce_2field reduce option (0.7.1.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.1.1) - 2022-02-23
 
 Batch csv `pyard-reduce-csv` takes in `reduce_2field` option to reduce 2 fields alleles like `B*15:220`, `DPB1*104:01` and `A*02:642`
 
 [Changes][0.7.1.1]
 
 
-<a name="0.7.2"></a>
-# [Stricter Data Validation (0.7.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.2) - 14 Feb 2022
+<a id="0.7.2"></a>
+# [Stricter Data Validation (0.7.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.2) - 2022-02-14
 
 Version `0.7.0` has stricter data validation. It will not silently fail by returning an empty `''` string. It'll return of the  `Invalid` exceptions in `pyard.exceptions` when calling `redux_gl` method with invalid GL String. 
 
@@ -493,16 +420,16 @@ See [CHANGELOG.md](https://github.com/nmdp-bioinformatics/py-ard/blob/master/CHA
 [Changes][0.7.2]
 
 
-<a name="0.6.11"></a>
-# [Fix for IMGT URL Change (0.6.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.11) - 24 Jan 2022
+<a id="0.6.11"></a>
+# [Fix for IMGT URL Change (0.6.11)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.11) - 2022-01-24
 
 Fixes a breaking change where all allele lists in IMGTHLA repo have been moved to `/allelelist/` subdirectory.
 
 [Changes][0.6.11]
 
 
-<a name="0.6.10"></a>
-# [Bug fixes for Batch Processing (0.6.10)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.10) - 13 Dec 2021
+<a id="0.6.10"></a>
+# [Bug fixes for Batch Processing (0.6.10)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.10) - 2021-12-13
 
 Batch Reduce Fixes:
 - Fix Instantiation of `pyard.ARD` object.
@@ -514,8 +441,8 @@ Batch Reduce Fixes:
 [Changes][0.6.10]
 
 
-<a name="0.6.9"></a>
-# [pyard-status command to check the status of all tables in the databases (0.6.9)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.9) - 27 Sep 2021
+<a id="0.6.9"></a>
+# [pyard-status command to check the status of all tables in the databases (0.6.9)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.9) - 2021-09-27
 
 `pyard-status` command to check the status of all tables in the databases. This will help to see if there are missing tables and also to compare number of data between versions.
 
@@ -544,8 +471,8 @@ MISSING: who_group table
 [Changes][0.6.9]
 
 
-<a name="0.6.8"></a>
-# [Supports WHO and exon Reduction Types (0.6.8)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.8) - 24 Sep 2021
+<a id="0.6.8"></a>
+# [Supports WHO and exon Reduction Types (0.6.8)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.8) - 2021-09-24
 
 - Handle cases when there is no typing and when redux fails.
 - added `exon` resolution group 
@@ -556,16 +483,16 @@ MISSING: who_group table
 [Changes][0.6.8]
 
 
-<a name="0.6.6"></a>
-# [handle invalid/blank input (0.6.6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.6) - 29 Jul 2021
+<a id="0.6.6"></a>
+# [handle invalid/blank input (0.6.6)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.6) - 2021-07-29
 
 handle cases with no input and redux fails
 
 [Changes][0.6.6]
 
 
-<a name="0.6.5"></a>
-# [updates to pyard-reduce-csv and unit tests (0.6.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.5) - 17 Jun 2021
+<a id="0.6.5"></a>
+# [updates to pyard-reduce-csv and unit tests (0.6.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.5) - 2021-06-17
 
 
     Use pyard-reduce-csv command to reduce a CSV file based on a JSON config file.
@@ -577,8 +504,8 @@ handle cases with no input and redux fails
 [Changes][0.6.5]
 
 
-<a name="0.6.4"></a>
-# [DRBX Mapping and Cw Serology (0.6.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.4) - 16 Jun 2021
+<a id="0.6.4"></a>
+# [DRBX Mapping and Cw Serology (0.6.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.4) - 2021-06-16
 
  - Map DRB3, DRB4 and DRB5 typings to DRBX. [#82](https://github.com/nmdp-bioinformatics/py-ard/issues/82) 
  - Change C to Cw for serology; [#84](https://github.com/nmdp-bioinformatics/py-ard/issues/84) 
@@ -587,24 +514,24 @@ handle cases with no input and redux fails
 [Changes][0.6.4]
 
 
-<a name="0.6.3"></a>
-# [0.6.3 release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.3) - 09 Jun 2021
+<a id="0.6.3"></a>
+# [0.6.3 release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.3) - 2021-06-09
 
  addresses one-to-many relationship from 2d to lg/lgx
 
 [Changes][0.6.3]
 
 
-<a name="0.6.2"></a>
-# [Fixes serology mappings for broad to include alleles in the split (0.6.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.2) - 07 Jun 2021
+<a id="0.6.2"></a>
+# [Fixes serology mappings for broad to include alleles in the split (0.6.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.2) - 2021-06-07
 
 Fixes serology mappings for broad to include alleles in the split.
 
 [Changes][0.6.2]
 
 
-<a name="0.6.1"></a>
-# [V2 to V3 Mapping (0.6.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.1) - 04 Feb 2021
+<a id="0.6.1"></a>
+# [V2 to V3 Mapping (0.6.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.1) - 2021-02-04
 
 
    - Heuristically predict V3 from V2 when not in exceptional case list
@@ -615,24 +542,24 @@ Fixes serology mappings for broad to include alleles in the split.
 [Changes][0.6.1]
 
 
-<a name="0.6.0"></a>
-# [Nomenclature versioning (0.6.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.0) - 08 Dec 2020
+<a id="0.6.0"></a>
+# [Nomenclature versioning (0.6.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.0) - 2020-12-08
 
 adds nomenclature versioning, cmdline options, GL string examples
 
 [Changes][0.6.0]
 
 
-<a name="0.5.1"></a>
-# [fix mac expansion (0.5.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.5.1) - 30 Nov 2020
+<a id="0.5.1"></a>
+# [fix mac expansion (0.5.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.5.1) - 2020-11-30
 
 Fix serology mapping and mac expansions
 
 [Changes][0.5.1]
 
 
-<a name="0.4.1"></a>
-# [Upgrade Pandas to 1.1.4 (0.4.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.4.1) - 03 Nov 2020
+<a id="0.4.1"></a>
+# [Upgrade Pandas to 1.1.4 (0.4.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.4.1) - 2020-11-03
 
 Update pandas 1.1.4
 
@@ -642,16 +569,16 @@ Update pandas 1.1.4
 [Changes][0.4.1]
 
 
-<a name="0.4.0"></a>
-# [Support reduction of serologically typed GL String (0.4.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.4.0) - 22 Oct 2020
+<a id="0.4.0"></a>
+# [Support reduction of serologically typed GL String (0.4.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.4.0) - 2020-10-22
 
 Uses WMDA `rel_dna_ser.txt` for the corresponding version of IMGT database to produce serology mapping
 
 [Changes][0.4.0]
 
 
-<a name="0.3.0"></a>
-# [Use sqlite3 database for reference data (0.3.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.3.0) - 15 Oct 2020
+<a id="0.3.0"></a>
+# [Use sqlite3 database for reference data (0.3.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.3.0) - 2020-10-15
 
  Use sqlite3 database for data 
 
@@ -682,16 +609,16 @@ Heap memory used by ARD reference data after `ard = pyard.ARD(3290)`
 [Changes][0.3.0]
 
 
-<a name="0.2.0"></a>
-# [rearrange data in memory (0.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.2.0) - 14 Oct 2020
+<a id="0.2.0"></a>
+# [rearrange data in memory (0.2.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.2.0) - 2020-10-14
 
 This release rearranges how memory is used especially MAC codes and a lot of cleanup.
 
 [Changes][0.2.0]
 
 
-<a name="0.1.0"></a>
-# [load_mac_file flag to load MAC file (0.1.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.1.0) - 01 Oct 2020
+<a id="0.1.0"></a>
+# [load_mac_file flag to load MAC file (0.1.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.1.0) - 2020-10-01
 
  Rename download_mac flag
 
@@ -704,16 +631,16 @@ This release rearranges how memory is used especially MAC codes and a lot of cle
 [Changes][0.1.0]
 
 
-<a name="0.0.21"></a>
-# [fix tests and sorting (0.0.21)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.21) - 09 Sep 2020
+<a id="0.0.21"></a>
+# [fix tests and sorting (0.0.21)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.21) - 2020-09-09
 
 fixes test and also a bug in 4th field sorting
 
 [Changes][0.0.21]
 
 
-<a name="0.0.20"></a>
-# [allow P and G as input, fix lg and lgx behavior (0.0.20)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.20) - 09 Sep 2020
+<a id="0.0.20"></a>
+# [allow P and G as input, fix lg and lgx behavior (0.0.20)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.20) - 2020-09-09
 
 This release fixes the behavior of lg and lgx to always reduce to 2-field.
 It also allows P and G alleles as input
@@ -721,16 +648,16 @@ It also allows P and G alleles as input
 [Changes][0.0.20]
 
 
-<a name="0.0.18"></a>
-# [Fixes G-codes expansion (0.0.18)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.18) - 29 Jul 2020
+<a id="0.0.18"></a>
+# [Fixes G-codes expansion (0.0.18)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.18) - 2020-07-29
 
 Fixes G-codes expansion when smart sorting.
 
 [Changes][0.0.18]
 
 
-<a name="0.0.17"></a>
-# [Specify path for temporary files (0.0.17)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.17) - 22 Jul 2020
+<a id="0.0.17"></a>
+# [Specify path for temporary files (0.0.17)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.17) - 2020-07-22
 
 You can specify path when creating ARD object.
 ```
@@ -740,32 +667,32 @@ ard = ARD('3290', data_dir='/tmp/py-ard')
 [Changes][0.0.17]
 
 
-<a name="0.0.16"></a>
-# [version 0.0.16](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.16) - 09 Jul 2020
+<a id="0.0.16"></a>
+# [version 0.0.16](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.16) - 2020-07-09
 
 update MAC location and version to 0.0.16
 
 [Changes][0.0.16]
 
 
-<a name="0.0.15.0"></a>
-# [update to MAC location (0.0.15.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.15.0) - 28 May 2020
+<a id="0.0.15.0"></a>
+# [update to MAC location (0.0.15.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.15.0) - 2020-05-28
 
 
 
 [Changes][0.0.15.0]
 
 
-<a name="0.0.15"></a>
-# [update to MAC location (0.0.15)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.15) - 28 May 2020
+<a id="0.0.15"></a>
+# [update to MAC location (0.0.15)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.15) - 2020-05-28
 
 yes
 
 [Changes][0.0.15]
 
 
-<a name="0.0.14"></a>
-# [0.0.14](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.14) - 14 Apr 2020
+<a id="0.0.14"></a>
+# [0.0.14](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.14) - 2020-04-14
 
 - Support for Python 3.7
 - Broad XX enhancement 
@@ -774,6 +701,7 @@ yes
 [Changes][0.0.14]
 
 
+[1.5.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.1...1.5.3
 [1.5.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.1...1.5.0
 [1.2.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.2.0...1.2.1
@@ -792,15 +720,8 @@ yes
 [1.0.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc7...1.0.0
-[1.0.0rc7]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc6...1.0.0rc7
-[1.0.0rc6]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc5...1.0.0rc6
-[1.0.0rc5]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.2...1.0.0rc5
-[0.9.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc4...0.9.2
-[1.0.0rc4]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc3...1.0.0rc4
-[1.0.0rc3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc2...1.0.0rc3
-[1.0.0rc2]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.0.0rc1...1.0.0rc2
-[1.0.0rc1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.1...1.0.0rc1
+[1.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.2...1.0.0
+[0.9.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.8.2...0.9.1
 [0.8.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.8.0...0.8.1
@@ -838,4 +759,4 @@ yes
 [0.0.15]: https://github.com/nmdp-bioinformatics/py-ard/compare/0.0.14...0.0.15
 [0.0.14]: https://github.com/nmdp-bioinformatics/py-ard/tree/0.0.14
 
-<!-- Generated by https://github.com/rhysd/changelog-from-release v3.7.2 -->
+<!-- Generated by https://github.com/rhysd/changelog-from-release v3.8.0 -->
