@@ -58,6 +58,24 @@ def redux_controller():
     return {"message": "No input data provided"}, 404
 
 
+def lgx_controller(allele):
+    # Perform redux
+    if allele:
+        try:
+            redux_string = ard.redux(allele, "lgx")
+            ipd_version = ard.get_db_version()
+            return {
+                "ipd_version": ipd_version,
+                "pyard_version": pyard.__version__,
+                "allele": allele,
+                "ard": redux_string,
+            }, 200
+        except PyArdError as e:
+            return {"message": e.message}, 400
+    else:
+        return {"message": f"No allele provided"}, 404
+
+
 def mac_expand_controller(allele_code: str):
     try:
         if ard.is_mac(allele_code):
@@ -107,8 +125,8 @@ def drbx_blender_controller():
 def version_controller():
     ipd_version = ard.get_db_version()
     return {
-        "ipd-version": ipd_version,
-        "py-ard-version": pyard.__version__,
+        "ipd_version": ipd_version,
+        "pyard_version": pyard.__version__,
     }, 200
 
 
