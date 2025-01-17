@@ -121,7 +121,15 @@ def redux(allele, locus, column_name):
             if ":" in allele:
                 locus_allele = f"{locus}*{allele}"
             else:
-                locus_allele = f"{locus}{allele}"  # serology
+                if allele.isnumeric():
+                    # Serology alleles are all numeric
+                    locus_allele = f"{locus}{allele}"  # serology
+                else:
+                    # Watch out, we may get floats when exported from Excel.
+                    message = f"Failed reducing '{allele}' in column {column_name}"
+                    print(message)
+                    failed_to_reduce_alleles.append((column_name, allele))
+                    return allele
 
     # Check the config if this allele should be reduced
     if should_be_reduced(allele, locus_allele):
