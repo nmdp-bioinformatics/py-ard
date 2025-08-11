@@ -36,3 +36,14 @@ def before_all(context):
     context.ard_non_strict = pyard.init(
         "3440", data_dir="/tmp/py-ard", config=non_strict_config
     )
+
+    # Ignored allele suffixes
+    ignore_suffix_mode = {
+        "ignore_allele_with_suffixes": (
+            "NNNN",
+            "UUUU",
+        )
+    }
+    context.ard_ignore_suffix = pyard.init(
+        "3440", data_dir="/tmp/py-ard", config=ignore_suffix_mode
+    )

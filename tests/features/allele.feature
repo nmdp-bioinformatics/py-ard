@@ -60,19 +60,19 @@ Feature: Alleles
 
   Scenario Outline: Allele validation in non-strict mode
 
-    Similar to reduction, handle non-strict mode when validating an allele.
-    The test version of IPD/IMGT-HLA database (see environment.py),
-    A*11:403 is invalid and A*24:329 is valid for A*24:329Q
+  Similar to reduction, handle non-strict mode when validating an allele.
+  The test version of IPD/IMGT-HLA database (see environment.py),
+  A*11:403 is invalid and A*24:329 is valid for A*24:329Q
 
     Given the allele as <Allele>
     When checking for validity of the allele in non-strict mode
     Then the validness of the allele is <Validity>
 
     Examples:
-      | Allele   | Validity |
-      | A*11:403 | Invalid  |
-      | A*24:329 | Valid    |
-
+      | Allele    | Validity |
+      | A*11:403  | Invalid  |
+      | A*24:329  | Valid    |
+      | DRBX*NNNN | Invalid  |
 
   Scenario Outline: Single field MICA, MICB Alleles
 
@@ -88,3 +88,26 @@ Feature: Alleles
       | MICA*040 | lgx   | MICA*040     |
       | MICB*006 | lgx   | MICB*006     |
       | MICB*029 | lgx   | MICB*029     |
+
+  Scenario Outline: Ignore reduction of DRBX*NNNN
+    Given the allele as <Allele>
+    When reducing on the <Level> level in ignore_suffix mode
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele    | Level | Redux Allele |
+      | DRBX*NNNN | lgx   | DRBX*NNNN    |
+      | DRBX*NNNN | G     | DRBX*NNNN    |
+      | DRB1*UUUU | lg    | DRB1*UUUU    |
+
+  Scenario Outline: Allele validation in ignore_suffix mode
+
+    DRBX*NNNN is valid in ignore_suffix_mode
+
+    Given the allele as <Allele>
+    When checking for validity of the allele in ignore_suffix mode
+    Then the validness of the allele is <Validity>
+
+    Examples:
+      | Allele    | Validity |
+      | DRBX*NNNN | Valid  |

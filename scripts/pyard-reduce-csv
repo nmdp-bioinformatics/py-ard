@@ -39,7 +39,7 @@ import pandas as pd
 import pyard
 from pyard.db import similar_alleles
 import pyard.drbx as drbx
-from pyard.exceptions import PyArdError, InvalidTypingError
+from pyard.exceptions import PyArdError, InvalidTypingError, InvalidAlleleError
 from pyard.misc import get_data_dir, get_imgt_version, download_to_file
 
 
@@ -277,10 +277,45 @@ def create_reduced_slug(locus_typ1_typ2_pair):
     return typ1
 
 
+def apply_drbx(gl_string):
+    slugs = gl_string.split("^")
+    alleles = [allele for slug in slugs for allele in slug.split("+")]
+    drbx_loci = ("DRB3", "DRB4", "DRB5")
+
+    # Filter for DRBX alleles
+    drbx_alleles = [
+        allele
+        for allele in alleles
+        if any(allele.startswith(locus) for locus in drbx_loci)
+    ]
+
+    # Create new GL string without DRBX alleles
+    filtered_slugs = []
+    for slug in slugs:
+        non_drbx_alleles = []
+        for allele in slug.split("+"):
+            if not any(allele.startswith(locus) for locus in drbx_loci):
+                non_drbx_alleles.append(allele)
+        if non_drbx_alleles:
+            filtered_slugs.append("+".join(non_drbx_alleles))
+
+    new_gl_string = "^".join(filtered_slugs)
+
+    drbx_slug = drbx.map_drbx(drbx_alleles, True)
+    gl_string_drbx = new_gl_string + "^" + "+".join(drbx_slug)
+
+    return gl_string_drbx
+
+
 def reduce_glstring(glstring: str) -> str:
     try:
-        return ard.redux(glstring, ard_config["redux_type"])
-    except InvalidTypingError as e:
+        ard_redux = ard.redux(glstring, ard_config["redux_type"])
+        if ard_config.get("map_drb345_to_drbx"):
+            glstring_drbx = apply_drbx(ard_redux)
+            return glstring_drbx
+        else:
+            return ard_redux
+    except (InvalidTypingError, InvalidAlleleError) as e:
         print(f"Error reducing {glstring} \n", e.message, file=sys.stderr)
         return "Failed"
 
@@ -391,6 +426,9 @@ if __name__ == "__main__":
         "reduce_MAC": ard_config.get("reduce_MAC", True),
         "map_drb345_to_drbx": ard_config.get("map_drb345_to_drbx", True),
         "verbose_log": ard_config.get("verbose_log", True),
+        "ignore_allele_with_suffixes": tuple(
+            ard_config.get("ignore_allele_with_suffixes", tuple())
+        ),
     }
     ard = pyard.init(
         imgt_version=imgt_version,
