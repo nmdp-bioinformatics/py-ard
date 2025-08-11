@@ -102,7 +102,7 @@ Feature: Alleles
 
   Scenario Outline: Allele validation in ignore_suffix mode
 
-    DRBX*NNNN is valid in ignore_suffix_mode
+  DRBX*NNNN is valid in ignore_suffix_mode
 
     Given the allele as <Allele>
     When checking for validity of the allele in ignore_suffix mode
@@ -110,4 +110,4 @@ Feature: Alleles
 
     Examples:
       | Allele    | Validity |
-      | DRBX*NNNN | Valid  |
+      | DRBX*NNNN | Valid    |

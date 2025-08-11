@@ -57,7 +57,6 @@ default_config = {
     "reduce_MAC": True,
     "reduce_shortnull": True,
     "ping": True,
-    "map_drb345_to_drbx": True,
     "verbose_log": False,
     "ARS_as_lg": False,
     "strict": True,
