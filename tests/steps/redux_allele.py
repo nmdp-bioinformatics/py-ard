@@ -126,6 +126,20 @@ def step_impl(context):
         context.is_valid = False
 
 
+@when("reducing on the {level} level in ignore_suffix mode")
+def step_impl(context, level):
+    context.level = level
+    context.redux_allele = context.ard_ignore_suffix.redux(context.allele, level)
+
+
+@when("checking for validity of the allele in ignore_suffix mode")
+def step_impl(context):
+    try:
+        context.is_valid = context.ard_ignore_suffix.validate(context.allele)
+    except InvalidAlleleError:
+        context.is_valid = False
+
+
 @then("the validness of the allele is {validity}")
 def step_impl(context, validity):
     valid = validity == "Valid"

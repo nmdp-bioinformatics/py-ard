@@ -32,15 +32,19 @@ serology_splitter = re.compile(r"(\D+)(\d+)")
 
 
 @functools.lru_cache(maxsize=constants.DEFAULT_CACHE_SIZE)
-def smart_sort_comparator(a1, a2):
+def smart_sort_comparator(a1, a2, ignore_suffixes=()):
     """
     Natural sort 2 given alleles.
 
     Python sorts strings lexicographically but HLA alleles need
     to be sorted by numerical values in each field of the HLA nomenclature.
 
+    If allele suffixes are in ignore_suffixes, comparison results in that
+    appearing later.
+
     :param a1: first allele
     :param a2: second allele
+    :param ignore_suffix: tuple of suffixes
     """
 
     # Check to see if they are the same alleles
@@ -52,6 +56,16 @@ def smart_sort_comparator(a1, a2):
         if a1 > a2:
             return 1
         else:
+            return -1
+
+    if ignore_suffixes and "*" in a1:
+        _, fields = a1.split("*")
+        if fields in ignore_suffixes:
+            return 1
+
+    if ignore_suffixes and "*" in a2:
+        _, fields = a2.split("*")
+        if fields in ignore_suffixes:
             return -1
 
     # remove any non-numerics

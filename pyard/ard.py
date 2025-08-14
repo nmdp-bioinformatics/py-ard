@@ -57,10 +57,10 @@ default_config = {
     "reduce_MAC": True,
     "reduce_shortnull": True,
     "ping": True,
-    "map_drb345_to_drbx": True,
     "verbose_log": False,
     "ARS_as_lg": False,
     "strict": True,
+    "ignore_allele_with_suffixes": (),
 }
 
 
@@ -388,7 +388,12 @@ class ARD(object):
             non_empty_gls = filter(lambda s: s != "", gls)
             return delim.join(
                 sorted(
-                    non_empty_gls, key=functools.cmp_to_key(self.smart_sort_comparator)
+                    non_empty_gls,
+                    key=functools.cmp_to_key(
+                        lambda a, b: self.smart_sort_comparator(
+                            a, b, self._config["ignore_allele_with_suffixes"]
+                        )
+                    ),
                 )
             )
 
@@ -399,7 +404,14 @@ class ARD(object):
             all_gls += gl.split(delim)
         unique_gls = filter(lambda s: s != "", set(all_gls))
         return delim.join(
-            sorted(unique_gls, key=functools.cmp_to_key(self.smart_sort_comparator))
+            sorted(
+                unique_gls,
+                key=functools.cmp_to_key(
+                    lambda a, b: self.smart_sort_comparator(
+                        a, b, self._config["ignore_allele_with_suffixes"]
+                    )
+                ),
+            )
         )
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
@@ -444,6 +456,11 @@ class ARD(object):
             return self._sorted_unique_gl(
                 [self.redux(a, redux_type) for a in glstring.split("/")], "/"
             )
+
+        if self._config["ignore_allele_with_suffixes"]:
+            _, fields = glstring.split("*")
+            if fields in self._config["ignore_allele_with_suffixes"]:
+                return glstring
 
         # Handle V2 to V3 mapping
         if self.is_v2(glstring):
@@ -788,6 +805,11 @@ class ARD(object):
             alphanum_allele = allele.replace("*", "").replace(":", "")
             if not alphanum_allele.isalnum():
                 return False
+
+            if self._config["ignore_allele_with_suffixes"]:
+                locus, fields = allele.split("*")
+                if fields in self._config["ignore_allele_with_suffixes"]:
+                    return True
 
         if not self._config["strict"]:
             allele = self._get_non_strict_allele(allele)
