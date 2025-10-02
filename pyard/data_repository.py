@@ -23,18 +23,24 @@
 import copy
 import functools
 import sqlite3
+import itertools
 
-import pyard.load
+import pyard.loader
+import pyard.loader.cwd
+import pyard.loader.mac_codes
+import pyard.loader.serology
 from pyard.smart_sort import smart_sort_comparator
 from . import db
 from .constants import expression_chars
-from .load import (
-    load_g_group,
-    load_p_group,
-    load_allele_list,
-    load_serology_mappings,
-    load_latest_version,
-)
+from .loader.allele_list import load_allele_list
+from .loader.serology import load_serology_mappings, load_serology_broad_split_mapping
+from .loader.version import load_latest_version
+
+from .loader.p_group import load_p_group
+from .loader.g_group import load_g_group
+
+from .simple_table import Table
+
 from .mappings import (
     ars_mapping_tables,
     ARSMapping,
@@ -53,7 +59,7 @@ from .serology import broad_splits_dna_mapping, SerologyMapping
 from .smart_sort import smart_sort_comparator
 
 
-def expression_reduce(df):
+def expression_reduce(exp_alleles_table):
     """
     For each group of expression alleles, check if __all__ of
     them have the same expression character. If so, the second field
@@ -63,20 +69,49 @@ def expression_reduce(df):
         field level if all three-field and/or four-field alleles have the same
         expression character.
 
-    :param df: dataframe with Allele column that is all expression characters
-    :return: 2 field allele or None
+    Given
+    allele_groups = {
+        'A*01:01': [
+            {'AlleleID': 'HLA02169', 'Allele': 'A*01:01:01:02N', '2d': 'A*01:01', '3d': 'A*01:01:01',
+             'Exp': 'A*01:01:01:02N'},
+            {'AlleleID': 'HLA03587', 'Allele': 'A*01:01:38L', '2d': 'A*01:01', '3d': 'A*01:01:38L',
+             'Exp': 'A*01:01:38L'}
+        ],
+        'A*01:04': [
+            {'AlleleID': 'HLA00004', 'Allele': 'A*01:04:01:01N', '2d': 'A*01:04', '3d': 'A*01:04:01',
+             'Exp': 'A*01:04:01:01N'},
+            {'AlleleID': 'HLA18724', 'Allele': 'A*01:04:01:02N', '2d': 'A*01:04', '3d': 'A*01:04:01',
+             'Exp': 'A*01:04:01:02N'}
+        ], 'A*01:52': [
+            {'AlleleID': 'HLA04761', 'Allele': 'A*01:52:01N', '2d': 'A*01:52', '3d': 'A*01:52:01N',
+             'Exp': 'A*01:52:01N'},
+            {'AlleleID': 'HLA14127', 'Allele': 'A*01:52:02N', '2d': 'A*01:52', '3d': 'A*01:52:02N',
+             'Exp': 'A*01:52:02N'}]
+    }
+
+
     """
-    for e in expression_chars:
-        if df["Allele"].str.endswith(e).all():
-            return df["2d"].iloc[0] + e
-    return None
+    allele_groups = exp_alleles_table.group_by("2d")
+    valid_2d_exp_alleles = dict()
+    for allele_2d, allele_group in allele_groups.items():
+        # Get the expression characters for the current allele_2d
+        expression_chars = {allele["Exp"][-1] for allele in allele_group}
+
+        # Check if all expression characters are the same
+        if len(expression_chars) == 1:
+            # If all expression characters are the same, return the 2d allele with the expression character
+            valid_2d_exp_alleles[allele_2d] = allele_2d + expression_chars.pop()
+
+    return valid_2d_exp_alleles
+
+
+def join_allele_list(alleles: list):
+    return "/".join(sorted(alleles, key=functools.cmp_to_key(smart_sort_comparator)))
 
 
 def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARSMapping:
     if db.tables_exist(db_connection, ars_mapping_tables):
         return db.load_ars_mappings(db_connection)
-
-    import pandas as pd
 
     df_g_group = load_g_group(imgt_version)
     df_p_group = load_p_group(imgt_version)
@@ -86,100 +121,73 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     p_not_in_g = set(df_p_group["2d"]) - set(df_g_group["2d"])
 
     # filter to find these 2-field alleles (2d) in the P-group data frame
-    df_p_not_g = df_p_group[df_p_group["2d"].isin(p_not_in_g)]
-
     # dictionary which will define the table
-    p_not_g = df_p_not_g.set_index("A")["lgx"].to_dict()
+    p_not_g = df_p_group.where_in("2d", p_not_in_g, ["A", "lgx"]).to_dict("A", "lgx")
 
     # multiple Gs
     # goal: identify 2-field alleles that are in multiple G-groups
-
     # group by 2d and G, and select the 2d column and count the columns
-    mg = df_g_group.drop_duplicates(["2d", "G"])["2d"].value_counts()
-    # filter out the mg with count > 1, leaving only duplicates
-    # take the index from the 2d version the data frame, make that a column
-    # and turn that into a list
-    multiple_g_list = mg[mg > 1].index.to_list()
+    multiple_g = df_g_group.unique(["2d", "G"]).value_counts("2d")
+    # filter out the multiple_g with count > 1, leaving only duplicates
+    multiple_g_list = multiple_g.where("count > 1")["2d"]
 
-    # Keep only the alleles that have more than 1 mapping
+    # Keep only the alleles that have more than 1 mapping as allele list
     dup_g = (
-        df_g_group[df_g_group["2d"].isin(multiple_g_list)][["G", "2d"]]
-        .drop_duplicates()
-        .groupby("2d", as_index=True)
-        .agg("/".join)
-        .to_dict()["G"]
+        df_g_group.where_in("2d", multiple_g_list, ["G", "2d"])
+        .unique(["G", "2d"])
+        .agg("2d", "G", join_allele_list)
+        .to_dict("2d", "agg")
     )
 
     # multiple lgx
-    mlgx = df_g_group.drop_duplicates(["2d", "lgx"])["2d"].value_counts()
-    multiple_lgx_list = mlgx[mlgx > 1].index.to_list()
+    # goal: identify 2-field alleles that are in multiple lgx-groups
+    # group by 2d and lgx, and select the 2d column and count the columns
+    mlgx = df_g_group.unique(["2d", "lgx"]).value_counts("2d")
+    # filter out the mlgx with count > 1, leaving only duplicates
+    multiple_lgx_list = mlgx.where("count > 1")["2d"]
 
-    # Keep only the alleles that have more than 1 mapping
+    # Keep only the alleles that have more than 1 mapping as allele list
     dup_lgx = (
-        df_g_group[df_g_group["2d"].isin(multiple_lgx_list)][["lgx", "2d"]]
-        .drop_duplicates()
-        .groupby("2d", as_index=True)
-        .agg("/".join)
-        .to_dict()["lgx"]
+        df_g_group.where_in("2d", multiple_lgx_list, ["lgx", "2d"])
+        .unique(["lgx", "2d"])
+        .agg("2d", "lgx", join_allele_list)
+        .to_dict("2d", "agg")
     )
 
     # Extract G group mapping
-    df_g = pd.concat(
-        [
-            df_g_group[["2d", "G"]].rename(columns={"2d": "A"}),
-            df_g_group[["3d", "G"]].rename(columns={"3d": "A"}),
-            df_g_group[["A", "G"]],
-        ],
-        ignore_index=True,
-    )
-    g_group = df_g.set_index("A")["G"].to_dict()
+    g_2d = df_g_group[["2d", "G"]].rename(column_mapping={"2d": "A"})
+    g_3d = df_g_group[["3d", "G"]].rename(column_mapping={"3d": "A"})
+    g_a = df_g_group[["A", "G"]]
+    g_all = g_2d.union(g_3d).union(g_a)
+    g_group = g_all.to_dict("A", "G")
 
     # Extract P group mapping
-    df_p = pd.concat(
-        [
-            df_p_group[["2d", "P"]].rename(columns={"2d": "A"}),
-            df_p_group[["3d", "P"]].rename(columns={"3d": "A"}),
-            df_p_group[["A", "P"]],
-        ],
-        ignore_index=True,
-    )
-    p_group = df_p.set_index("A")["P"].to_dict()
+    p_2d = df_p_group[["2d", "P"]].rename(column_mapping={"2d": "A"})
+    p_3d = df_p_group[["3d", "P"]].rename(column_mapping={"3d": "A"})
+    p_a = df_p_group[["A", "P"]]
+    p_all = p_2d.union(p_3d).union(p_a)
+    p_group = p_all.to_dict("A", "P")
 
     # Extract lgx group mapping
-    df_lgx = pd.concat(
-        [
-            df_g_group[["2d", "lgx"]].rename(columns={"2d": "A"}),
-            df_g_group[["3d", "lgx"]].rename(columns={"3d": "A"}),
-            df_g_group[["A", "lgx"]],
-        ]
-    )
-    lgx_group = df_lgx.set_index("A")["lgx"].to_dict()
+    lgx_2d = df_g_group[["2d", "lgx"]].rename(column_mapping={"2d": "A"})
+    lgx_3d = df_g_group[["3d", "lgx"]].rename(column_mapping={"3d": "A"})
+    lgx_a = df_g_group[["A", "lgx"]]
+    lgx_all = lgx_2d.union(lgx_3d).union(lgx_a)
+    lgx_group = lgx_all.to_dict("A", "lgx")
 
-    # Find the alleles that have more than 1 mapping
-    dup_lgx = (
-        df_g_group[df_g_group["2d"].isin(multiple_lgx_list)][["lgx", "2d"]]
-        .drop_duplicates()
-        .groupby("2d", as_index=True)
-        .agg(list)
-        .to_dict()["lgx"]
-    )
     # Do not keep duplicate alleles for lgx. Issue #333
     # DPA1*02:02/DPA1*02:07 ==> DPA1*02:02
     #
     lowest_numbered_dup_lgx = {
-        k: sorted(v, key=functools.cmp_to_key(smart_sort_comparator))[0]
+        k: sorted(v.split("/"), key=functools.cmp_to_key(smart_sort_comparator))[0]
         for k, v in dup_lgx.items()
     }
     # Update the lgx_group with the allele with the lowest number
     lgx_group.update(lowest_numbered_dup_lgx)
 
     # Extract exon mapping
-    df_exon = pd.concat(
-        [
-            df_g_group[["A", "3d"]].rename(columns={"3d": "exon"}),
-        ]
-    )
-    exon_group = df_exon.set_index("A")["exon"].to_dict()
+    exon_a = df_g_group[["A", "3d"]].rename(column_mapping={"3d": "exon"})
+    exon_group = exon_a.to_dict("A", "exon")
 
     ars_mapping = ARSMapping(
         dup_g=dup_g,
@@ -200,21 +208,17 @@ def generate_alleles_and_xx_codes_and_who(
     if db.tables_exist(db_connection, code_mapping_tables + allele_tables):
         return db.load_code_mappings(db_connection)
 
-    import pandas as pd
-
     allele_df = load_allele_list(imgt_version)
 
-    # Create a set of valid alleles
-    # All 2-field, 3-field and the original Alleles are considered valid alleles
+    # Create columns of alleles of various fields
+    allele_df["1d"] = allele_df["Allele"].apply(get_1field_allele)
     allele_df["2d"] = allele_df["Allele"].apply(get_2field_allele)
     allele_df["3d"] = allele_df["Allele"].apply(get_3field_allele)
-    # For all Alleles with expression characters, find 2-field valid alleles
-    exp_alleles = allele_df[
-        allele_df["Allele"].apply(
-            lambda a: a[-1] in expression_chars and number_of_fields(a) > 2
-        )
-    ]
-    exp_alleles = exp_alleles.groupby("2d").apply(expression_reduce).dropna()
+    allele_df["Exp"] = allele_df["Allele"].apply(
+        lambda a: a if a[-1] in expression_chars and number_of_fields(a) > 2 else None
+    )
+    exp_alleles_table = allele_df.where_not_null("Exp")
+    exp_alleles = expression_reduce(exp_alleles_table)
 
     # Create valid set of alleles:
     # All full length alleles
@@ -224,15 +228,16 @@ def generate_alleles_and_xx_codes_and_who(
         set(allele_df["Allele"])
         .union(set(allele_df["2d"]))
         .union(set(allele_df["3d"]))
-        .union(set(exp_alleles))
+        .union(set(exp_alleles.values()))
     )
 
-    # Create xx_codes mapping from the unique alleles in 2-field column
-    xx_df = pd.DataFrame(allele_df["2d"].unique(), columns=["Allele"])
-    # Also create a first-field column
-    xx_df["1d"] = xx_df["Allele"].apply(lambda x: x.split(":")[0])
-    # xx_codes maps a first field name to its 2 field expansion
-    xx_codes = xx_df.groupby(["1d"]).apply(lambda x: list(x["Allele"])).to_dict()
+    # unique_2d = allele_df.unique('2d')
+    # xx_code_1d = unique_2d.apply(lambda x: x.split(":")[0])
+    # xx_mapping = itertools.groupby(zip(xx_code_1d, unique_2d), key=lambda x: x[0])
+    # xx_codes = {k: [x[1] for x in list(g)] for k, g in xx_mapping}
+    #
+
+    xx_codes = allele_df.agg("1d", "2d", list)
 
     # Update xx codes with broads and splits
     for broad, splits in broad_splits_dna_mapping.items():
@@ -252,31 +257,22 @@ def generate_alleles_and_xx_codes_and_who(
     who_alleles = allele_df["Allele"].to_list()
 
     # Create WHO mapping from the unique alleles in the 1-field column
-    allele_df["1d"] = allele_df["Allele"].apply(get_1field_allele)
 
-    who_codes = pd.concat(
-        [
-            allele_df[["Allele", "1d"]].rename(columns={"1d": "nd"}),
-            allele_df[["Allele", "2d"]].rename(columns={"2d": "nd"}),
-            allele_df[["Allele", "3d"]].rename(columns={"3d": "nd"}),
-            pd.DataFrame(ars_mappings.g_group.items(), columns=["Allele", "nd"]),
-            pd.DataFrame(ars_mappings.p_group.items(), columns=["Allele", "nd"]),
-        ],
-        ignore_index=True,
-    )
-
-    # remove valid alleles from who_codes to avoid recursion
-    for k in who_alleles:
-        if k in who_codes["nd"]:
-            who_codes.drop(labels=k, axis="index")
+    a1d = allele_df[["Allele", "1d"]].rename(column_mapping={"1d": "nd"})
+    a2d = allele_df[["Allele", "2d"]].rename(column_mapping={"2d": "nd"})
+    a3d = allele_df[["Allele", "3d"]].rename(column_mapping={"3d": "nd"})
+    ag = Table(ars_mappings.g_group.items(), columns=["Allele", "nd"])
+    ap = Table(ars_mappings.p_group.items(), columns=["Allele", "nd"])
+    who_codes = a1d.union(a2d).union(a3d).union(ag).union(ap)
 
     # drop duplicates
-    who_codes = who_codes.drop_duplicates()
-
-    # who_codes maps a first field name to its 2 field expansion
-    who_group = who_codes.groupby(["nd"]).apply(lambda x: list(x["Allele"])).to_dict()
-
+    unique_who_codes = who_codes.unique(["Allele", "nd"])
+    # remove valid alleles from who_codes to avoid recursion
+    # who_codes1.remove('nd', who_alleles)
+    # who_codes maps a first field name to its G field expansion
+    who_group = unique_who_codes.agg("nd", "Allele", list)
     # dictionary
+    # flat_who_group = who_group.to_dict()
     flat_who_group = {
         k: "/".join(sorted(v, key=functools.cmp_to_key(smart_sort_comparator)))
         for k, v in who_group.items()
@@ -328,7 +324,12 @@ def generate_short_nulls(db_connection, who_group):
             # there is nothing to be done for who_groups that have both Q and L for example
             for a_shortnull in expression_alleles:
                 # e.g. DRB4*01:03N
-                shortnulls[a_shortnull] = "/".join(expression_alleles[a_shortnull])
+                shortnulls[a_shortnull] = "/".join(
+                    sorted(
+                        expression_alleles[a_shortnull],
+                        key=functools.cmp_to_key(smart_sort_comparator),
+                    )
+                )
 
     db.save_shortnulls(db_connection, shortnulls)
 
@@ -348,9 +349,9 @@ def generate_mac_codes(
     if load_mac:
         mac_table_name = "mac_codes"
         if refresh_mac or not db.table_exists(db_connection, mac_table_name):
-            df_mac = pyard.load.load_mac_codes()
+            df_mac = pyard.loader.mac_codes.load_mac_codes()
             # Create a dict from code to alleles
-            mac = df_mac.set_index("Code")["Alleles"].to_dict()
+            mac = df_mac.to_dict()
             db.save_mac_codes(db_connection, mac, mac_table_name)
 
 
@@ -382,43 +383,41 @@ def generate_serology_mapping(
     if not db.table_exists(db_connection, "serology_mapping"):
         df_sero = load_serology_mappings(imgt_version)
 
-        import pandas as pd
+        df_sero["Locus*Allele"] = df_sero.concat_columns(["Locus", "Allele"])
 
         # Remove 0 and ? from USA
-        df_sero = df_sero[(df_sero["USA"] != "0") & (df_sero["USA"] != "?")]
-        df_sero["Allele"] = df_sero.loc[:, "Locus"] + df_sero.loc[:, "Allele"]
+        usa = df_sero.where("USA is not null and USA not in ('0', '?')")
+        usa["Sero"] = usa.concat_columns(["Locus", "USA"])
 
-        usa = df_sero[["Locus", "Allele", "USA"]].dropna()
-        usa["Sero"] = usa["Locus"] + usa["USA"]
+        psa = df_sero.where_not_null("PSA")
+        psa = psa.explode("PSA", "/")
+        psa = psa.where("PSA not in ('0', '?')")
+        psa["Sero"] = psa.concat_columns(["Locus", "PSA"])
 
-        psa = df_sero[["Locus", "Allele", "PSA"]].dropna()
-        psa["PSA"] = psa["PSA"].apply(lambda row: row.split("/"))
-        psa = psa.explode("PSA")
-        psa = psa[(psa["PSA"] != "0") & (psa["PSA"] != "?")].dropna()
-        psa["Sero"] = psa["Locus"] + psa["PSA"]
+        asa = df_sero.where_not_null("ASA")
+        asa = asa.explode("ASA", "/")
+        asa = asa.where("ASA not in ('0', '?')")
+        asa["Sero"] = asa.concat_columns(["Locus", "ASA"])
 
-        asa = df_sero[["Locus", "Allele", "ASA"]].dropna()
-        asa["ASA"] = asa["ASA"].apply(lambda x: x.split("/"))
-        asa = asa.explode("ASA")
-        asa = asa[(asa["ASA"] != "0") & (asa["ASA"] != "?")].dropna()
-        asa["Sero"] = asa["Locus"] + asa["ASA"]
-
-        sero_mapping_combined = pd.concat(
-            [usa[["Sero", "Allele"]], psa[["Sero", "Allele"]], asa[["Sero", "Allele"]]]
+        sero_mapping_combined = (
+            usa[["Sero", "Locus*Allele"]]
+            .union(psa[["Sero", "Locus*Allele"]])
+            .union(asa[["Sero", "Locus*Allele"]])
         )
 
         # Map to only valid serological antigen name
         sero_mapping_combined["Sero"] = sero_mapping_combined["Sero"].apply(
             to_serological_name
         )
-        sero_mapping_combined["lgx"] = sero_mapping_combined["Allele"].apply(
+        sero_mapping_combined["lgx"] = sero_mapping_combined["Locus*Allele"].apply(
             lambda allele: redux_function(allele, "lgx")
         )
-        sero_mapping = (
-            sero_mapping_combined.groupby("Sero")
-            .apply(lambda x: (set(x["Allele"]), set(x["lgx"])))
-            .to_dict()
-        )
+        sero_allele_mapping = sero_mapping_combined.agg("Sero", "Locus*Allele", set)
+        sero_lgx_mapping = sero_mapping_combined.agg("Sero", "lgx", set)
+        sero_mapping = {
+            k: (sero_allele_mapping[k], sero_lgx_mapping[k])
+            for k in sero_allele_mapping.keys()
+        }
 
         # map alleles for split serology to their corresponding broad
         # Update xx codes with broads and splits
@@ -492,13 +491,18 @@ def get_db_version(db_connection: sqlite3.Connection):
 
 
 def generate_broad_splits_mapping(db_connection: sqlite3.Connection, imgt_version):
-    if not db.table_exists(db_connection, "serology_broad_split_mapping"):
-        sero_mapping, associated_mapping = pyard.load.load_serology_broad_split_mapping(
+    if not db.tables_exist(
+        db_connection, ["serology_broad_split_mapping", "serology_associated_mappings"]
+    ):
+        sero_mapping, associated_mapping = load_serology_broad_split_mapping(
             imgt_version
         )
-        db.save_serology_broad_split_mappings(db_connection, sero_mapping)
-        db.save_serology_associated_mappings(db_connection, associated_mapping)
-        return sero_mapping, associated_mapping
+
+        # Save the `splits` as a "/" delimited string to db
+        db.save_serology_broad_split_mappings(db_connection, sero_mapping.to_dict())
+        db.save_serology_associated_mappings(
+            db_connection, associated_mapping.to_dict()
+        )
 
     sero_mapping = db.load_serology_broad_split_mappings(db_connection)
     associated_mapping = db.load_serology_associated_mappings(db_connection)
@@ -508,5 +512,5 @@ def generate_broad_splits_mapping(db_connection: sqlite3.Connection, imgt_versio
 
 def generate_cwd_mapping(db_connection: sqlite3.Connection):
     if not db.table_exists(db_connection, "cwd2"):
-        cwd2_map = pyard.load.load_cwd2()
+        cwd2_map = pyard.loader.cwd.load_cwd2()
         db.save_cwd2(db_connection, cwd2_map)

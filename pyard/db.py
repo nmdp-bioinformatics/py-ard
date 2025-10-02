@@ -641,12 +641,10 @@ def load_serology_associated_mappings(db_connection):
 
 
 def save_serology_broad_split_mappings(db_connection, sero_mapping):
-    # Save the `splits` as a "/" delimited string to db
-    sero_splits = {sero: "/".join(splits) for sero, splits in sero_mapping.items()}
     save_dict(
         db_connection,
         table_name="serology_broad_split_mapping",
-        dictionary=sero_splits,
+        dictionary=sero_mapping,
         columns=("broad", "splits"),
     )
 
