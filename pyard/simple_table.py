@@ -51,7 +51,8 @@ class Table:
         return self.conn.execute(sql).fetchall()
 
     def close(self):
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
 
     @property
     def columns(self):
@@ -147,7 +148,6 @@ class Table:
     def agg(self, group_column: str, agg_column: str, func):
         builtin_funcs = {list, set}
         query = f"SELECT `{group_column}`, `{agg_column}` FROM {self._name} GROUP BY `{group_column}`, `{agg_column}`"
-        print(query)
         result = self.conn.execute(query).fetchall()
         d = defaultdict(list)
         for k, v in result:
@@ -247,6 +247,9 @@ class Table:
 
     def __repr__(self):
         return str(self)
+
+    def __del__(self):
+        self.close()
 
 
 class Column:
