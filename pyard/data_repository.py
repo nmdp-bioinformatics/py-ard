@@ -230,6 +230,7 @@ def generate_alleles_and_xx_codes_and_who(
         .union(set(allele_df["3d"]))
         .union(set(exp_alleles.values()))
     )
+    valid_alleles = sorted(valid_alleles)
 
     # unique_2d = allele_df.unique('2d')
     # xx_code_1d = unique_2d.apply(lambda x: x.split(":")[0])
