@@ -24,7 +24,7 @@ import pathlib
 import tempfile
 from typing import List
 
-from pyard.constants import VALID_REDUCTION_TYPES, expression_chars, P_and_G_chars
+from pyard.constants import VALID_REDUCTION_MODES, expression_chars, P_and_G_chars
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -151,5 +151,5 @@ def get_default_db_directory():
 
 
 def validate_reduction_type(ars_type):
-    if ars_type not in VALID_REDUCTION_TYPES:
-        raise ValueError(f"Reduction type needs to be one of {VALID_REDUCTION_TYPES}")
+    if ars_type not in VALID_REDUCTION_MODES:
+        raise ValueError(f"Reduction type needs to be one of {VALID_REDUCTION_MODES}")

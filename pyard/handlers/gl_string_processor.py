@@ -3,7 +3,7 @@
 import functools
 from typing import List, TYPE_CHECKING
 
-from ..constants import VALID_REDUCTION_TYPES
+from ..constants import VALID_REDUCTION_TYPE
 from ..misc import validate_reduction_type
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ class GLStringProcessor:
         self.ard = ard_instance
 
     def process_gl_string(
-        self, glstring: str, redux_type: VALID_REDUCTION_TYPES = "lgx"
+        self, glstring: str, redux_type: VALID_REDUCTION_TYPE = "lgx"
     ) -> str:
         """Main GL string processing logic extracted from redux method"""
         validate_reduction_type(redux_type)

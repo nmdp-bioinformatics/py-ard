@@ -9,9 +9,9 @@ from . import db
 from . import smart_sort
 from .constants import (
     HLA_regex,
-    VALID_REDUCTION_TYPES,
     DEFAULT_CACHE_SIZE,
     G_GROUP_LOCI,
+    VALID_REDUCTION_TYPE,
 )
 from .exceptions import InvalidMACError, InvalidTypingError
 from .handlers import (
@@ -156,7 +156,7 @@ class ARD(object):
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
     def _redux_allele(
-        self, allele: str, redux_type: VALID_REDUCTION_TYPES, re_ping=True
+        self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
     ) -> str:
         """Core allele reduction with ping logic"""
         # Handle HLA- prefix
@@ -210,7 +210,7 @@ class ARD(object):
         return self.allele_reducer.reduce_allele(allele, redux_type, re_ping)
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
-    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPES = "lgx") -> str:
+    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPE = "lgx") -> str:
         """Main redux method using specialized handlers"""
         # Handle GL string delimiters first
         processed_gl = self.gl_processor.process_gl_string(glstring, redux_type)

@@ -22,13 +22,10 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import argparse
-import functools
 import sys
 
-from pyard import smart_sort
-from pyard.constants import VALID_REDUCTION_TYPES
 import pyard.misc
-from pyard.db import similar_alleles, similar_mac
+from pyard.constants import VALID_REDUCTION_MODES
 from pyard.exceptions import InvalidAlleleError, InvalidTypingError, InvalidMACError
 from pyard.misc import get_data_dir, get_imgt_version
 
@@ -113,7 +110,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-r",
         "--redux-type",
-        choices=VALID_REDUCTION_TYPES,
+        choices=VALID_REDUCTION_MODES,
         dest="redux_type",
         help="Reduction Method",
     )
@@ -190,7 +187,7 @@ if __name__ == "__main__":
         if args.redux_type:
             print(ard.redux(args.gl_string, args.redux_type))
         else:
-            for redux_type in VALID_REDUCTION_TYPES:
+            for redux_type in VALID_REDUCTION_MODES:
                 redux_type_info = f"Reduction Method: {redux_type}"
                 print(redux_type_info)
                 print("-" * len(redux_type_info))

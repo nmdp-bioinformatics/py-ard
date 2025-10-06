@@ -20,12 +20,15 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import re
+import typing
 
 DEFAULT_CACHE_SIZE = 1_000
 
 HLA_regex = re.compile("^HLA-")
 
-VALID_REDUCTION_TYPES = ("G", "P", "lg", "lgx", "W", "exon", "U2", "S")
+VALID_REDUCTION_MODES = ("G", "P", "lg", "lgx", "W", "exon", "U2", "S")
+VALID_REDUCTION_TYPE = typing.Literal[VALID_REDUCTION_MODES]
+
 expression_chars = ("N", "Q", "L", "S")
 # List of P and G characters
 P_and_G_chars = ("P", "G")
