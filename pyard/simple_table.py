@@ -51,7 +51,7 @@ class Table:
         return self._conn.execute(sql).fetchall()
 
     def close(self):
-        if self._conn:
+        if hasattr(self, "_conn") and self._conn:
             self._conn.close()
 
     @property
