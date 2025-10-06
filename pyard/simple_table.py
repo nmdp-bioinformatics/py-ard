@@ -7,7 +7,7 @@ from typing import List
 
 class Table:
     def __init__(self, data, columns: list, table_name: str = "data"):
-        self.conn = sqlite3.connect(":memory:")
+        self._conn = sqlite3.connect(":memory:")
         self._name = table_name
         self._columns = columns
         if isinstance(data, csv.DictReader):
@@ -22,16 +22,16 @@ class Table:
 
         column_defs = ", ".join(f"`{col}` TEXT" for col in columns)
 
-        self.conn.execute(f"CREATE TABLE {self._name} ({column_defs})")
+        self._conn.execute(f"CREATE TABLE {self._name} ({column_defs})")
 
         placeholders = ", ".join("?" * len(columns))
         for row in rows:
             values = [row[col] for col in columns]
-            self.conn.execute(
+            self._conn.execute(
                 f"INSERT INTO {self._name} VALUES ({placeholders})", values
             )
 
-        self.conn.commit()
+        self._conn.commit()
 
     def _create_table_from_tuples(self, data: list, columns: list):
         if not data:
@@ -39,43 +39,45 @@ class Table:
 
         column_defs = ", ".join(f"`{col}` TEXT" for col in columns)
 
-        self.conn.execute(f"CREATE TABLE {self._name} ({column_defs})")
+        self._conn.execute(f"CREATE TABLE {self._name} ({column_defs})")
 
         placeholders = ", ".join("?" * len(columns))
         for row in data:
-            self.conn.execute(f"INSERT INTO {self._name} VALUES ({placeholders})", row)
+            self._conn.execute(f"INSERT INTO {self._name} VALUES ({placeholders})", row)
 
-        self.conn.commit()
+        self._conn.commit()
 
     def query(self, sql: str):
-        return self.conn.execute(sql).fetchall()
+        return self._conn.execute(sql).fetchall()
 
     def close(self):
-        if self.conn:
-            self.conn.close()
+        if self._conn:
+            self._conn.close()
 
     @property
     def columns(self):
-        cursor = self.conn.execute(f"PRAGMA table_info({self._name})")
+        cursor = self._conn.execute(f"PRAGMA table_info({self._name})")
         return [row[1] for row in cursor.fetchall()]
 
     def head(self, n: int = 5):
-        cursor = self.conn.execute(f"SELECT * FROM {self._name} LIMIT {n}")
+        cursor = self._conn.execute(f"SELECT * FROM {self._name} LIMIT {n}")
         rows = cursor.fetchall()
         return PrintableTable(self.columns, rows)
 
     def tail(self, n: int = 5):
-        cursor = self.conn.execute(
+        cursor = self._conn.execute(
             f"SELECT * FROM {self._name} ORDER BY rowid DESC LIMIT {n}"
         )
         rows = cursor.fetchall()
         return PrintableTable(self.columns, rows)
 
     def group_by(self, group_by_column: str, return_columns: List[str] = None):
+        if group_by_column not in self.columns:
+            raise ValueError(f"Column '{group_by_column}' not found in table")
         if return_columns is None:
             return_columns = self.columns
         column_names = ", ".join([f"`{col}`" for col in return_columns])
-        cursor = self.conn.execute(
+        cursor = self._conn.execute(
             f"SELECT {column_names} FROM {self._name} ORDER BY `{group_by_column}`"
         )
         rows = cursor.fetchall()
@@ -88,19 +90,26 @@ class Table:
 
     def unique(self, columns):
         if isinstance(columns, str):
-            cursor = self.conn.execute(f"SELECT DISTINCT `{columns}` FROM {self._name}")
+            cursor = self._conn.execute(
+                f"SELECT DISTINCT `{columns}` FROM {self._name}"
+            )
             values = [row[0] for row in cursor.fetchall()]
             return Column(columns, values)
         else:
             column_names = ", ".join([f"`{col}`" for col in columns])
-            cursor = self.conn.execute(
+            cursor = self._conn.execute(
                 f"SELECT DISTINCT {column_names} FROM {self._name}"
             )
             return Table(cursor.fetchall(), columns, f"{self._name}_unique")
 
     def where(self, where_clause: str):
-        cursor = self.conn.execute(f"SELECT * FROM {self._name} WHERE {where_clause}")
-        return Table(cursor.fetchall(), self.columns, f"{self._name}_filtered")
+        try:
+            cursor = self._conn.execute(
+                f"SELECT * FROM {self._name} WHERE {where_clause}"
+            )
+            return Table(cursor.fetchall(), self.columns, f"{self._name}_filtered")
+        except Exception as e:
+            raise ValueError(f"Invalid WHERE clause: {where_clause}") from e
 
     def where_not_null(self, null_column):
         if isinstance(null_column, list):
@@ -111,13 +120,13 @@ class Table:
             table_suffix = null_column
 
         table_name = f"{self._name}_not_null_{table_suffix}"
-        cursor = self.conn.execute(f"SELECT * FROM {self._name} WHERE {conditions}")
+        cursor = self._conn.execute(f"SELECT * FROM {self._name} WHERE {conditions}")
         return Table(cursor.fetchall(), table_name=table_name, columns=self.columns)
 
     def where_in(self, column_name: str, values: set, columns: list):
         placeholders = ", ".join("?" * len(values))
         column_names = ", ".join([f"`{col}`" for col in columns])
-        cursor = self.conn.execute(
+        cursor = self._conn.execute(
             f"SELECT {column_names} FROM {self._name} WHERE `{column_name}` IN ({placeholders})",
             list(values),
         )
@@ -134,13 +143,15 @@ class Table:
             raise ValueError(
                 f"Columns {key_column} and {value_column} must be different"
             )
-        cursor = self.conn.execute(
+        cursor = self._conn.execute(
             f"SELECT `{key_column}`, `{value_column}` FROM {self._name}"
         )
         return dict(cursor.fetchall())
 
     def value_counts(self, column: str):
-        cursor = self.conn.execute(
+        if column not in self.columns:
+            raise ValueError(f"Column '{column}' not found in table")
+        cursor = self._conn.execute(
             f"SELECT `{column}`, COUNT(*) FROM {self._name} GROUP BY `{column}` ORDER BY COUNT(*) DESC"
         )
         return Table(cursor.fetchall(), [column, "count"], f"{self._name}_counts")
@@ -148,7 +159,7 @@ class Table:
     def agg(self, group_column: str, agg_column: str, func):
         builtin_funcs = {list, set}
         query = f"SELECT `{group_column}`, `{agg_column}` FROM {self._name} GROUP BY `{group_column}`, `{agg_column}`"
-        result = self.conn.execute(query).fetchall()
+        result = self._conn.execute(query).fetchall()
         d = defaultdict(list)
         for k, v in result:
             d[k].append(v)
@@ -160,24 +171,29 @@ class Table:
 
     def __setitem__(self, column: str, values):
         if column in self.columns:
-            self.conn.execute(f"ALTER TABLE {self._name} DROP COLUMN `{column}`")
-        self.conn.execute(f"ALTER TABLE {self._name} ADD COLUMN `{column}` TEXT")
+            self._conn.execute(f"ALTER TABLE {self._name} DROP COLUMN `{column}`")
+        self._conn.execute(f"ALTER TABLE {self._name} ADD COLUMN `{column}` TEXT")
         for i, value in enumerate(values):
-            self.conn.execute(
+            self._conn.execute(
                 f"UPDATE {self._name} SET `{column}` = ? WHERE rowid = ?",
                 (value, i + 1),
             )
-        self.conn.commit()
+        self._conn.commit()
 
     def __getitem__(self, column):
         if isinstance(column, list):
+            for col in column:
+                if col not in self.columns:
+                    raise ValueError(f"Column '{col}' not found in table")
             column_names = ", ".join([f"`{col}`" for col in column])
-            result = self.conn.execute(
+            result = self._conn.execute(
                 f"SELECT {column_names} FROM {self._name}"
             ).fetchall()
             return Table(result, column, f"{self._name}_subset")
         else:
-            result = self.conn.execute(
+            if column not in self.columns:
+                raise ValueError(f"Column '{column}' not found in table")
+            result = self._conn.execute(
                 f"SELECT `{column}` FROM {self._name}"
             ).fetchall()
             values = [row[0] for row in result]
@@ -185,18 +201,20 @@ class Table:
 
     def rename(self, column_mapping: dict):
         for old_name, new_name in column_mapping.items():
-            self.conn.execute(
+            if old_name not in self.columns:
+                raise ValueError(f"Column '{old_name}' not found in table")
+            self._conn.execute(
                 f"ALTER TABLE {self._name} RENAME COLUMN `{old_name}` TO `{new_name}`"
             )
-        self.conn.commit()
+        self._conn.commit()
         return self
 
     def union(self, other_table):
         if self.columns != other_table.columns:
             raise ValueError("Tables must have the same columns for union")
 
-        self_data = self.conn.execute(f"SELECT * FROM {self._name}").fetchall()
-        other_data = other_table.conn.execute(
+        self_data = self._conn.execute(f"SELECT * FROM {self._name}").fetchall()
+        other_data = other_table._conn.execute(
             f"SELECT * FROM {other_table._name}"
         ).fetchall()
 
@@ -205,16 +223,19 @@ class Table:
 
     def remove(self, column_name: str, values):
         placeholders = ", ".join("?" * len(values))
-        self.conn.execute(
+        self._conn.execute(
             f"DELETE FROM {self._name} WHERE `{column_name}` IN ({placeholders})",
             list(values),
         )
-        self.conn.commit()
+        self._conn.commit()
         return self
 
     def concat_columns(self, columns: list):
+        for col in columns:
+            if col not in self.columns:
+                raise ValueError(f"Column '{col}' not found in table")
         column_names = " || ".join([f"`{col}`" for col in columns])
-        result = self.conn.execute(
+        result = self._conn.execute(
             f"SELECT {column_names} FROM {self._name}"
         ).fetchall()
         values = [row[0] for row in result]
@@ -222,7 +243,9 @@ class Table:
         return Column(concat_name, values)
 
     def explode(self, column: str, delimiter: str):
-        all_data = self.conn.execute(f"SELECT * FROM {self._name}").fetchall()
+        if column not in self.columns:
+            raise ValueError(f"Column '{column}' not found in table")
+        all_data = self._conn.execute(f"SELECT * FROM {self._name}").fetchall()
         col_index = self.columns.index(column)
 
         exploded_data = []
@@ -239,7 +262,7 @@ class Table:
         return Table(exploded_data, self.columns, f"{self._name}_exploded")
 
     def __len__(self):
-        cursor = self.conn.execute(f"SELECT COUNT(*) FROM {self._name}")
+        cursor = self._conn.execute(f"SELECT COUNT(*) FROM {self._name}")
         return cursor.fetchone()[0]
 
     def __str__(self):
