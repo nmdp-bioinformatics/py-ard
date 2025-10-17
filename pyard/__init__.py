@@ -26,7 +26,7 @@ from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "1.5.5"
+__version__ = "2.0.0b1"
 
 
 def init(
