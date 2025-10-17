@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import override
 
-from .base_strategy import ReductionStrategy
+from .base_reducer import Reducer
 
 
-class ExonStrategy(ReductionStrategy):
+class ExonReducer(Reducer):
     """Strategy for exon reduction"""
 
     @override

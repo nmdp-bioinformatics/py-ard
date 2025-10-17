@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..ard import ARD
 
 
-class ReductionStrategy(ABC):
+class Reducer(ABC):
     """Base class for all reduction strategies"""
 
     def __init__(self, ard_instance: "ARD"):

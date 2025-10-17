@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing_extensions import override
 
-from .base_strategy import ReductionStrategy
+from .base_reducer import Reducer
 
 
-class DefaultStrategy(ReductionStrategy):
+class DefaultReducer(Reducer):
     """Default strategy for handling P/G suffixes and validation"""
 
     @override

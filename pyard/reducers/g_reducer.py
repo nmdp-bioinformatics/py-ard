@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing_extensions import override
 
-from .default_strategy import DefaultStrategy
+from .default_reducer import DefaultReducer
 
 
-class GGroupStrategy(DefaultStrategy):
+class GGroupReducer(DefaultReducer):
     """Strategy for G group reduction"""
 
     @override

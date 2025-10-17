@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import override
 
-from .base_strategy import ReductionStrategy
+from .base_reducer import Reducer
 
 
-class LGXStrategy(ReductionStrategy):
+class LGXReducer(Reducer):
     """Strategy for lgx reduction"""
 
     @override
@@ -16,12 +16,12 @@ class LGXStrategy(ReductionStrategy):
             return ":".join(allele.split(":")[0:2])
 
 
-class LGStrategy(ReductionStrategy):
+class LGReducer(Reducer):
     """Strategy for lg reduction (lgx + g suffix)"""
 
     @override
     def reduce(self, allele: str) -> str:
-        lgx_strategy = LGXStrategy(self.ard)
+        lgx_strategy = LGXReducer(self.ard)
         redux_allele = lgx_strategy.reduce(allele)
         return self._add_lg_suffix(redux_allele)
 

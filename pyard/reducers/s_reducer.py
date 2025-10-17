@@ -3,10 +3,10 @@
 import functools
 from typing import override
 
-from .base_strategy import ReductionStrategy
+from .base_reducer import Reducer
 
 
-class SStrategy(ReductionStrategy):
+class SReducer(Reducer):
     """Strategy for serology reduction"""
 
     @override

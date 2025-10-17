@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING
 
 from ..constants import VALID_REDUCTION_TYPE
-from ..strategies.strategy_factory import StrategyFactory
+from ..reducers.reducer_factory import StrategyFactory
 
 if TYPE_CHECKING:
     from ..ard import ARD

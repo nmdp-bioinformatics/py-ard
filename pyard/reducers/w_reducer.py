@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .base_strategy import ReductionStrategy
+from .base_reducer import Reducer
 
 
-class WStrategy(ReductionStrategy):
+class WReducer(Reducer):
     """Strategy for W (WHO) reduction"""
 
     def reduce(self, allele: str) -> str:
