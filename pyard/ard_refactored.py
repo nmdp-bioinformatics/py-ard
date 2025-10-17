@@ -60,14 +60,14 @@ class ARD(object):
         if config:
             self._config.update(config)
 
-        # Initialize database and mappings
-        self._initialize_database(imgt_version, load_mac)
-
         # Initialize specialized handlers
         self._initialize_handlers()
 
         # Setup caching
         self._setup_caching(max_cache_size)
+
+        # Initialize database and mappings
+        self._initialize_database(imgt_version, load_mac)
 
         # Freeze reference data for Python >= 3.9
         self._freeze_reference_data()
