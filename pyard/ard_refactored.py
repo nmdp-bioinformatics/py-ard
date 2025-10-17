@@ -12,6 +12,7 @@ from .constants import (
     DEFAULT_CACHE_SIZE,
     G_GROUP_LOCI,
     VALID_REDUCTION_TYPE,
+    expression_chars,
 )
 from .exceptions import InvalidMACError, InvalidTypingError
 from .handlers import (
@@ -199,24 +200,16 @@ class ARD(object):
 
         return self.allele_reducer.reduce_allele(allele, redux_type, re_ping)
 
-    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
-    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPE = "lgx") -> str:
-        """Main redux method using specialized handlers"""
-        # Handle GL string delimiters first
-        processed_gl = self.gl_processor.process_gl_string(glstring, redux_type)
-        if processed_gl != glstring or self.is_glstring(processed_gl):
-            return processed_gl
-
-        # Remove HLA- prefix for processing the allele
-        is_hla_prefix = HLA_regex.search(glstring)
-        if is_hla_prefix:
-            allele = glstring.split("-")[1]
-        else:
-            allele = glstring
-        # Handle ignored allele suffixes
-        if self._config["ignore_allele_with_suffixes"]:
-            _, fields = allele.split("*")
-            if fields in self._config["ignore_allele_with_suffixes"]:
+    def _redux_non_glstring(
+        self, allele: str, glstring: str, redux_type: VALID_REDUCTION_TYPE
+    ):
+        if "*" in allele:
+            locus, fields = allele.split("*")
+            # Handle ignored allele suffixes
+            if self._config["ignore_allele_with_suffixes"]:
+                if fields in self._config["ignore_allele_with_suffixes"]:
+                    return allele
+            if locus not in G_GROUP_LOCI:
                 return allele
 
         # Handle V2 to V3 mapping
@@ -233,7 +226,7 @@ class ARD(object):
                 return self.redux("/".join(alleles), redux_type)
             return ""
 
-        # Validate format
+        # Validate allele format is correct
         if ":" in allele:
             loc_allele = allele.split(":")
             if len(loc_allele) < 2:
@@ -247,10 +240,6 @@ class ARD(object):
                     f"{glstring} is not a valid V2 or Serology typing."
                 )
         else:
-            if "*" in allele:
-                locus, _ = allele.split("*")
-                if locus not in G_GROUP_LOCI:
-                    return allele
             raise InvalidTypingError(
                 f"{glstring} is not a valid V2 or Serology typing."
             )
@@ -264,16 +253,12 @@ class ARD(object):
             reduced_alleles = self.redux(
                 "/".join(self.code_mappings.xx_codes[loc_antigen]), redux_type
             )
-            if is_hla_prefix:
-                return "/".join([f"HLA-{a}" for a in reduced_alleles.split("/")])
             return reduced_alleles
 
         # Handle MAC
         if self._config["reduce_MAC"] and code.isalpha():
             if self.mac_handler.is_mac(allele):
                 alleles = self.mac_handler.get_alleles(code, loc_antigen)
-                if is_hla_prefix:
-                    alleles = [f"HLA-{a}" for a in alleles]
                 return self.redux("/".join(alleles), redux_type)
             else:
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
@@ -285,6 +270,26 @@ class ARD(object):
             return self.redux("/".join(self.shortnulls[allele]), redux_type)
 
         redux_allele = self._redux_allele(allele, redux_type)
+        return redux_allele
+
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPE = "lgx") -> str:
+        """Main redux method using specialized handlers"""
+
+        # Handle GL string delimiters first
+        processed_gl = self.gl_processor.process_gl_string(glstring, redux_type)
+        if processed_gl != glstring or self.is_glstring(processed_gl):
+            return processed_gl
+
+        # Remove HLA- prefix for processing the allele
+        is_hla_prefix = HLA_regex.search(glstring)
+        if is_hla_prefix:
+            allele = glstring.split("-")[1]
+        else:
+            allele = glstring
+
+        # Handle non GL string
+        redux_allele = self._redux_non_glstring(allele, glstring, redux_type)
         # Add back 'HLA-' prefix when redux is done if needed
         if is_hla_prefix:
             if "/" in redux_allele:
@@ -341,8 +346,6 @@ class ARD(object):
 
     def _get_non_strict_allele(self, allele: str) -> str:
         """Handle non-strict allele validation"""
-        from .constants import expression_chars
-
         if not self._is_allele_in_db(allele):
             for expr_char in expression_chars:
                 if self._is_allele_in_db(allele + expr_char):
