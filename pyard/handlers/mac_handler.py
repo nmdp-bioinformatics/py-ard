@@ -48,10 +48,10 @@ class MACHandler:
             if HLA_regex.search(mac_code):
                 locus_antigen = locus_antigen.split("-")[1]
                 return "/".join(
-                    ["HLA-" + a for a in self._get_alleles(code, locus_antigen)]
+                    ["HLA-" + a for a in self.get_alleles(code, locus_antigen)]
                 )
             else:
-                return "/".join(self._get_alleles(code, locus_antigen))
+                return "/".join(self.get_alleles(code, locus_antigen))
         raise InvalidMACError(f"{mac_code} is an invalid MAC.")
 
     def lookup_mac(self, allelelist_gl: str) -> str:
@@ -89,7 +89,7 @@ class MACHandler:
 
         raise InvalidMACError(f"{allelelist_gl} does not have a MAC.")
 
-    def _get_alleles(self, code, locus_antigen) -> Iterable[str]:
+    def get_alleles(self, code, locus_antigen) -> Iterable[str]:
         """Get alleles for MAC code"""
         alleles = db.mac_code_to_alleles(self.ard.db_connection, code)
 

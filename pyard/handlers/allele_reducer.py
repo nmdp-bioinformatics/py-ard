@@ -23,11 +23,11 @@ class AlleleReducer:
         strategy = self.strategy_factory.get_strategy(redux_type)
         return strategy.reduce(allele)
 
-    def _add_lg_suffix(self, redux_allele):
+    def add_lg_suffix(self, redux_allele):
         """Add lg suffix to reduced allele - kept for backward compatibility"""
         if "/" in redux_allele:
             return "/".join(
-                [self._add_lg_suffix(allele) for allele in redux_allele.split("/")]
+                [self.add_lg_suffix(allele) for allele in redux_allele.split("/")]
             )
         if self.ard._config["ARS_as_lg"]:
             return redux_allele + "ARS"

@@ -237,7 +237,7 @@ class ARD(object):
                     )
                     if "/" in twice_redux_allele:
                         return twice_redux_allele
-                    if self._is_valid_allele(twice_redux_allele):
+                    if self.is_valid_allele(twice_redux_allele):
                         return twice_redux_allele
 
         if redux_type == "G" and allele in self.ars_mappings.g_group:
@@ -821,11 +821,11 @@ class ARD(object):
             and not self.is_v2(allele)
             and not self.is_shortnull(allele)
         ):
-            return self._is_valid_allele(allele)
+            return self.is_valid_allele(allele)
 
         return True
 
-    def _is_valid_allele(self, allele):
+    def is_valid_allele(self, allele):
         """
         Is the given allele valid?
 

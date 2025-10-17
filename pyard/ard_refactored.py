@@ -181,7 +181,7 @@ class ARD(object):
             if allele in self.ars_mappings.p_not_g:
                 not_g_allele = self.ars_mappings.p_not_g[allele]
                 if redux_type == "lg":
-                    return self.allele_reducer._add_lg_suffix(not_g_allele)
+                    return self.allele_reducer.add_lg_suffix(not_g_allele)
                 return not_g_allele
             else:
                 redux_allele = self._redux_allele(allele, redux_type, False)
@@ -280,7 +280,7 @@ class ARD(object):
         # Handle MAC
         if self._config["reduce_MAC"] and code.isalpha():
             if self.mac_handler.is_mac(allele):
-                alleles = self.mac_handler._get_alleles(code, loc_antigen)
+                alleles = self.mac_handler.get_alleles(code, loc_antigen)
                 if is_hla_prefix:
                     alleles = [f"HLA-{a}" for a in alleles]
                 return self.redux("/".join(alleles), redux_type)
