@@ -204,7 +204,7 @@ class ARD(object):
                 )
                 if "/" in twice_redux_allele:
                     return twice_redux_allele
-                if self._is_valid_allele(twice_redux_allele):
+                if self.is_valid_allele(twice_redux_allele):
                     return twice_redux_allele
 
         return self.allele_reducer.reduce_allele(allele, redux_type, re_ping)
@@ -361,7 +361,7 @@ class ARD(object):
     def _is_allele_in_db(self, allele: str) -> bool:
         return allele in self.allele_group.alleles
 
-    def _is_valid_allele(self, allele: str) -> bool:
+    def is_valid_allele(self, allele: str) -> bool:
         if allele.endswith(("P", "G")):
             allele = allele[:-1]
         if "*" in allele:
@@ -402,7 +402,7 @@ class ARD(object):
             and not self.is_v2(allele)
             and not self.is_shortnull(allele)
         ):
-            return self._is_valid_allele(allele)
+            return self.is_valid_allele(allele)
 
         return True
 

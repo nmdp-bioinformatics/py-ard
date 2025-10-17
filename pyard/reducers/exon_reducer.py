@@ -2,6 +2,7 @@
 from typing import override
 
 from .base_reducer import Reducer
+from ..constants import expression_chars
 
 
 class ExonReducer(Reducer):
@@ -13,7 +14,6 @@ class ExonReducer(Reducer):
             exon_group_allele = self.ard.ars_mappings.exon_group[allele]
             # Check if the 3 field exon allele has a 4 field alleles
             # that all have the same expression characters
-            from ..constants import expression_chars
 
             last_char = allele[-1]
             if last_char in expression_chars:

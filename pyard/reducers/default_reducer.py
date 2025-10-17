@@ -2,6 +2,7 @@
 from typing_extensions import override
 
 from .base_reducer import Reducer
+from ..exceptions import InvalidAlleleError
 
 
 class DefaultReducer(Reducer):
@@ -18,9 +19,7 @@ class DefaultReducer(Reducer):
             if allele in self.ard.ars_mappings.g_group.values():
                 return allele
 
-        if self.ard._is_allele_in_db(allele):
+        if self.ard.is_valid_allele(allele):
             return allele
         else:
-            from ..exceptions import InvalidAlleleError
-
             raise InvalidAlleleError(f"{allele} is an invalid allele.")

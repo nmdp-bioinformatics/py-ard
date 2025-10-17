@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .base_reducer import Reducer
+from ..misc import get_n_field_allele
 
 
 class U2Reducer(Reducer):
@@ -12,7 +13,6 @@ class U2Reducer(Reducer):
         if len(allele_fields) == 2:
             return allele
         # If the 2 field reduction is unambiguous, reduce to 2 field level
-        from ..misc import get_n_field_allele
 
         allele_2_fields = get_n_field_allele(allele, 2, preserve_expression=True)
         if self.ard._is_allele_in_db(allele_2_fields):

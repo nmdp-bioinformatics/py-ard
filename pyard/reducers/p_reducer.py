@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import override
 
-from .base_reducer import Reducer
+from .default_reducer import DefaultReducer
 
 
-class PGroupReducer(Reducer):
+class PGroupReducer(DefaultReducer):
     """Strategy for P group reduction"""
 
     @override

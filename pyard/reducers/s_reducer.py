@@ -4,6 +4,8 @@ import functools
 from typing import override
 
 from .base_reducer import Reducer
+from .. import db
+from ..misc import is_2_field_allele
 
 
 class SReducer(Reducer):
@@ -11,9 +13,6 @@ class SReducer(Reducer):
 
     @override
     def reduce(self, allele: str) -> str:
-        from .. import db
-        from ..misc import is_2_field_allele
-
         # find serology equivalent in serology_mapping
         if is_2_field_allele(allele):
             allele = self.ard._redux_allele(allele, "lgx")
