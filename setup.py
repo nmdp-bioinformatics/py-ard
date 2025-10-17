@@ -36,7 +36,7 @@ with open("requirements-tests.txt") as requirements_file:
 
 setup(
     name="py-ard",
-    version="2.0.0b1",
+    version="2.0.0b2",
     description="ARD reduction for HLA with Python",
     long_description=readme,
     long_description_content_type="text/markdown",
