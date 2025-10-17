@@ -159,16 +159,6 @@ class ARD(object):
         self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
     ) -> str:
         """Core allele reduction with ping logic"""
-        # Handle HLA- prefix
-        if HLA_regex.search(allele):
-            hla, allele_name = allele.split("-")
-            redux_allele = self._redux_allele(allele_name, redux_type)
-            if redux_allele:
-                if "/" in redux_allele:
-                    return "/".join([f"HLA-{ra}" for ra in redux_allele.split("/")])
-                return f"HLA-{redux_allele}"
-            return redux_allele
-
         if not self._config["strict"]:
             allele = self._get_non_strict_allele(allele)
 
@@ -217,31 +207,32 @@ class ARD(object):
         if processed_gl != glstring or self.is_glstring(processed_gl):
             return processed_gl
 
-        # Handle ignored allele suffixes
-        if self._config["ignore_allele_with_suffixes"]:
-            _, fields = glstring.split("*")
-            if fields in self._config["ignore_allele_with_suffixes"]:
-                return glstring
-
-        # Handle V2 to V3 mapping
-        if self.v2_handler.is_v2(glstring):
-            glstring = self.v2_handler.map_v2_to_v3(glstring)
-            return self.redux(glstring, redux_type)
-
-        # Handle Serology
-        if self._config["reduce_serology"] and self.serology_handler.is_serology(
-            glstring
-        ):
-            alleles = self.serology_handler.get_alleles_from_serology(glstring)
-            if alleles:
-                return self.redux("/".join(alleles), redux_type)
-            return ""
-
+        # Remove HLA- prefix for processing the allele
         is_hla_prefix = HLA_regex.search(glstring)
         if is_hla_prefix:
             allele = glstring.split("-")[1]
         else:
             allele = glstring
+        # Handle ignored allele suffixes
+        if self._config["ignore_allele_with_suffixes"]:
+            _, fields = allele.split("*")
+            if fields in self._config["ignore_allele_with_suffixes"]:
+                return allele
+
+        # Handle V2 to V3 mapping
+        if self.v2_handler.is_v2(allele):
+            allele = self.v2_handler.map_v2_to_v3(allele)
+            return self.redux(allele, redux_type)
+
+        # Handle Serology
+        if self._config["reduce_serology"] and self.serology_handler.is_serology(
+            allele
+        ):
+            alleles = self.serology_handler.get_alleles_from_serology(allele)
+            if alleles:
+                return self.redux("/".join(alleles), redux_type)
+            return ""
+
         # Validate format
         if ":" in allele:
             loc_allele = allele.split(":")
@@ -259,7 +250,7 @@ class ARD(object):
             if "*" in allele:
                 locus, _ = allele.split("*")
                 if locus not in G_GROUP_LOCI:
-                    return glstring
+                    return allele
             raise InvalidTypingError(
                 f"{glstring} is not a valid V2 or Serology typing."
             )
@@ -289,11 +280,17 @@ class ARD(object):
 
         # Handle short nulls
         if self._config["reduce_shortnull"] and self.shortnull_handler.is_shortnull(
-            glstring
+            allele
         ):
-            return self.redux("/".join(self.shortnulls[glstring]), redux_type)
+            return self.redux("/".join(self.shortnulls[allele]), redux_type)
 
-        return self._redux_allele(glstring, redux_type)
+        redux_allele = self._redux_allele(allele, redux_type)
+        # Add back 'HLA-' prefix when redux is done if needed
+        if is_hla_prefix:
+            if "/" in redux_allele:
+                return "/".join([f"HLA-{ra}" for ra in redux_allele.split("/")])
+            redux_allele = f"HLA-{redux_allele}"
+        return redux_allele
 
     @staticmethod
     def is_glstring(gl_string: str) -> bool:

@@ -1,5 +1,5 @@
-import os
 import csv
+import os
 
 
 def load_cwd2():

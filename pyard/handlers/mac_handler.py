@@ -5,9 +5,9 @@ import sqlite3
 from collections import Counter
 from typing import Iterable, TYPE_CHECKING
 
+from .. import db
 from ..constants import HLA_regex, DEFAULT_CACHE_SIZE
 from ..exceptions import InvalidMACError
-from .. import db
 
 if TYPE_CHECKING:
     from ..ard import ARD

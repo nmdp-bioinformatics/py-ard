@@ -1,9 +1,8 @@
 import sys
-import csv
-import io
-from typing import Tuple, Dict, List
-from urllib.request import urlopen
+from typing import Tuple, List
 from urllib.error import URLError
+from urllib.request import urlopen
+
 from ..simple_table import Table
 
 # GitHub URL where IMGT HLA files are downloaded.

@@ -2,6 +2,7 @@
 
 import re
 from typing import TYPE_CHECKING
+
 from .. import db
 
 if TYPE_CHECKING:

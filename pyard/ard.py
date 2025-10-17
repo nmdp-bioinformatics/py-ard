@@ -28,11 +28,9 @@ import sys
 from collections import Counter
 from typing import Iterable, List, Union
 
-import pyard.serology
 from . import data_repository as dr
 from . import db
 from . import smart_sort
-from .serology import SerologyMapping
 from .constants import (
     HLA_regex,
     VALID_REDUCTION_TYPES,
@@ -47,6 +45,7 @@ from .misc import (
     is_2_field_allele,
     validate_reduction_type,
 )
+from .serology import SerologyMapping
 
 default_config = {
     "reduce_serology": True,

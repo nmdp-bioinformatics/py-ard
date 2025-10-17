@@ -2,8 +2,8 @@
 
 from typing import Dict, TYPE_CHECKING
 
-from .default_reducer import DefaultReducer
 from .base_reducer import Reducer
+from .default_reducer import DefaultReducer
 from .exon_reducer import ExonReducer
 from .g_reducer import GGroupReducer
 from .lg_reducer import LGReducer, LGXReducer

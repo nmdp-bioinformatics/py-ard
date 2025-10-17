@@ -1,8 +1,9 @@
+import io
 import sys
+import zipfile
 from urllib.error import URLError
 from urllib.request import urlopen
-import zipfile
-import io
+
 from ..simple_table import Table
 
 
