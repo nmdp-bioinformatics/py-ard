@@ -41,6 +41,6 @@ jobs:
     - name: Run Unit Tests
       run: |
         # When run the first time, it'll build the library
-        python -m unittest tests.test_pyard tests.test_smart_sort
+        python -m unittest tests.unit.test_pyard tests.unit.test_smart_sort
         # When run the second time, it should use the already installed library
-        python -m unittest tests.test_pyard tests.test_smart_sort
+        python -m unittest tests.unit.test_pyard tests.unit.test_smart_sort
