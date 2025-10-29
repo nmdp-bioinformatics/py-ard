@@ -7,7 +7,7 @@ from .default_reducer import DefaultReducer
 class GGroupReducer(DefaultReducer):
     """Strategy for G group reduction"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         if allele in self.ard.ars_mappings.g_group:
             if allele in self.ard.ars_mappings.dup_g:

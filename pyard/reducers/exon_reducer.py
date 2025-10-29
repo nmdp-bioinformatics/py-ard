@@ -8,7 +8,7 @@ from ..constants import expression_chars
 class ExonReducer(Reducer):
     """Strategy for exon reduction"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         if allele in self.ard.ars_mappings.exon_group:
             exon_group_allele = self.ard.ars_mappings.exon_group[allele]

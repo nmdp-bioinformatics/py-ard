@@ -8,7 +8,7 @@ from ..exceptions import InvalidAlleleError
 class DefaultReducer(Reducer):
     """Default strategy for handling P/G suffixes and validation"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         # Make this an explicit lookup to the g_group or p_group table
         # for stringent validation

@@ -6,6 +6,7 @@ from .base_reducer import Reducer
 class WReducer(Reducer):
     """Strategy for W (WHO) reduction"""
 
+    # @override
     def reduce(self, allele: str) -> str:
         if self.ard._is_who_allele(allele):
             return allele

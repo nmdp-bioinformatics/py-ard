@@ -7,6 +7,7 @@ from ..misc import get_n_field_allele
 class U2Reducer(Reducer):
     """Strategy for U2 reduction"""
 
+    # @override
     def reduce(self, allele: str) -> str:
         allele_fields = allele.split(":")
         # If resolved out to second field leave alone
