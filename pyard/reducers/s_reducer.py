@@ -11,7 +11,7 @@ from ..misc import is_2_field_allele
 class SReducer(Reducer):
     """Strategy for serology reduction"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         # find serology equivalent in serology_mapping
         if is_2_field_allele(allele):

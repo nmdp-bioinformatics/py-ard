@@ -7,7 +7,7 @@ from .base_reducer import Reducer
 class LGXReducer(Reducer):
     """Strategy for lgx reduction"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         if allele in self.ard.ars_mappings.lgx_group:
             return self.ard.ars_mappings.lgx_group[allele]
@@ -19,7 +19,7 @@ class LGXReducer(Reducer):
 class LGReducer(Reducer):
     """Strategy for lg reduction (lgx + g suffix)"""
 
-    @override
+    # @override
     def reduce(self, allele: str) -> str:
         lgx_strategy = LGXReducer(self.ard)
         redux_allele = lgx_strategy.reduce(allele)
