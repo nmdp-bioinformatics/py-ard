@@ -2,6 +2,11 @@
 
 from abc import ABC, abstractmethod
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..ard import ARD
+
 
 class Reducer(ABC):
     """Base class for all reduction strategies"""

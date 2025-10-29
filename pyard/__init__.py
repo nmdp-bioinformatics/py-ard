@@ -21,8 +21,10 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from .blender import blender as dr_blender
 from .constants import DEFAULT_CACHE_SIZE
+
+# exports for `pyard`
+from .blender import blender as dr_blender
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""

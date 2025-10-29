@@ -13,6 +13,11 @@ from .u2_reducer import U2Reducer
 from .w_reducer import WReducer
 from ..constants import VALID_REDUCTION_TYPE
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..ard import ARD
+
 
 class StrategyFactory:
     """Factory for creating reduction strategies"""

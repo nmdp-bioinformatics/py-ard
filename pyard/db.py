@@ -420,7 +420,7 @@ def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
     :param serology: serology for which to find XX allele
     :return:  XX allele for given serology
     """
-    query = f"SELECT xx FROM serology_mapping WHERE serology = ?"
+    query = "SELECT xx FROM serology_mapping WHERE serology = ?"
     cursor = connection.execute(query, (serology,))
     results = cursor.fetchone()
     if results:
@@ -581,7 +581,7 @@ def save_serology_mappings(db_connection, sero_mapping):
     # Drop the table first
     cursor.execute("DROP TABLE IF EXISTS serology_mapping")
     # Create table
-    create_table_sql = f"""CREATE TABLE serology_mapping (
+    create_table_sql = """CREATE TABLE serology_mapping (
                             serology TEXT PRIMARY KEY,
                             allele_list TEXT,
                             lgx_allele_list TEXT,
@@ -592,7 +592,7 @@ def save_serology_mappings(db_connection, sero_mapping):
     rows = ((k, v[0], v[1], v[2]) for k, v in sero_mapping.items())
 
     # insert
-    cursor.executemany(f"INSERT INTO serology_mapping VALUES (?, ?, ?, ?)", rows)
+    cursor.executemany("INSERT INTO serology_mapping VALUES (?, ?, ?, ?)", rows)
 
     # commit transaction - writes to the db
     db_connection.commit()
