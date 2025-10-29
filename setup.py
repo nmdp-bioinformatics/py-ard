@@ -23,7 +23,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -43,9 +43,7 @@ setup(
     author="CIBMTR",
     author_email="cibmtr-pypi@nmdp.org",
     url="https://github.com/nmdp-bioinformatics/py-ard",
-    packages=[
-        "pyard",
-    ],
+    packages=find_packages(include=["pyard", "pyard.*"]),
     provides=["pyard"],
     scripts=[
         "scripts/pyard",
