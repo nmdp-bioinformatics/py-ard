@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, TYPE_CHECKING
+from typing import Dict
 
 from .base_reducer import Reducer
 from .default_reducer import DefaultReducer
@@ -12,9 +12,6 @@ from .s_reducer import SReducer
 from .u2_reducer import U2Reducer
 from .w_reducer import WReducer
 from ..constants import VALID_REDUCTION_TYPE
-
-if TYPE_CHECKING:
-    from ..ard import ARD
 
 
 class StrategyFactory:

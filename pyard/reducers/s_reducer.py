@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import functools
-from typing import override
 
 from .base_reducer import Reducer
 from .. import db

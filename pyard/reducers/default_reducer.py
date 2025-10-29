@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from typing_extensions import override
-
 from .base_reducer import Reducer
 from ..exceptions import InvalidAlleleError
 

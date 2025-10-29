@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from typing import override
 
 from .default_reducer import DefaultReducer
 
