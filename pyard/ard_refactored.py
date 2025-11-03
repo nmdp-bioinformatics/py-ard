@@ -16,8 +16,8 @@ from .constants import (
 )
 from .exceptions import InvalidMACError, InvalidTypingError
 from .handlers import (
-    AlleleReducer,
-    GLStringProcessor,
+    AlleleHandler,
+    GLStringHandler,
     MACHandler,
     SerologyHandler,
     V2Handler,
@@ -118,8 +118,8 @@ class ARD(object):
 
     def _initialize_handlers(self):
         """Initialize all specialized handlers"""
-        self.allele_reducer = AlleleReducer(self)
-        self.gl_processor = GLStringProcessor(self)
+        self.allele_reducer = AlleleHandler(self)
+        self.gl_processor = GLStringHandler(self)
         self.mac_handler = MACHandler(self)
         self.serology_handler = SerologyHandler(self)
         self.v2_handler = V2Handler(self)
