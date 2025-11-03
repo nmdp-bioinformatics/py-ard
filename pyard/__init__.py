@@ -38,7 +38,7 @@ def init(
     cache_size: int = DEFAULT_CACHE_SIZE,
     config: dict = None,
 ):
-    from .ard_refactored import ARD
+    from .ard import ARD
 
     ard = ARD(
         imgt_version=imgt_version,
