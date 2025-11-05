@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import Mock, patch
 
+from pyard import ARDConfig
 from pyard.handlers.v2_handler import V2Handler
 
 
@@ -13,7 +14,7 @@ class TestV2Handler:
     def mock_ard(self):
         """Create mock ARD instance"""
         ard = Mock()
-        ard._config = {"reduce_v2": True}
+        ard.config = ARDConfig.from_dict({"reduce_v2": True})
         ard.db_connection = Mock()
         ard.is_mac.return_value = False
         ard._is_allele_in_db.return_value = True
@@ -39,7 +40,7 @@ class TestV2Handler:
 
     def test_is_v2_config_disabled(self, mock_ard):
         """Test is_v2 with V2 reduction disabled"""
-        mock_ard._config["reduce_v2"] = False
+        mock_ard.config = ARDConfig.from_dict({"reduce_v2": False})
         handler = V2Handler(mock_ard)
 
         result = handler.is_v2("A*0101")

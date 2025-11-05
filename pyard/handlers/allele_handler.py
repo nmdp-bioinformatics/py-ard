@@ -68,6 +68,6 @@ class AlleleHandler:
                 [self.add_lg_suffix(allele) for allele in redux_allele.split("/")]
             )
         # Use 'ARS' suffix if configured, otherwise use 'g' suffix
-        if self.ard._config["ARS_as_lg"]:
+        if self.ard.config.ars_as_lg_enabled:
             return redux_allele + "ARS"
         return redux_allele + "g"

@@ -2,6 +2,8 @@
 
 import pytest
 from unittest.mock import Mock
+
+from pyard import ARDConfig
 from pyard.reducers.lg_reducer import LGXReducer, LGReducer
 
 
@@ -11,7 +13,7 @@ def mock_ard():
     ard = Mock()
     ard.ars_mappings = Mock()
     ard.ars_mappings.lgx_group = {"A*01:01:01": "A*01:01"}
-    ard._config = {"ARS_as_lg": False}
+    ard.config = ARDConfig.from_dict({"ARS_as_lg": False})
     return ard
 
 
@@ -48,7 +50,7 @@ class TestLGReducer:
 
     def test_reduce_single_allele_with_ars_suffix(self, mock_ard):
         """Test reduction adds 'ARS' suffix when configured"""
-        mock_ard._config = {"ARS_as_lg": True}
+        mock_ard.config = ARDConfig.from_dict({"ARS_as_lg": True})
         reducer = LGReducer(mock_ard)
         result = reducer.reduce("A*01:01:01")
 

@@ -50,7 +50,7 @@ class GLStringHandler:
         validate_reduction_type(redux_type)
 
         # Validate GL string structure if strict mode is enabled
-        if self.ard._config["strict"]:
+        if self.ard.config.strict_enabled:
             self.validate_gl_string(glstring)
 
         # Handle GL string delimiters in order of precedence
@@ -115,7 +115,7 @@ class GLStringHandler:
                     non_empty_gls,
                     key=functools.cmp_to_key(
                         lambda a, b: self.ard.smart_sort_comparator(
-                            a, b, self.ard._config["ignore_allele_with_suffixes"]
+                            a, b, self.ard.config.ignore_allele_with_suffixes
                         )
                     ),
                 )
@@ -131,7 +131,7 @@ class GLStringHandler:
                 unique_gls,
                 key=functools.cmp_to_key(
                     lambda a, b: self.ard.smart_sort_comparator(
-                        a, b, self.ard._config["ignore_allele_with_suffixes"]
+                        a, b, self.ard.config.ignore_allele_with_suffixes
                     )
                 ),
             )

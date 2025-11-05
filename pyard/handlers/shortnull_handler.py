@@ -38,7 +38,7 @@ class ShortNullHandler:
             True if the allele is a valid short null and short null reduction
             is enabled in configuration, False otherwise
         """
-        return allele in self.ard.shortnulls and self.ard._config["reduce_shortnull"]
+        return allele in self.ard.shortnulls and self.ard.config.shortnull_enabled
 
     def is_null(self, allele: str) -> bool:
         """Check if allele is a null allele

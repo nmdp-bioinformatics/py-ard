@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -21,10 +20,11 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from .constants import DEFAULT_CACHE_SIZE
 
 # exports for `pyard`
 from .blender import blender as dr_blender
+from .config import ARDConfig
+from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
 __author__ = """NMDP Bioinformatics"""

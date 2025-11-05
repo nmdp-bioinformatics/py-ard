@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import Mock, MagicMock
 
+from pyard import ARDConfig
 from pyard.handlers.allele_handler import AlleleHandler
 
 
@@ -13,7 +14,7 @@ class TestAlleleHandler:
     def mock_ard(self):
         """Create mock ARD instance"""
         ard = Mock()
-        ard._config = {"ARS_as_lg": False}
+        ard.config = ARDConfig.from_dict({"ARS_as_lg": False})
         return ard
 
     @pytest.fixture
@@ -55,7 +56,7 @@ class TestAlleleHandler:
 
     def test_add_lg_suffix_single_allele_ars(self, mock_ard):
         """Test add_lg_suffix with single allele using ARS suffix"""
-        mock_ard._config = {"ARS_as_lg": True}
+        mock_ard.config = ARDConfig.from_dict({"ARS_as_lg": True})
         handler = AlleleHandler(mock_ard)
         result = handler.add_lg_suffix("A*01:01")
         assert result == "A*01:01ARS"
@@ -67,7 +68,7 @@ class TestAlleleHandler:
 
     def test_add_lg_suffix_multiple_alleles_ars(self, mock_ard):
         """Test add_lg_suffix with multiple alleles using ARS suffix"""
-        mock_ard._config = {"ARS_as_lg": True}
+        mock_ard.config = ARDConfig.from_dict({"ARS_as_lg": True})
         handler = AlleleHandler(mock_ard)
         result = handler.add_lg_suffix("A*01:01/A*01:02")
         assert result == "A*01:01ARS/A*01:02ARS"

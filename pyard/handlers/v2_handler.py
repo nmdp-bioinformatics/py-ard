@@ -44,7 +44,7 @@ class V2Handler:
         """
         # Check basic V2 format criteria
         matches_v2_format = (
-            self.ard._config["reduce_v2"]  # V2 reduction must be enabled
+            self.ard.config.v2_enabled  # V2 reduction must be enabled
             and "*" in allele  # Must have locus separator
             and ":" not in allele  # Must not have field separators (V3 feature)
             and allele.split("*")[0]

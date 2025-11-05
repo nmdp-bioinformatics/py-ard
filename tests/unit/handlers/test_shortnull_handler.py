@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import Mock
 
+from pyard import ARDConfig
 from pyard.handlers.shortnull_handler import ShortNullHandler
 
 
@@ -13,7 +14,7 @@ class TestShortNullHandler:
     def mock_ard(self):
         """Create mock ARD instance"""
         ard = Mock()
-        ard._config = {"reduce_shortnull": True}
+        ard.config = ARDConfig.from_dict({"reduce_shortnull": True})
         ard.shortnulls = {"A*01:01N", "B*07:02N"}
         ard.is_mac.return_value = False
         return ard
@@ -35,7 +36,7 @@ class TestShortNullHandler:
 
     def test_is_shortnull_valid_with_config_disabled(self, mock_ard):
         """Test is_shortnull with valid short null but config disabled"""
-        mock_ard._config["reduce_shortnull"] = False
+        mock_ard.config = ARDConfig.from_dict({"reduce_shortnull": False})
         handler = ShortNullHandler(mock_ard)
 
         result = handler.is_shortnull("A*01:01N")
@@ -95,7 +96,7 @@ class TestShortNullHandler:
         self, mock_ard, allele, in_shortnulls, config_enabled, expected
     ):
         """Test is_shortnull with various combinations of conditions"""
-        mock_ard._config["reduce_shortnull"] = config_enabled
+        mock_ard.config = ARDConfig.from_dict({"reduce_shortnull": config_enabled})
         mock_ard.shortnulls = {allele} if in_shortnulls else set()
         handler = ShortNullHandler(mock_ard)
 

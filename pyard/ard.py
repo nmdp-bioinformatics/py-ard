@@ -26,21 +26,7 @@ from .handlers import (
 )
 from .misc import get_2field_allele, is_2_field_allele
 from .serology import SerologyMapping
-
-default_config = {
-    "reduce_serology": True,
-    "reduce_v2": True,
-    "reduce_3field": True,
-    "reduce_P": True,
-    "reduce_XX": True,
-    "reduce_MAC": True,
-    "reduce_shortnull": True,
-    "ping": True,
-    "verbose_log": False,
-    "ARS_as_lg": False,
-    "strict": True,
-    "ignore_allele_with_suffixes": (),
-}
+from .config import ARDConfig
 
 
 class ARD(object):
@@ -57,9 +43,7 @@ class ARD(object):
         config: dict = None,
     ):
         self._data_dir = data_dir
-        self._config = default_config.copy()
-        if config:
-            self._config.update(config)
+        self.config = ARDConfig.from_dict(config)
 
         # Initialize specialized handlers
         self._initialize_handlers()
@@ -160,7 +144,7 @@ class ARD(object):
         self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
     ) -> str:
         """Core allele reduction with ping logic"""
-        if not self._config["strict"]:
+        if not self.config.strict:
             allele = self._get_non_strict_allele(allele)
 
         # Handle P/G suffixes
@@ -168,7 +152,7 @@ class ARD(object):
             allele = allele[:-1]
 
         # Handle ping mode
-        if self._config["ping"] and re_ping and redux_type in ("lg", "lgx", "U2"):
+        if self.config.ping and re_ping and redux_type in ("lg", "lgx", "U2"):
             if allele in self.ars_mappings.p_not_g:
                 not_g_allele = self.ars_mappings.p_not_g[allele]
                 if redux_type == "lg":
@@ -206,8 +190,8 @@ class ARD(object):
         if "*" in allele:
             locus, fields = allele.split("*")
             # Handle ignored allele suffixes
-            if self._config["ignore_allele_with_suffixes"]:
-                if fields in self._config["ignore_allele_with_suffixes"]:
+            if self.config.ignore_allele_with_suffixes:
+                if fields in self.config.ignore_allele_with_suffixes:
                     return allele
             if locus not in G_GROUP_LOCI:
                 return allele
@@ -218,9 +202,7 @@ class ARD(object):
             return self.redux(allele, redux_type)
 
         # Handle Serology
-        if self._config["reduce_serology"] and self.serology_handler.is_serology(
-            allele
-        ):
+        if self.config.reduce_serology and self.serology_handler.is_serology(allele):
             alleles = self.serology_handler.get_alleles_from_serology(allele)
             if alleles:
                 return self.redux("/".join(alleles), redux_type)
@@ -246,7 +228,7 @@ class ARD(object):
 
         # Handle XX codes
         if (
-            self._config["reduce_XX"]
+            self.config.reduce_XX
             and code == "XX"
             and self.xx_handler.is_xx(allele, loc_antigen, code)
         ):
@@ -256,7 +238,7 @@ class ARD(object):
             return reduced_alleles
 
         # Handle MAC
-        if self._config["reduce_MAC"] and code.isalpha():
+        if self.config.reduce_MAC and code.isalpha():
             if self.mac_handler.is_mac(allele):
                 alleles = self.mac_handler.get_alleles(code, loc_antigen)
                 return self.redux("/".join(alleles), redux_type)
@@ -264,9 +246,7 @@ class ARD(object):
                 raise InvalidMACError(f"{glstring} is an invalid MAC.")
 
         # Handle short nulls
-        if self._config["reduce_shortnull"] and self.shortnull_handler.is_shortnull(
-            allele
-        ):
+        if self.config.reduce_shortnull and self.shortnull_handler.is_shortnull(allele):
             return self.redux("/".join(self.shortnulls[allele]), redux_type)
 
         redux_allele = self._redux_allele(allele, redux_type)
@@ -349,7 +329,7 @@ class ARD(object):
         if not self._is_allele_in_db(allele):
             for expr_char in expression_chars:
                 if self._is_allele_in_db(allele + expr_char):
-                    if self._config["verbose_log"]:
+                    if self.config.verbose_log:
                         print(f"{allele} is not valid. Using {allele}{expr_char}")
                     allele = allele + expr_char
                     break
@@ -387,12 +367,12 @@ class ARD(object):
             if not alphanum_allele.isalnum():
                 return False
 
-            if self._config["ignore_allele_with_suffixes"]:
+            if self.config.ignore_allele_with_suffixes:
                 locus, fields = allele.split("*")
-                if fields in self._config["ignore_allele_with_suffixes"]:
+                if fields in self.config.ignore_allele_with_suffixes:
                     return True
 
-        if not self._config["strict"]:
+        if not self.config.strict:
             allele = self._get_non_strict_allele(allele)
 
         if (

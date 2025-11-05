@@ -129,6 +129,6 @@ class LGReducer(Reducer):
             )
 
         # Add suffix based on configuration
-        if self.ard._config["ARS_as_lg"]:
+        if self.ard.config.ars_as_lg_enabled:
             return redux_allele + "ARS"
         return redux_allele + "g"

@@ -2,6 +2,8 @@
 
 import pytest
 from unittest.mock import Mock
+
+from pyard import ARDConfig
 from pyard.reducers import (
     Reducer,
     GGroupReducer,
@@ -30,7 +32,7 @@ def mock_ard():
     ard.code_mappings = Mock()
     ard.code_mappings.who_group = {}
     ard.db_connection = Mock()
-    ard._config = {"ARS_as_lg": False}
+    ard.config = ARDConfig.from_dict({"ARS_as_lg": False})
     ard._is_allele_in_db = Mock(return_value=True)
     ard._is_who_allele = Mock(return_value=False)
     ard._redux_allele = Mock()
