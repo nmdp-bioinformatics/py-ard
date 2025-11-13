@@ -1,9 +1,10 @@
-from urllib.request import urlopen
-from urllib.error import URLError
 import csv
 import sys
-from ..simple_table import Table
+from urllib.error import URLError
+from urllib.request import urlopen
+
 from ..loader import IMGT_HLA_URL
+from ..simple_table import Table
 
 
 def load_allele_list(imgt_version):

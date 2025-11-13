@@ -23,24 +23,18 @@
 import copy
 import functools
 import sqlite3
-import itertools
 
 import pyard.loader
 import pyard.loader.cwd
 import pyard.loader.mac_codes
 import pyard.loader.serology
-from pyard.smart_sort import smart_sort_comparator
 from . import db
 from .constants import expression_chars
 from .loader.allele_list import load_allele_list
+from .loader.g_group import load_g_group
+from .loader.p_group import load_p_group
 from .loader.serology import load_serology_mappings, load_serology_broad_split_mapping
 from .loader.version import load_latest_version
-
-from .loader.p_group import load_p_group
-from .loader.g_group import load_g_group
-
-from .simple_table import Table
-
 from .mappings import (
     ars_mapping_tables,
     ARSMapping,
@@ -56,6 +50,7 @@ from .misc import (
     get_1field_allele,
 )
 from .serology import broad_splits_dna_mapping, SerologyMapping
+from .simple_table import Table
 from .smart_sort import smart_sort_comparator
 
 

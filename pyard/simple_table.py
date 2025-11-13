@@ -1,6 +1,6 @@
-import sqlite3
 import csv
 import itertools
+import sqlite3
 from collections import defaultdict
 from typing import List
 

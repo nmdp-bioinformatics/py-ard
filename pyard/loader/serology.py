@@ -1,9 +1,8 @@
 import sys
-import csv
-import io
-from typing import Tuple, Dict, List
-from urllib.request import urlopen
+from typing import Tuple, List
 from urllib.error import URLError
+from urllib.request import urlopen
+
 from ..simple_table import Table
 
 # GitHub URL where IMGT HLA files are downloaded.
@@ -13,6 +12,24 @@ IMGT_HLA_URL = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/"
 def load_serology_mappings(imgt_version):
     """
     Read `rel_dna_ser.txt` file that contains alleles and their serological equivalents.
+
+    # file: rel_dna_ser.txt
+    # date: 2025-10-08
+    # version: IPD-IMGT/HLA 3.62.0
+    # origin: http://hla.alleles.org/wmda/rel_dna_ser.txt
+    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_dna_ser.txt
+    # author: WHO, Steven G. E. Marsh (steven.marsh@ucl.ac.uk)
+    A*;01:01:01:01;1;;;
+    A*;01:01:01:02N;0;;;
+    A*;01:01:01:03;1;;;
+    A*;01:01:01:04;1;;;
+    A*;01:01:01:05;1;;;
+    A*;01:01:01:06;1;;;
+    A*;01:01:01:07;1;;;
+    A*;01:01:01:08;1;;;
+    A*;01:01:01:09;1;;;
+    A*;01:01:01:10;1;;;
+    A*;01:01:01:11;1;;;
 
     The fields of the Alleles->Serological mapping file are:
        Locus - HLA Locus

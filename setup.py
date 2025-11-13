@@ -23,7 +23,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -36,16 +36,14 @@ with open("requirements-tests.txt") as requirements_file:
 
 setup(
     name="py-ard",
-    version="2.0.0b1",
+    version="2.0.0b2",
     description="ARD reduction for HLA with Python",
     long_description=readme,
     long_description_content_type="text/markdown",
     author="CIBMTR",
     author_email="cibmtr-pypi@nmdp.org",
     url="https://github.com/nmdp-bioinformatics/py-ard",
-    packages=[
-        "pyard",
-    ],
+    packages=find_packages(include=["pyard", "pyard.*"]),
     provides=["pyard"],
     scripts=[
         "scripts/pyard",
@@ -63,10 +61,12 @@ setup(
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Natural Language :: English",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
     test_suite="tests",
     tests_require=test_requirements,
