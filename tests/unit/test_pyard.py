@@ -22,12 +22,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 
-"""
-test_pyard
-----------------------------------
 
-Tests for `py-ard` module.
-"""
 import json
 import os
 
