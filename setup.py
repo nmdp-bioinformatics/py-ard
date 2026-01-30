@@ -34,6 +34,8 @@ with open("requirements.txt") as requirements_file:
 with open("requirements-tests.txt") as requirements_file:
     test_requirements = requirements_file.read().split("\n")
 
+script_extras = {"script": ["pandas>=2.0"]}
+
 setup(
     name="py-ard",
     version="2.0.0b2",
@@ -52,6 +54,7 @@ setup(
         "scripts/pyard-reduce-csv",
     ],
     install_requires=requirements,
+    extras_require=script_extras,
     license="LGPL 3.0",
     zip_safe=False,
     keywords="pyard",
