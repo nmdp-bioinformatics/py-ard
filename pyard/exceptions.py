@@ -51,3 +51,11 @@ class InvalidTypingError(PyArdError):
 
     def __str__(self) -> str:
         return f"Invalid HLA Typing: {self.message}"
+
+
+class HLAToolsNotAvailableError(PyArdError):
+    def __init__(self, message: str = "HLAtools R package is not available") -> None:
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return f"HLAtools Not Available: {self.message}"

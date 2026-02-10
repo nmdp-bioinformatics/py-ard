@@ -52,6 +52,9 @@ setup(
         "scripts/pyard-reduce-csv",
     ],
     install_requires=requirements,
+    extras_require={
+        "alignment": ["rpy2>=3.5.0", "pandas>=1.5.0"],
+    },
     license="LGPL 3.0",
     zip_safe=False,
     keywords="pyard",
