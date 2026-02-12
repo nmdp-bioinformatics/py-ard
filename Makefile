@@ -108,6 +108,7 @@ docker: docker-build ## build a docker image and run the service
 install: clean ## install the package to the active Python's site-packages
 	pip install --upgrade pip
 	pip install -r requirements.txt
+	pip install -r requirements-script.txt
 	pip install -r requirements-tests.txt
 	pip install -r requirements-dev.txt
 	pip install -r requirements-deploy.txt
