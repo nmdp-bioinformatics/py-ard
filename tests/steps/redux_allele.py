@@ -33,7 +33,11 @@ def step_impl(context, allele):
 @when("reducing on the {level} level")
 def step_impl(context, level):
     context.level = level
-    context.redux_allele = context.ard.redux(context.allele, level)
+    redux_allele = context.ard.redux(context.allele, level)
+    if redux_allele:
+        context.redux_allele = redux_allele
+    else:
+        context.redux_allele = "X"
 
 
 @when("reducing on the {level} level with ping")
@@ -56,7 +60,11 @@ def step_impl(context, level):
 def step_impl(context, level):
     context.level = level
     try:
-        context.redux_allele = context.ard.redux(context.allele, level)
+        redux_allele = context.ard.redux(context.allele, level)
+        if redux_allele:
+            context.redux_allele = redux_allele
+        else:
+            context.redux_allele = "X"
     except PyArdError:
         context.redux_allele = "X"
 
