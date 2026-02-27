@@ -14,4 +14,5 @@ fi
 echo "Importing py-ard latest IPD/IMGT version: "
 pyard-import
 
-gunicorn --preload --bind 0.0.0.0:8080 --timeout 5000 --log-level info "${WORKER_FLAG}" app:app
+# shellcheck disable=SC2086
+gunicorn -c gunicorn_config.py ${WORKER_FLAG} app:app
