@@ -32,3 +32,9 @@ Feature: Mature Protein Redux (M Redux)
     Examples: Full DQA1*05:xx group — partial collapsing
       | Group                                                                                      | Locus | Result                                                                        |
       | DQA1*05:01/DQA1*05:05/DQA1*05:09/DQA1*05:11/DQA1*05:13/DQA1*05:35/DQA1*05:38/DQA1*05:41 | DQA1  | DQA1*05:01[M]/DQA1*05:09/DQA1*05:11/DQA1*05:35/DQA1*05:38/DQA1*05:41 |
+
+    Examples: Allele with no reference sequence — kept as a separate entry
+      # DQA1*99:99 has no sequence in HLAtools; it cannot be evaluated for mature-protein
+      # equivalence and must remain unchanged in the output rather than being dropped.
+      | Group                              | Locus | Result                    |
+      | DQA1*05:01/DQA1*05:05/DQA1*99:99  | DQA1  | DQA1*05:01[M]/DQA1*99:99 |
