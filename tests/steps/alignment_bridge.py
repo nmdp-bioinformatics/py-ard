@@ -112,12 +112,15 @@ def _mature_redux(bridge, alleles, locus):
 
     Returns a '/'-joined string of representatives. Groups with >1 member are
     annotated with '[M]'.
+
+    An allele is never collapsed if its mature sequence is None (no reference)
+    or contains '*' (unsequenced positions — identity cannot be confirmed).
     """
     seen_seqs = {}
     groups = {}
     for allele in alleles:
         seq = bridge.get_mature_sequence(allele)
-        if seq is None:
+        if seq is None or "*" in seq:
             groups[allele] = [allele]
             continue
         if seq not in seen_seqs:

@@ -8,6 +8,11 @@ Feature: Mature Protein Redux (M Redux)
   Alleles that differ in the mature protein are kept as separate representatives.
   A single-allele group or a group of one is returned unchanged.
 
+  An allele is never collapsed if:
+    - its mature sequence is None (no reference sequence available in HLAtools), OR
+    - its mature sequence contains '*' (one or more positions are unsequenced in the
+      alignment); unknown positions mean protein identity cannot be confirmed.
+
   @hlatools
   Scenario Outline: M redux collapses alleles with identical mature protein
 
@@ -34,20 +39,28 @@ Feature: Mature Protein Redux (M Redux)
       | DQA1*05:01/DQA1*05:05/DQA1*05:09/DQA1*05:11/DQA1*05:13/DQA1*05:35/DQA1*05:38/DQA1*05:41 | DQA1  | DQA1*05:01[M]/DQA1*05:09/DQA1*05:11/DQA1*05:35/DQA1*05:38/DQA1*05:41 |
 
     Examples: Allele with no reference sequence — kept as a separate entry
-      # DQA1*99:99 has no sequence in HLAtools; it cannot be evaluated for mature-protein
-      # equivalence and must remain unchanged in the output rather than being dropped.
+      # DQA1*99:99 has no sequence at all in HLAtools (bridge returns None).
+      # It cannot be evaluated and must remain unchanged.
       | Group                              | Locus | Result                    |
       | DQA1*05:01/DQA1*05:05/DQA1*99:99  | DQA1  | DQA1*05:01[M]/DQA1*99:99 |
 
-    Examples: DQB1 — partial allele (unsequenced exon) stays separate from complete allele
+    Examples: Allele with unsequenced positions ('*') — kept as a separate entry
+      # DQA1*05:35 has a reference but its mature sequence contains '*' characters
+      # (unsequenced positions in the HLAtools alignment, e.g. *****DHVASYGVNLYQ...).
+      # Because one or more positions are unknown, protein identity cannot be confirmed
+      # and the allele must remain separate — even if the known suffix matches another allele.
+      | Group                    | Locus | Result                  |
+      | DQA1*05:01/DQA1*05:35   | DQA1  | DQA1*05:01/DQA1*05:35  |
+
+    Examples: DQB1 — allele with unsequenced positions stays separate from complete allele
       # DQB1*05:01:02 and *05:01:03 have unsequenced exons (shown as ***** in the
-      # HLAtools alignment). Because their sequences cannot be fully evaluated they
-      # remain as separate entries rather than being collapsed with the complete allele.
+      # HLAtools alignment). Because one or more positions are unknown, they cannot
+      # be confirmed as protein-identical and remain as separate entries.
       | Group                                                          | Locus | Result                                           |
       | DQB1*05:01:01:01/DQB1*05:01:02                                | DQB1  | DQB1*05:01:01:01/DQB1*05:01:02                  |
       | DQB1*05:01:01:01/DQB1*05:01:02/DQB1*05:01:03                 | DQB1  | DQB1*05:01:01:01/DQB1*05:01:02/DQB1*05:01:03   |
 
-    Examples: DRB1 — partial allele stays separate from complete allele
-      # DRB1*01:01:03 has an unsequenced exon → stays separate.
+    Examples: DRB1 — allele with unsequenced positions stays separate from complete allele
+      # DRB1*01:01:03 has an unsequenced exon (contains '*') → stays separate.
       | Group                                  | Locus | Result                              |
       | DRB1*01:01:01:01/DRB1*01:01:03        | DRB1  | DRB1*01:01:01:01/DRB1*01:01:03     |
