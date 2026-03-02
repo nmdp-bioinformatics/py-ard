@@ -174,12 +174,133 @@ class HLAToolsBridge:
 
         return alignment_dict
 
+    def get_mature_alignment(self, locus: str) -> Dict[str, str]:
+        """
+        Get mature-protein-only alignment for a locus (IMGT positions >= 1).
+
+        Args:
+            locus: HLA locus name (e.g., "DPB1").
+
+        Returns:
+            Dict mapping allele names to their mature protein amino acid sequences.
+        """
+        if locus not in VALID_LOCI:
+            raise ValueError(f"Invalid locus '{locus}'. Must be one of: {VALID_LOCI}")
+
+        cache_key = f"mature_{locus}"
+        if cache_key in self._alignment_cache:
+            return self._alignment_cache[cache_key]
+
+        self._ensure_alignments_loaded()
+
+        from rpy2.robjects import r
+        import rpy2.robjects as ro
+
+        df = r(f"HLAalignments$prot${locus}")
+        if df is ro.NULL or df is None:
+            self._alignment_cache[cache_key] = {}
+            return {}
+
+        result = self._dataframe_to_mature_dict(df)
+        self._alignment_cache[cache_key] = result
+        return result
+
+    def _dataframe_to_mature_dict(self, df) -> Dict[str, str]:
+        """Convert alignment R data frame to allele->mature-protein-sequence dict.
+
+        Only includes columns with IMGT position >= 1 (excludes leader and E. columns).
+        """
+        import rpy2.robjects as ro
+        from rpy2.robjects import pandas2ri
+        from rpy2.robjects.conversion import localconverter
+
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            pdf = ro.conversion.get_conversion().rpy2py(df)
+
+        col_names = list(pdf.columns)
+        mature_cols = []
+        for col in col_names[4:]:
+            if col.startswith("E."):
+                continue
+            try:
+                imgt_pos = int(col)
+            except ValueError:
+                try:
+                    imgt_pos = float(col)
+                except ValueError:
+                    continue
+            if imgt_pos >= 1:
+                mature_cols.append(col)
+
+        result = {}
+        for _, row in pdf.iterrows():
+            allele_name = str(row["allele_name"])
+            sequence = "".join(str(row[col]) for col in mature_cols)
+            result[allele_name] = sequence.replace(".", "")
+
+        return result
+
+    def get_mature_sequence(self, allele: str) -> Optional[str]:
+        """
+        Get the mature protein sequence for a single allele (IMGT positions >= 1 only).
+
+        Tries exact match first, then progressively shorter prefixes.
+
+        Args:
+            allele: Full allele name (e.g., "DQA1*05:01:01:01").
+
+        Returns:
+            Mature amino acid sequence string, or None if not found.
+        """
+        if not allele or "*" not in allele:
+            return None
+
+        locus = allele.split("*")[0]
+        alignment = self.get_mature_alignment(locus)
+
+        if not alignment:
+            return None
+
+        return self._lookup_in_alignment(allele, alignment)
+
+    def _lookup_in_alignment(
+        self, allele: str, alignment: Dict[str, str]
+    ) -> Optional[str]:
+        """Return the sequence for allele from alignment, with prefix fallback.
+
+        Lookup order:
+        1. Exact match.
+        2. Field-boundary prefix: allele is a proper prefix of a stored key
+           (e.g. "DPB1*04:01" matches "DPB1*04:01:01:01" via "DPB1*04:01:").
+        3. Progressive field-stripping (3-field → 2-field → 1-field), each
+           checked with a field-boundary colon so "DPB1*04:01" and "DPB1*04:02"
+           never collide at the single-field level.
+        """
+        if allele in alignment:
+            return alignment[allele]
+
+        # Field-boundary prefix: "DPB1*04:01" → startswith("DPB1*04:01:")
+        prefix_with_colon = allele + ":"
+        for full_allele in alignment:
+            if full_allele.startswith(prefix_with_colon):
+                return alignment[full_allele]
+
+        # Strip-field fallback with field-boundary check
+        parts = allele.split(":")
+        for i in range(len(parts) - 1, 0, -1):
+            prefix = ":".join(parts[:i])
+            for full_allele in alignment:
+                if full_allele.startswith(prefix + ":") or full_allele == prefix:
+                    return alignment[full_allele]
+
+        return None
+
     def get_sequence(self, allele: str) -> Optional[str]:
         """
         Get the protein sequence for a single allele.
 
-        Tries exact match first, then progressively shorter prefixes
-        (e.g., 4-field -> 3-field -> 2-field).
+        Tries exact match first, then field-boundary prefix, then progressively
+        shorter field counts (e.g., 4-field -> 3-field -> 2-field -> 1-field).
 
         Args:
             allele: Full allele name (e.g., "DPB1*04:01:01:01").
@@ -196,19 +317,7 @@ class HLAToolsBridge:
         if not alignment:
             return None
 
-        # Exact match
-        if allele in alignment:
-            return alignment[allele]
-
-        # Prefix fallback: try progressively shorter field counts
-        parts = allele.split(":")
-        for i in range(len(parts) - 1, 0, -1):
-            prefix = ":".join(parts[:i])
-            for full_allele in alignment:
-                if full_allele.startswith(prefix):
-                    return alignment[full_allele]
-
-        return None
+        return self._lookup_in_alignment(allele, alignment)
 
     def compare_sequences(self, allele1: str, allele2: str) -> Dict:
         """
