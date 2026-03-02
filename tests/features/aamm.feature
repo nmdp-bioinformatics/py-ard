@@ -24,10 +24,9 @@ Feature: Identical AAMM (Amino Acid Mismatch Match)
       | Donor                    | Recipient                         | Locus | Identical | Distinct |
       | DPB1*126:01+DPB1*105:01  | DPB1*04:01+DPB1*04:02             | DPB1  | True      | 1        |
 
-    Examples: Ambiguous recipient — mature-protein-identical alternatives still yield distinct full-sequence AAMM sets
-      # DPB1*04:02 and DPB1*03:01 share the same mature protein but differ in the
-      # leader peptide. AAMM is computed on the full protein sequence (leader + mature),
-      # so the two recipient phasings correctly produce different AAMM sets.
+    Examples: Ambiguous recipient where the two alternatives are NOT protein-identical
+      # DPB1*04:02 and DPB1*03:01 have different protein sequences (they differ at
+      # position 207). The two recipient phasings therefore produce different AAMM sets.
       | Donor                    | Recipient                         | Locus | Identical | Distinct |
       | DPB1*126:01+DPB1*105:01  | DPB1*04:01+DPB1*04:02/DPB1*03:01 | DPB1  | False     | 2        |
 
