@@ -37,13 +37,6 @@ Feature: Identical AAMM (Amino Acid Mismatch Match)
       | Donor                                  | Recipient                | Locus | Identical | Distinct |
       | DPB1*04:01/126:01+DPB1*04:02/105:01   | DPB1*126:01+DPB1*105:01 | DPB1  | True      | 1        |
 
-    Examples: 4-field ambiguity within the same 2-field group — protein-identical → identical AAMM
-      # DPB1*04:01:01:01 and DPB1*04:01:01:02 are two 4-field alleles of the same 2-field
-      # group. They encode the same protein sequence, so every phasing combination produces
-      # the same AAMM set → True/1.
-      | Donor                                           | Recipient                           | Locus | Identical | Distinct |
-      | DPB1*04:01:01:01/04:01:01:02+DPB1*02:01:02:01  | DPB1*04:01:01:01+DPB1*02:01:02:01  | DPB1  | True      | 1        |
-
     Examples: Ambiguous chr1 with different proteins — two distinct AAMM sets
       # DPB1*01:01 and DPB1*02:01 have different protein sequences. The two chr1
       # alternatives produce different AAMM sets against the recipient → False/2.

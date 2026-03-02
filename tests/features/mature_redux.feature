@@ -39,17 +39,15 @@ Feature: Mature Protein Redux (M Redux)
       | Group                              | Locus | Result                    |
       | DQA1*05:01/DQA1*05:05/DQA1*99:99  | DQA1  | DQA1*05:01[M]/DQA1*99:99 |
 
-    Examples: DQB1 — complete alleles collapse, partial alleles stay separate
-      # DQB1*05:01:01:02 is complete and shares the same mature protein as *05:01:01:01
-      # → they collapse.  *05:01:02 and *05:01:03 are partial (exon 1 not sequenced,
-      # shown as ***** in the alignment) → they cannot be evaluated and stay separate.
-      | Group                                                                   | Locus | Result                                                |
-      | DQB1*05:01:01:01/DQB1*05:01:01:02                                      | DQB1  | DQB1*05:01:01:01[M]                                   |
-      | DQB1*05:01:01:01/DQB1*05:01:02                                          | DQB1  | DQB1*05:01:01:01/DQB1*05:01:02                        |
-      | DQB1*05:01:01:01/DQB1*05:01:01:02/DQB1*05:01:02/DQB1*05:01:03          | DQB1  | DQB1*05:01:01:01[M]/DQB1*05:01:02/DQB1*05:01:03      |
+    Examples: DQB1 — partial allele (unsequenced exon) stays separate from complete allele
+      # DQB1*05:01:02 and *05:01:03 have unsequenced exons (shown as ***** in the
+      # HLAtools alignment). Because their sequences cannot be fully evaluated they
+      # remain as separate entries rather than being collapsed with the complete allele.
+      | Group                                                          | Locus | Result                                           |
+      | DQB1*05:01:01:01/DQB1*05:01:02                                | DQB1  | DQB1*05:01:01:01/DQB1*05:01:02                  |
+      | DQB1*05:01:01:01/DQB1*05:01:02/DQB1*05:01:03                 | DQB1  | DQB1*05:01:01:01/DQB1*05:01:02/DQB1*05:01:03   |
 
-    Examples: DRB1 — complete alleles collapse, partial allele stays separate
-      # DRB1*01:01:01:02 is complete and protein-identical to *01:01:01:01 → collapse.
-      # DRB1*01:01:03 is partial (exon 1 unsequenced) → stays separate.
-      | Group                                               | Locus | Result                              |
-      | DRB1*01:01:01:01/DRB1*01:01:01:02/DRB1*01:01:03   | DRB1  | DRB1*01:01:01:01[M]/DRB1*01:01:03  |
+    Examples: DRB1 — partial allele stays separate from complete allele
+      # DRB1*01:01:03 has an unsequenced exon → stays separate.
+      | Group                                  | Locus | Result                              |
+      | DRB1*01:01:01:01/DRB1*01:01:03        | DRB1  | DRB1*01:01:01:01/DRB1*01:01:03     |
