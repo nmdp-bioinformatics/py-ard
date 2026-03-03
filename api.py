@@ -1,20 +1,24 @@
-from flask import request
+import connexion
 
 import pyard
 from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
 
 # Globally accessible for all endpoints
-print("py-ard version: ", pyard.__version__)
-ard = pyard.init()
-print("IMGT version:   ", ard.get_db_version())
+global ard
 
 
-def validate_controller():
-    if request.json:
-        # Check the request has required inputs
+def init_pyard():
+    global ard
+    print("py-ard version: ", pyard.__version__)
+    ard = pyard.init()
+    print("IMGT version:   ", ard.get_db_version())
+
+
+def validate_controller(body):
+    if body:
         try:
-            gl_string = request.json["gl_string"]
+            gl_string = body["gl_string"]
         except KeyError:
             return {"message": "gl_string not provided"}, 404
         return validate_gl(gl_string)
@@ -25,7 +29,6 @@ def validate_controller_get(gl_string: str):
 
 
 def validate_gl(gl_string):
-    # Validate
     try:
         ard.validate(gl_string)
         return "Yes", 200
@@ -39,12 +42,11 @@ def validate_gl(gl_string):
         return {"message": e.message}, 400
 
 
-def redux_controller():
-    if request.json:
-        # Check the request has required inputs
+def redux_controller(body):
+    if body:
         try:
-            gl_string = request.json["gl_string"]
-            reduction_method = request.json["reduction_method"]
+            gl_string = body["gl_string"]
+            reduction_method = body["reduction_method"]
         except KeyError:
             return {"message": "gl_string and reduction_method not provided"}, 404
         # Perform redux
@@ -59,7 +61,7 @@ def redux_controller():
 
 
 def lgx_controller(allele):
-    # Perform redux
+    # Perform redux in `lgx` mode
     if allele:
         try:
             redux_string = ard.redux(allele, "lgx")
@@ -91,10 +93,10 @@ def mac_expand_controller(allele_code: str):
         return {"message": e.message}, 400
 
 
-def mac_lookup_controller():
-    if request.json:
+def mac_lookup_controller(body):
+    if body:
         try:
-            allele_list = request.json["gl_string"]
+            allele_list = body["gl_string"]
             mac_code = ard.lookup_mac(allele_list)
             return {
                 "mac": mac_code,
@@ -105,13 +107,13 @@ def mac_lookup_controller():
             return {"message": e.message}, 400
 
 
-def drbx_blender_controller():
-    if request.json:
+def drbx_blender_controller(body):
+    if body:
         try:
-            drb1_slug = request.json["DRB1_SLUG"]
-            drb3 = request.json["DRB3"]
-            drb4 = request.json["DRB4"]
-            drb5 = request.json["DRB5"]
+            drb1_slug = body["DRB1_SLUG"]
+            drb3 = body["DRB3"]
+            drb4 = body["DRB4"]
+            drb5 = body["DRB5"]
         except KeyError:
             return {"message", "All of DRB1_SLUG, DRB3, DRB4, DRB5 values not provided"}
 
@@ -138,14 +140,13 @@ def splits_controller(allele: str):
     return {"message": f"No Broad/Splits matched {allele}"}, 404
 
 
-def cwd_redux_controller():
-    if request.json:
-        # Check the request has required inputs
+def cwd_redux_controller(body):
+    if body:
         try:
-            gl_string = request.json["gl_string"]
+            gl_string = body["gl_string"]
         except KeyError:
             return {"message": "gl_string and reduction_method not provided"}, 404
-        # Perform redux
+        # Perform CWD redux
         try:
             cwd = ard.cwd_redux(gl_string)
         except PyArdError as e:

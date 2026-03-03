@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 import connexion
-
 from flask import redirect
 
-app = connexion.App(__name__)
-application = app.app
-api = app.add_api("api-spec.yaml")
+# Create the Connexion application instance for Flask
+connexion_app = connexion.FlaskApp(__name__, specification_dir="./")
+connexion_app.add_api("api-spec.yaml")
+
+# Expose ASGI app for uvicorn/gunicorn with uvicorn workers
+app = connexion_app
 
 
 @app.route("/")
 def index():
-    return redirect(api.base_path + "/ui")
+    return redirect("/ui")
 
 
 if __name__ == "__main__":
-    app.run(port=8080, debug=True)
+    # Run the application on port 8080
+    connexion_app.run(port=8080)
