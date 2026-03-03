@@ -59,6 +59,29 @@ def expand_mac_code():
     sys.exit(0)
 
 
+def expand_code():
+    code = args.expand
+    if ard.is_XX(code):
+        expanded_alleles = ard.expand_xx(code)
+        print(expanded_alleles)
+    elif ard.is_mac(code):
+        try:
+            allele_list = ard.expand_mac(code)
+            print(allele_list)
+        except InvalidMACError as e:
+            print(e.message, file=sys.stderr)
+    else:
+        print("Not a XX code or MAC", file=sys.stderr)
+
+    sys.exit(0)
+
+
+def expand_xx_code():
+    expanded_alleles = ard.expand_xx(args.expand_xx)
+    print(expanded_alleles)
+    sys.exit(0)
+
+
 def find_broad_splits(ard):
     mapping = ard.find_broad_splits(args.splits)
     if mapping:
@@ -129,6 +152,12 @@ if __name__ == "__main__":
         "--lookup-mac", dest="lookup_mac", help="Lookup MAC for an Allele List"
     )
     parser.add_argument(
+        "--expand-xx", dest="expand_xx", help="Expand XX code to Allele List"
+    )
+    parser.add_argument(
+        "--expand", dest="expand", help="Expand MAC or XX code to Allele List"
+    )
+    parser.add_argument(
         "--similar",
         dest="similar_allele",
         help="Find Similar Alleles with given prefix",
@@ -172,6 +201,14 @@ if __name__ == "__main__":
     # Handle --lookup-mac option
     if args.lookup_mac:
         lookup_mac_codes()
+
+    # Handle --expand option
+    if args.expand:
+        expand_code()
+
+    # Handle --expand-xx option
+    if args.expand_xx:
+        expand_xx_code()
 
     # Handle --similar option
     if args.similar_allele:
