@@ -21,9 +21,11 @@ def on_starting(server):
     """Called just before the master process is initialized."""
     print("=" * 60)
     print("Preloading py-ard in master process...")
+
     # Initialize ard in master process - will be shared via fork
     import api
 
     api.init_pyard()
+
     print("Done preloading py-ard")
     print("=" * 60)
