@@ -274,7 +274,8 @@ class ARD(object):
         if is_hla_prefix:
             if "/" in redux_allele:
                 return "/".join([f"HLA-{ra}" for ra in redux_allele.split("/")])
-            redux_allele = f"HLA-{redux_allele}"
+            if redux_allele:
+                redux_allele = f"HLA-{redux_allele}"
         return redux_allele
 
     @staticmethod

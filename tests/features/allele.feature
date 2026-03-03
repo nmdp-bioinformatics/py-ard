@@ -111,3 +111,19 @@ Feature: Alleles
     Examples:
       | Allele    | Validity |
       | DRBX*NNNN | Valid    |
+
+  Scenario Outline: Preserve HLA Prefix
+    Given the allele as <Allele>
+    When reducing on the <Level> level
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele       | Level | Redux Allele                          |
+      | HLA-A*01:04N | lgx   | HLA-A*01:01                           |
+      | HLA-A*01:04N | P     | HLA-A*01:04:01:01N/HLA-A*01:04:01:02N |
+      | HLA-A*01:04N | G     | HLA-A*01:01:01G                       |
+      | HLA-A*01:04N | lg    | HLA-A*01:01g                          |
+      | HLA-A*01:04N | W     | HLA-A*01:04:01:01N/HLA-A*01:04:01:02N |
+      | HLA-A*01:04N | exon  | HLA-A*01:04:01N                       |
+      | HLA-A*01:04N | U2    | HLA-A*01:04N                          |
+      | HLA-A*01:04N | S     | X                                     |

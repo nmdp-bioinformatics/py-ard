@@ -1,10 +1,10 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.14-slim-trixie
 
 LABEL MAINTAINER="Pradeep Bashyal"
 
 WORKDIR /app
 
-ARG PY_ARD_VERSION=2.0.0b2
+ARG PY_ARD_VERSION=2.0.0b3
 
 COPY requirements.txt /app
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir py-ard==$PY_ARD_VERSION
 COPY app.py /app/
 COPY api.py /app/
 COPY api-spec.yaml /app/
+COPY gunicorn_config.py /app/
 
 COPY docker-entrypoint-flask.sh /usr/local/bin/
 CMD ["/usr/local/bin/docker-entrypoint-flask.sh"]

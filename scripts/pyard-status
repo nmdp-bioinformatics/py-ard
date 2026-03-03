@@ -39,7 +39,9 @@ def get_latest_imgt_version() -> int:
     version numbered db
     @return: int
     """
-    return max(map(int, pyard.db_versions()[:-1]))
+    imgt_versions = pyard.db_versions()
+    imgt_versions = filter(str.isdigit, imgt_versions)
+    return max(map(int, imgt_versions))
 
 
 def get_file_size(file_name: str) -> float:

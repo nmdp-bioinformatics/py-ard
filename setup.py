@@ -34,9 +34,14 @@ with open("requirements.txt") as requirements_file:
 with open("requirements-tests.txt") as requirements_file:
     test_requirements = requirements_file.read().split("\n")
 
+script_extras = {
+    "script": ["pandas>=2.0"],
+    "alignment": ["rpy2>=3.5.0", "pandas>=1.5.0"],
+}
+
 setup(
     name="py-ard",
-    version="2.0.0b2",
+    version="2.0.0b3",
     description="ARD reduction for HLA with Python",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -53,9 +58,7 @@ setup(
         "scripts/generate-m-nom",
     ],
     install_requires=requirements,
-    extras_require={
-        "alignment": ["rpy2>=3.5.0", "pandas>=1.5.0"],
-    },
+    extras_require=script_extras,
     license="LGPL 3.0",
     zip_safe=False,
     keywords="pyard",
