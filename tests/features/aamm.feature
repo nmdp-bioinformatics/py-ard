@@ -35,9 +35,10 @@ Feature: Identical AAMM (Amino Acid Mismatch Match)
       | DPB1*126:01+DPB1*105:01  | DPB1*04:01+DPB1*04:02/DPB1*03:01 | DPB1  | False     | 2        |
 
     Examples: Ambiguous donor where all phasing combinations yield the same AAMM set
-      # DPB1*04:01 and DPB1*126:01 are protein-identical; DPB1*04:02 and DPB1*105:01
-      # are protein-identical. Every combination of donor × recipient phasing gives the
-      # same (empty) AAMM set — the clinical assessment is unambiguous.
+      # 04:01 (L at pos 207) and 126:01 (M) differ, but the recipient covers both:
+      # 126:01 contributes M and 105:01 contributes L. Similarly 04:02 (M) and
+      # 105:01 (L) are both covered. Every phasing combination yields an empty
+      # AAMM set — the clinical assessment is unambiguous.
       | Donor                                  | Recipient                | Locus | Identical | Distinct |
       | DPB1*04:01/126:01+DPB1*04:02/105:01   | DPB1*126:01+DPB1*105:01 | DPB1  | True      | 1        |
 

@@ -35,6 +35,18 @@ try:
 except ImportError:
     pass
 
+try:
+    from .analysis import (
+        parse_gl_genotype,
+        is_null_allele,
+        analyze_mismatches,
+        mature_protein_redux,
+        compute_aamm,
+        check_identical_aamm,
+    )
+except ImportError:
+    pass
+
 
 def init(
     imgt_version: str = "Latest",

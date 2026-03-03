@@ -50,6 +50,7 @@ setup(
         "scripts/pyard-import",
         "scripts/pyard-status",
         "scripts/pyard-reduce-csv",
+        "scripts/generate-m-nom",
     ],
     install_requires=requirements,
     extras_require={

@@ -81,12 +81,14 @@ Feature: HLAtools Alignment Bridge
   Scenario Outline: Invalid allele returns no sequence
 
     Alleles without a '*' delimiter or empty strings cannot be looked up.
+    '(empty)' in the examples table represents an empty string — behave
+    cannot represent blank cells directly.
 
     Given the HLA allele <Allele>
     When looking up the full protein sequence
     Then no sequence is found
 
     Examples:
-      | Allele |
-      | DPB1   |
-      |        |
+      | Allele  |
+      | DPB1    |
+      | (empty) |
