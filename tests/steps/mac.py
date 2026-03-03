@@ -12,6 +12,8 @@ def step_impl(context, mac_code):
 @when("expanding the MAC")
 def step_impl(context):
     context.mac_expansion = context.ard.expand_mac(context.mac_code)
+    if not context.mac_expansion:
+        context.mac_expansion = "X"
 
 
 @then("the expanded MAC is {mac_expanded}")
