@@ -117,3 +117,5 @@ tags
 .direnv/
 .envrc
 .idea/
+.DS_Store
+CLAUDE.md
