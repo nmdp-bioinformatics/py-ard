@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: ARD Reduction
   description: Reduce to ARD Level
-  version: "2.0.0b3"
+  version: "2.0.0b4"
 servers:
   - url: 'http://localhost:8080'
 tags:
@@ -12,6 +12,8 @@ tags:
     description: Reduce GL String to CWD (version 2)
   - name: MAC
     description: Expand/Collapse MAC to/from alleles
+  - name: XX
+    description: Expand XX Code to alleles
   - name: Validation
     description: Validate a GL String or Allele
   - name: DRBX Blender
@@ -260,6 +262,44 @@ paths:
                     description: MAC Code is not valid
                     type: string
                     example: "Invalid MAC Code"
+  /xx/{xx_code}:
+    get:
+      tags:
+        - XX
+      operationId: api.xx_expand_controller
+      summary: Expand XX code
+      description: |
+        Given a XX Code, expand its allele components
+      parameters:
+        - name: xx_code
+          in: path
+          description: A valid XX Code
+          required: true
+          schema:
+            type: string
+          example: "HLA-A*43:XX"
+      responses:
+        200:
+          description: Alleles corresponding to XX Code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mac:
+                    description: XX Code
+                    type: string
+                    example: "HLA-A*43:XX"
+                  gl_string:
+                    description: GL String version of expanded XX
+                    type: string
+                    example: "HLA-A*43:01/HLA-A*43:02N"
+                  alleles:
+                    description: Alleles corresponding to MAC
+                    type: array
+                    example:
+                      - "HLA-A*43:01"
+                      - "HLA-A*43:02N"
   /mac:
     post:
       tags:

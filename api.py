@@ -78,6 +78,21 @@ def lgx_controller(allele):
         return {"message": f"No allele provided"}, 404
 
 
+def xx_expand_controller(xx_code: str):
+    try:
+        if ard.is_XX(xx_code):
+            allele_list = ard.expand_xx(xx_code)
+            return {
+                "XX": xx_code,
+                "alleles": allele_list.split("/"),
+                "gl_string": allele_list,
+            }, 200
+        else:
+            return {"message": f"{xx_code} is not a valid XX Code"}, 404
+    except PyArdError as e:
+        return {"message": e.message}, 400
+
+
 def mac_expand_controller(allele_code: str):
     try:
         if ard.is_mac(allele_code):

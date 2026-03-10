@@ -27,6 +27,34 @@ Feature: MAC (Multiple Allele Code)
 
   Scenario Outline: Expand MAC Codes
 
+    `expand-mac` doesn't involve reduction.
+
+    e.g. `AB` MAC is defined as:
+    ```
+    code  alleles
+    ----  -------
+    AB    01/02
+    ```
+
+    If you expand the MAC C*04:AB. It expands to C*04:01 and C*04:02 but only C*04:01 is a valid C allele. So it returns that as the expansion.
+
+    ```
+    ❯ pyard --expand-mac "C*04:AB"
+    C*04:01
+    ```
+    versus  `A*04:AB`
+    ```
+    pyard --expand-mac "A*04:AB"
+
+    ```
+    produces no result because both expansion `A*04:01` and `A*04:02`  are not valid alleles.
+
+    while `A*01:AB` produces `A*01:01/A*01:02`
+    ```
+    pyard --expand-mac "A*04:AB"
+    A*01:01/A*01:02
+    ```
+
     Given the MAC code is <MAC>
     When expanding the MAC
     Then the expanded MAC is <Expanded Alleles>
@@ -34,6 +62,8 @@ Feature: MAC (Multiple Allele Code)
     Examples:
       | MAC           | Expanded Alleles                     |
       | A*01:AB       | A*01:01/A*01:02                      |
+      | A*04:AB       | X                                    |
+      | C*04:AB       | C*04:01                              |
       | HLA-A*25:BYHR | HLA-A*25:01/HLA-A*26:01              |
       | HLA-A*02:GNF  | HLA-A*02:01/HLA-A*02:09/HLA-A*02:43N |
 

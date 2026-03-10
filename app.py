@@ -17,4 +17,7 @@ def index():
 
 if __name__ == "__main__":
     # Run the application on port 8080
+    import api
+
+    api.init_pyard()
     connexion_app.run(port=8080)

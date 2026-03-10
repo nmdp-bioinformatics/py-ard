@@ -309,6 +309,9 @@ class ARD(object):
     def lookup_mac(self, allelelist_gl: str) -> str:
         return self.mac_handler.lookup_mac(allelelist_gl)
 
+    def expand_xx(self, xx_code: str) -> str:
+        return self.xx_handler.expand_xx(xx_code)
+
     def find_broad_splits(self, allele: str) -> tuple:
         return self.serology_handler.find_broad_splits(allele)
 

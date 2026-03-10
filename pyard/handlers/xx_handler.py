@@ -2,6 +2,8 @@
 
 from typing import TYPE_CHECKING
 
+from ..constants import HLA_regex
+
 if TYPE_CHECKING:
     from ..ard import ARD
 
@@ -47,4 +49,41 @@ class XXHandler:
                 return False
 
         # Validate XX code: suffix must be 'XX' and locus*antigen must be in mappings
-        return code == "XX" and loc_antigen in self.ard.code_mappings.xx_codes
+        if code == "XX":
+            if HLA_regex.search(loc_antigen):
+                loc_antigen = loc_antigen.split("-")[1]
+            return loc_antigen in self.ard.code_mappings.xx_codes
+        return False
+
+    def expand_xx(self, xx_code: str) -> str:
+        """Expand XX code to its constituent alleles
+
+        Takes an XX code (e.g., 'A*74:XX') and returns a slash-delimited
+        string of all alleles that match the 1-field pattern (e.g., 'A*74:01/A*74:02/...').
+
+        Args:
+            xx_code: XX code to expand (e.g., 'A*74:XX')
+
+        Returns:
+            Slash-delimited string of expanded alleles, or empty string if invalid
+        """
+        # Remove HLA- prefix for processing the XX code
+        is_hla_prefix = HLA_regex.search(xx_code)
+        if is_hla_prefix:
+            xx_code = xx_code.split("-")[1]
+
+        if not self.is_xx(xx_code):
+            return ""
+
+        # Extract the 1-field part (e.g., 'A*74' from 'A*74:XX')
+        allele_1d = xx_code.split(":")[0]
+
+        # Get the list of alleles from the xx_codes mapping
+        if allele_1d in self.ard.code_mappings.xx_codes:
+            alleles = self.ard.code_mappings.xx_codes[allele_1d]
+            # alleles are already a list, so join them
+            if is_hla_prefix:
+                return "/".join(["HLA-" + a for a in alleles])
+            return "/".join(alleles)
+
+        return ""
