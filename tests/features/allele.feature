@@ -127,3 +127,17 @@ Feature: Alleles
       | HLA-A*01:04N | exon  | HLA-A*01:04:01N                       |
       | HLA-A*01:04N | U2    | HLA-A*01:04N                          |
       | HLA-A*01:04N | S     | X                                     |
+
+
+  Scenario Outline: Alleles with 'g' suffix
+
+  Alleles with 'g' suffix are valid alleles
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level
+    Then the reduced allele is found to be <Redux Allele>
+
+    Examples:
+      | Allele        | Level | Redux Allele |
+      | A*30:02g      | lgx   | A*30:02      |
+      | HLA-A*01:04Ng | lgx   | HLA-A*01:04N |
