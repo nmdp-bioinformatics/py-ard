@@ -97,4 +97,4 @@ Feature: P and G Groups
       | DQA1*03:03    | lgx   | DQA1*03:01   |
       | DQA1*03:03    | lg    | DQA1*03:01g  |
       | DQA1*03:03:09 | lgx   | DQA1*03:01   |
-      | DQA1*03:03:09 | lg    | DQA1*03:01g  |
+      | DQA1*03:03:09 | lg    | DQA1*03:03g  |

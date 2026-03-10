@@ -346,7 +346,9 @@ class ARD(object):
         return allele in self.allele_group.alleles
 
     def is_valid_allele(self, allele: str) -> bool:
-        if allele.endswith(("P", "G", "g")):
+        if allele.endswith(("P", "G")):
+            allele = allele[:-1]
+        if not self.config.strict and allele.endswith("g"):
             allele = allele[:-1]
         if "*" in allele:
             _, fields = allele.split("*")
