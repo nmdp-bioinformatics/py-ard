@@ -8,17 +8,7 @@ Swiss army knife of **HLA** Nomenclature
 
 **Note:**
 
-- Python Version 3.8 is no longer supported with the latest `py-ard` versions due to latest Pandas library not supporting 3.8. Please use `py-ard==1.2.1` if using Python 3.8
-
-- `ping` mode is default. When in `ping` mode, alleles that do not have a G group, their corresponding P group is used.
-
-- Release `1.1.1` has extensive Serolgy related updates and affects Serology related data. Please rebuild the cache database if there's a missing Serology error.
-```
-   pyard-import --re-install
-```
-
-Or set `py-ard` requirements to be `py-ard<=1.1.1` for your dependency.
-
+- With `py-ard>=2.0.0`, the dependency on Pandas library has been removed.
 
 ---
 
@@ -44,29 +34,26 @@ another based on alleles published quarterly by [IPD/IMGT-HLA](https://github.co
 2. [Using `py-ard`](#using-py-ard)
     * [Using `py-ard` from Python](#using-py-ard-from-python-code)
     * [Using `py-ard` from R](#using-py-ard-from-r-code)
-    * [Perform Reduxtion](#reduce-typings)
+    * [Perform Reduction](#reduce-typings)
     * [DRBX blending](#perform-drb1-blending-with-drb3-drb4-and-drb5)
     * [Expand/Lookup MAC](#mac-codes)
 3. [Command Line Tools](#command-line-tools)
     * [`pyard-import` Import Reference Data](#pyard-import-import-the-latest-ipd-imgthla-database)
     * [`pyard-status` Show Statuses of Databases](#pyard-status-show-database-status)
     * [`pyard` Redux](#pyard-redux-quickly)
-    * [`pyard-csv-reduce` Batch Mode Redux](#pyard-csv-reduce-batch-reduce-a-csv-file)
+    * [`pyard-reduce-csv` Batch Mode Redux](#pyard-reduce-csv-batch-reduce-a-csv-file)
 4. [`py-ard` REST Webservice](#py-ard-rest-web-service)
 5. [Docker Deployment](#docker-deployment-of-py-ard-rest-web-service)
 
 ## Installation
 
-`py-ard` works with Python 3.8 and higher.
+`py-ard` works with Python 3.9 and higher (Python 3.8-3.13 are supported, but 3.9+ is recommended).
 
 ### Install from PyPi
 
 ```shell
 pip install py-ard
 ```
-
-Note: With `py-ard` version *1.0.0* and higher, the redux API has changed. If your use requires the older API, please
-install with `pip install py-ard==0.9.2`
 
 ### Install With Homebrew
 
@@ -112,7 +99,7 @@ See [Our Contribution Guide](CONTRIBUTING.rst) for open source contribution to `
 
 ### Using `py-ard` from Python code
 
-`py-ard` can be used in a program to reduce/expand HLA GL String representation. If pyard discovers an invalid Allele,
+`py-ard` can be used in a program to reduce/expand HLA GL String representation. If `py-ard` discovers an invalid Allele,
 it'll throw an Invalid Exception, not silently return an empty result.
 
 #### Initialize `py-ard`
@@ -146,13 +133,16 @@ max_cache_size = 1_000_000
 ard = pyard.init('3510', cache_size=max_cache_size)
 ```
 
-By default, the IPD-IMGT/HLA data is stored locally in `$TMPDIR/pyard`. This may be removed when your computer restarts.
-You can specify a different, more permanent directory for the cached data.
+By default, the IPD-IMGT/HLA data is stored locally in `$TMPDIR/pyard-$USER/`. This temporary location may be removed when your computer restarts.
+
+Alternatively, you can specify a different, more permanent directory for the cached data.
 
 ```python
-import pyard.ard
+import pyard
 
-ard = pyard.init('3510', data_dir='/tmp/py-ard')
+ard = pyard.init('3510', data_dir='~/.py-ard/')
+# Creating ~/.py-ard/pyard-3510.sqlite3 as cache.
+# Version: 3510
 ```
 
 As MAC data changes frequently, you can choose to refresh the MAC code for current IMGT HLA database version.
@@ -168,12 +158,44 @@ You can check the current version of IPD-IMGT/HLA database.
 ard.get_db_version()
 ```
 
+You can choose to skip loading MAC codes if not needed (improves initialization time) by specifying `load_mac=False` during initialization.
+
+```python
+import pyard
+
+ard = pyard.init('3510', load_mac=False)
+```
+
+#### Configure Reduction Behavior
+
+Customize reduction behavior by passing a `config` dictionary to `pyard.init()`.
+
+```python
+import pyard
+
+config = {
+    'reduce_serology': True,      # Reduce serology typings (default: True)
+    'reduce_v2': True,            # Reduce V2 alleles (default: True)
+    'reduce_3field': True,        # Reduce 3-field alleles (default: True)
+    'reduce_P': True,             # Reduce P group alleles (default: True)
+    'reduce_XX': True,            # Reduce XX codes (default: True)
+    'reduce_MAC': True,           # Reduce MAC codes (default: True)
+    'reduce_shortnull': True,     # Reduce short nulls (default: True)
+    'ping': True,                 # Use ping mode (default: True)
+    'verbose_log': False,         # Enable verbose logging (default: False)
+    'ARS_as_lg': False,           # Treat ARS as lg (default: False)
+    'strict': True,               # Strict validation mode (default: True)
+    'ignore_allele_with_suffixes': ()  # Tuple of suffixes to ignore (default: ())
+}
+
+ard = pyard.init('3510', config=config)
+```
+
 ### Reduce Typings
 
-**Note**: Previous to version of 1.0.0 release of `py-ard`, there was `redux` and `redux_gl` methods on `ard`. They have
-been consolidated so that `redux` handles both GL Strings and individual alleles.
+**Note**: The `redux` method in ARD object handles both GL Strings and individual alleles.
 
-Reduce a single locus HLA Typing by specifying the allele/MAC/XX code and the reduction method to `redux` method.
+Reduce a single locus HLA Typing by specifying the allele/MAC/XX code and the reduction method to `redux`.
 
 ```python
 allele = "A*01:01:01"
@@ -249,7 +271,7 @@ ard.lookup_mac('A*01:02/A*01:01/A*01:03')
 # A*01:MN
 ```
 
-### CWD Reduction
+### CWD (Version 2) Reduction
 
 Reduce a MAC code or an allele list GL String to CWD reduced list.
 
@@ -265,10 +287,57 @@ ard.lookup_mac(ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*1
 # 'B*15:AH'
 ```
 
+### Additional Methods
+
+Validate a GL String:
+
+```python
+ard.validate('A*01:01+A*02:01^B*07:02+B*08:01')
+# Returns True if valid, raises exception if invalid
+```
+
+Expand XX codes:
+
+```python
+ard.expand_xx('A*01:XX')
+# Returns all alleles matching the XX code
+```
+
+Find similar alleles:
+
+```python
+ard.similar_alleles('A*01:AB')
+# Returns list of similar allele names
+```
+
+Check allele types:
+
+```python
+ard.is_mac('A*01:AB')        # Check if MAC code
+ard.is_serology('A1')        # Check if serology
+ard.is_v2('A*0101')          # Check if V2 allele
+ard.is_XX('A*01:XX')         # Check if XX code
+ard.is_shortnull('A*01:01N') # Check if short null
+ard.is_null('A*01:01N')      # Check if null allele
+```
+
+Find serology relationships:
+
+```python
+ard.find_broad_splits('A10')  # Find broad/split relationships
+ard.find_associated_antigen('Bw4')  # Find associated antigens
+```
+
+Convert V2 to V3:
+
+```python
+ard.v2_to_v3('A*0101')  # Convert V2 allele to V3 format
+```
+
 ### Using `py-ard` from R code
 
 `py-ard` works well from `R` as well. Please
-see [Using pyard from R language](https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-pyard-library-from-R-language)
+see [Using py-ard from R language](https://github.com/nmdp-bioinformatics/py-ard/wiki/Using-pyard-library-from-R-language)
 page for detailed walkthrough.
 
 ## Command Line Tools
@@ -402,7 +471,10 @@ options.
 ```shell
 $ pyard --help
 usage: pyard [-h] [-v] [-d DATA_DIR] [-i IMGT_VERSION] [-g GL_STRING]
-             [-r {G,P,lg,lgx,W,exon,U2}] [--splits SPLITS]
+             [-r {G,P,lg,lgx,W,exon,U2,S}] [--splits SPLITS] [--validate]
+             [--cwd CWD] [--expand-mac EXPAND_MAC] [--lookup-mac LOOKUP_MAC]
+             [--expand-xx EXPAND_XX] [--expand EXPAND] [--similar SIMILAR_ALLELE]
+             [--non-strict] [--verbose]
 
 py-ard tool to redux GL String
 
@@ -415,9 +487,22 @@ options:
                         IPD-IMGT/HLA db to use for redux
   -g GL_STRING, --gl GL_STRING
                         GL String to reduce
-  -r {G,P,lg,lgx,W,exon,U2}, --redux-type {G,P,lg,lgx,W,exon,U2}
+  -r {G,P,lg,lgx,W,exon,U2,S}, --redux-type {G,P,lg,lgx,W,exon,U2,S}
                         Reduction Method
   --splits SPLITS       Find Broad and Splits
+  --validate            Validate the provided GL String
+  --cwd CWD             Perform CWD redux
+  --expand-mac EXPAND_MAC
+                        Expand MAC to Allele List
+  --lookup-mac LOOKUP_MAC
+                        Lookup MAC for an Allele List
+  --expand-xx EXPAND_XX
+                        Expand XX code to Allele List
+  --expand EXPAND       Expand MAC or XX code to Allele List
+  --similar SIMILAR_ALLELE
+                        Find Similar Alleles with given prefix
+  --non-strict          Use non-strict mode
+  --verbose             Use verbose mode
 
 ```
 
@@ -478,10 +563,64 @@ $ pyard --splits B14
 B14 = B64/B65
 ```
 
-### `pyard-csv-reduce` Batch Reduce a CSV file
+Validate a GL String:
 
-`pyard-csv-reduce` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for
+```shell
+$ pyard -g 'A*01:01+A*02:01' --validate
+```
+
+Perform CWD reduction:
+
+```shell
+$ pyard --cwd 'B*15:01:01/B*15:01:03/B*15:04'
+B*15:01
+```
+
+Expand MAC or XX codes:
+
+```shell
+$ pyard --expand-mac 'A*01:AB'
+A*01:01/A*01:02
+
+$ pyard --expand-xx 'A*01:XX'
+A*01:01/A*01:02/A*01:03/...
+```
+
+Lookup MAC code:
+
+```shell
+$ pyard --lookup-mac 'A*01:01/A*01:02'
+A*01:AB
+```
+
+Find similar alleles:
+
+```shell
+$ pyard --similar 'A*01:AB'
+A*01:AB
+A*01:AC
+```
+
+### `pyard-reduce-csv` Batch Reduce a CSV file
+
+`pyard-reduce-csv` can be used to batch process a CSV file with HLA typings. See [documentation](extras/README.md) for
 detailed information about all the options.
+
+Generate sample configuration and CSV files:
+
+```shell
+$ pyard-reduce-csv --generate-sample
+Created reduce_conf.json
+Created sample.csv
+Created reduce_conf_glstring.json
+Created sample_glstring.csv
+```
+
+Reduce a CSV file using a configuration:
+
+```shell
+$ pyard-reduce-csv -c reduce_conf.json
+```
 
 ## `py-ard` REST Web Service
 
@@ -491,14 +630,14 @@ To start in debug mode, you can run the `app.py` script. The endpoint should the
 at [localhost:8080](http://0.0.0.0:8080)
 
 ```shell
-$ python app.py
- * Serving Flask app 'app'
- * Debug mode: on
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:8080
- * Running on http://10.0.1.37:8080
-Press CTRL+C to quit
+$ python3 app.py
+py-ard version:  2.0.0
+IMGT version:    3631
+`ConnexionMiddleware.run` is optimized for development. For production, run using a dedicated ASGI server.
+INFO:     Started server process [5344]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
 ```
 
 ## Docker deployment of py-ard REST Web Service
@@ -511,7 +650,7 @@ Build the docker image:
 make docker-build
 ```
 
-builds a Docker image named `pyard-service:latest`
+builds a Docker image named `nmdpbioinformatics/pyard-service:2.0.0.linux-amd64`
 
 Build the docker and run it with:
 
