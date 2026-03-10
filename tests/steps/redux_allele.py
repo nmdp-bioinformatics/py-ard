@@ -134,6 +134,14 @@ def step_impl(context):
         context.is_valid = False
 
 
+@when("checking for validity of the allele in strict mode")
+def step_impl(context):
+    try:
+        context.is_valid = context.ard.validate(context.allele)
+    except InvalidAlleleError:
+        context.is_valid = False
+
+
 @when("reducing on the {level} level in ignore_suffix mode")
 def step_impl(context, level):
     context.level = level
