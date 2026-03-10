@@ -60,9 +60,7 @@ Feature: Alleles
 
   Scenario Outline: Allele validation in strict mode
 
-  Similar to reduction, handle non-strict mode when validating an allele.
-  The test version of IPD/IMGT-HLA database (see environment.py),
-  A*11:403 is invalid and A*24:329 is valid for A*24:329Q
+    liggle g alleles are valid in non-strict mode
 
     Given the allele as <Allele>
     When checking for validity of the allele in strict mode
