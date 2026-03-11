@@ -37,12 +37,13 @@ Feature: Alleles
     Then the reduced allele is found to be <Redux Allele>
 
     Examples:
-      | Allele         | Level | Redux Allele   |
-      | A*01:01:01     | lg    | A*01:01ARS     |
-      | HLA-A*01:01:01 | lg    | HLA-A*01:01ARS |
-      | DRB1*14:06:01  | lg    | DRB1*14:06ARS  |
-      | C*02:02        | lg    | C*02:02ARS     |
-      | C*02:10        | lg    | C*02:02ARS     |
+      | Allele         | Level | Redux Allele          |
+      | A*01:01:01     | lg    | A*01:01ARS            |
+      | HLA-A*01:01:01 | lg    | HLA-A*01:01ARS        |
+      | DRB1*14:06:01  | lg    | DRB1*14:06ARS         |
+      | C*02:02        | lg    | C*02:02ARS            |
+      | C*02:10        | lg    | C*02:02ARS            |
+      | A*01:AB        | lg    | A*01:01ARS/A*01:02ARS |
 
   Scenario Outline: Allele reduction in non-strict mode
 
