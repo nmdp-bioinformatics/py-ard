@@ -82,6 +82,7 @@ def smart_sort_comparator(a1, a2, ignore_suffixes=()):
         if fields in ignore_suffixes:
             return -1  # a2 comes after a1
 
+    # Handle suffix characters - remove them before comparison
     # Remove expression characters (P, N, Q, L, S, G, g) for comparison
     # This normalizes alleles like 'A*01:01N' to 'A*01:01' for sorting
     a1 = re.sub(expr_regex, "", a1)

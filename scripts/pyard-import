@@ -36,7 +36,7 @@ def get_imgt_version(version_number):
         if version_no_digit.isdigit():
             return version_no_digit
         raise RuntimeError(
-            f"{version_number} is not a valid IMGT database version number"
+            f"{version_number} is not a valid IPD/IMGT-HLA database version number"
         )
     return "Latest"
 
@@ -58,20 +58,20 @@ if __name__ == "__main__":
         description="""
         py-ard tool to generate reference SQLite database.
         Allows updating db with custom V2 to V3 mappings.
-        Displays the list of available IMGT database versions.
+        Displays the list of available IPD/IMGT-HLA database versions.
         """,
     )
     parser.add_argument(
         "--list",
         dest="show_versions",
         action="store_true",
-        help="Show Versions of available IMGT Databases",
+        help="Show Versions of available IPD/IMGT-HLA Databases",
     )
     parser.add_argument(
         "-i",
-        "--imgt-version",
-        dest="imgt_version",
-        help="Import supplied IMGT_VERSION DB Version",
+        "--ipd-version",
+        dest="ipd_version",
+        help="Import supplied IPD/IMGT-HLA DB Version",
     )
     parser.add_argument(
         "-d",
@@ -104,12 +104,12 @@ if __name__ == "__main__":
 
     if args.show_versions:
         versions = pyard.db_versions()
-        print("Available IMGT Versions:")
+        print("Available IPD/IMGT-HLA Versions:")
         for version in versions:
             print(f"  {version}")
         sys.exit(0)
 
-    imgt_version = get_imgt_version(args.imgt_version)
+    imgt_version = get_imgt_version(args.ipd_version)
     # print(imgt_version)
 
     data_dir = get_data_dir(args.data_dir)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             print(f"Removing {db_fullname}")
             db_fullname.unlink(missing_ok=True)
 
-    print(f"Importing IMGT database version: {imgt_version}")
+    print(f"Importing IPD/IMGT-HLA database version: {imgt_version}")
     if args.skip_mac:
         load_mac = False
         print(f"Skipping MAC tables creation")
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     except ValueError as e:
         print(f"Error importing version {imgt_version}:", e)
         sys.exit(1)
-    print(f"Import complete for database version: {imgt_version}")
+    print(f"Import complete for IPD/IMGT-HLA database version: {imgt_version}")
     # We don't need ard object anymore
     del ard
 
@@ -152,11 +152,11 @@ if __name__ == "__main__":
             columns=("v2", "v3"),
         )
         print(
-            f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IMGT database."
+            f"Updated v2_mapping table with '{args.v2_v3_mapping}' mapping file for {imgt_version} IPD/IMGT-HLA database."
         )
 
     if args.refresh_mac:
         print(f"Updating MACs")
         db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, refresh_mac=True)
-        print(f"Updated MACs for {imgt_version} IMGT database.")
+        print(f"Updated MACs for {imgt_version} IPD/IMGT-HLA database.")

@@ -36,7 +36,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     or read-write mode (default)
 
     :param data_dir: The directory where the db is/will be created
-    :param imgt_version: IMGT db version
+    :param imgt_version: IPD/IMGT-HLA db version
     :param ro: Read-only mode ?
     :return: db connection of type sqlite.Connection
     """
@@ -55,14 +55,14 @@ def create_db_connection(data_dir, imgt_version, ro=False):
         # Multiple threads can access the same connection since it's only ro
         return sqlite3.connect(file_uri, check_same_thread=False, uri=True), db_filename
 
-    # Check the imgt_version is a valid IMGT DB Version
-    # by querying the IMGT site
+    # Check the imgt_version is a valid IPD/IMGT-HLA DB Version
+    # by querying the IPD/IMGT-HLA site
     if imgt_version != "Latest":
         if not pathlib.Path(db_filename).exists():
             all_imgt_versions = get_imgt_db_versions()
             if str(imgt_version) not in all_imgt_versions:
                 raise ValueError(
-                    f"{imgt_version} is not a valid IMGT database version."
+                    f"{imgt_version} is not a valid IPD/IMGT-HLA database version."
                 )
 
     # Create the data directory if it doesn't exist
