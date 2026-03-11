@@ -1,6 +1,6 @@
 PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
-PYARD_VERSION := 2.0.0b4
+PYARD_VERSION := 2.0.0RC
 
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help

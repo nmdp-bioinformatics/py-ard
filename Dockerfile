@@ -4,7 +4,7 @@ LABEL MAINTAINER="Pradeep Bashyal"
 
 WORKDIR /app
 
-ARG PY_ARD_VERSION=2.0.0b4
+ARG PY_ARD_VERSION=2.0.0RC
 
 COPY requirements.txt /app
 RUN pip install --no-cache-dir --upgrade pip && \
