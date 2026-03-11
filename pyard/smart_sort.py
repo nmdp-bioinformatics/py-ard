@@ -84,6 +84,7 @@ def smart_sort_comparator(a1, a2, ignore_suffixes=()):
 
     # Handle suffix characters - remove them before comparison
     # Remove expression characters (P, N, Q, L, S, G, g, ARS) for comparison
+    # Remove expression characters (P, N, Q, L, S, G, g) for comparison
     # This normalizes alleles like 'A*01:01N' to 'A*01:01' for sorting
     if a1.endswith("ARS"):
         a1 = a1[:-3]
