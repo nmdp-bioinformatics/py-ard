@@ -348,8 +348,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i",
-        "--imgt-version",
-        dest="imgt_version",
+        "--ipd-version",
+        dest="ipd_version",
         help="IPD-IMGT/HLA db to use for redux",
     )
     parser.add_argument(
@@ -415,7 +415,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     data_dir = get_data_dir(args.data_dir)
-    imgt_version = get_imgt_version(args.imgt_version)
+    imgt_version = get_imgt_version(args.ipd_version)
     max_cache_size = ard_config.get("redux_cache_size", pyard.DEFAULT_CACHE_SIZE)
     csv_redux_config = {
         "reduce_serology": ard_config.get("reduce_serology", True),
@@ -424,12 +424,16 @@ if __name__ == "__main__":
         "reduce_P": ard_config.get("reduce_P", True),
         "reduce_XX": ard_config.get("reduce_XX", True),
         "reduce_MAC": ard_config.get("reduce_MAC", True),
-        "map_drb345_to_drbx": ard_config.get("map_drb345_to_drbx", True),
+        "reduce_shortnull": ard_config.get("reduce_shortnull", True),
+        "ping": ard_config.get("ping", True),
         "verbose_log": ard_config.get("verbose_log", True),
+        "ARS_as_lg": ard_config.get("ARS_as_lg", False),
+        "strict": ard_config.get("strict", True),
         "ignore_allele_with_suffixes": tuple(
-            ard_config.get("ignore_allele_with_suffixes", tuple())
+            ard_config.get("ignore_allele_with_suffixes", "").split(",")
         ),
     }
+    print(csv_redux_config)
     ard = pyard.init(
         imgt_version=imgt_version,
         data_dir=data_dir,

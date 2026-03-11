@@ -7,6 +7,23 @@
 `pyard-reduce-csv` command can be used with a config file(that describes ways to reduce the file) to take a
 CSV file with HLA typing data and reduce certain columns and produce a new CSV or an Excel file.
 
+```shell
+$ pyard-reduce-csv -h
+usage: pyard-reduce-csv [-h] [-c CONFIG] [-d DATA_DIR] [-i IPD_VERSION] [-q]
+                        [-g]
+
+options:
+  -h, --help            show this help message and exit
+  -c, --config CONFIG   JSON Configuration file
+  -d, --data-dir DATA_DIR
+                        Data directory to store imported data
+  -i, --ipd-version IPD_VERSION
+                        IPD-IMGT/HLA db to use for redux
+  -q, --quiet           Don't print verbose log
+  -g, --generate-sample
+                        Generate sample config file and csv file
+```
+
 Steps on batch processing a CSV file.
 
 1. [Install `py-ard`](../README.md#installation)
@@ -30,6 +47,7 @@ Created sample.csv
 ```
 
 We specify the config file with `-c` and a `-q` to suppress verbose log messages.
+
 ```shell
 $ pyard-reduce-csv -c sample_reduce_conf.json -q
 Using config file: reduce_conf.json
@@ -55,31 +73,35 @@ See [Example JSON config file](reduce_conf.json).
 
 The configuration file provides the following options to modify how the reduction happens.
 
-| Configuration Option        | Type | Description                                                         |
-|-----------------------------|------|---------------------------------------------------------------------|
-| `in_csv_filename`           | str  | [Input CSV filename](#input-csv-filename)                           |
-| `out_csv_filename`          | str  | [Output CSV filename](#output-csv-filename)                         |
-| `columns_from_csv`          | list | [CSV Columns to read](#csv-columns-to-read)                         |
-| `locus_column_mapping`      | dict | [CSV Columns to reduce](#csv-columns-to-reduce)                     |
-| `redux_type`                | str  | [Reduction Type](#redux-options)                                    |
-| `redux_cache_size`          | int  | [Cache size](#cache-size)                                           |
-| `reduce_serology`           | bool | [Reduce Serology ?](#kinds-of-typings-to-reduce)                    |
-| `reduce_v2`                 | bool | [Reduce V2 formatted alleles ?](#kinds-of-typings-to-reduce)        |
-| `convert_v2_to_v3`          | bool | [Convert V2 format to V3 ?](#kinds-of-typings-to-reduce)            |
-| `reduce_2field`             | bool | [Reduced alleles that are 2 field ?](#kinds-of-typings-to-reduce)   |
-| `reduce_3field`             | bool | [Reduced alleles that are 3 field ?](#kinds-of-typings-to-reduce)   |
-| `reduce_P`                  | bool | [Reduced alleles that have P suffix ?](#kinds-of-typings-to-reduce) |
-| `reduce_XX`                 | bool | [Reduced XX Alleles ?](#kinds-of-typings-to-reduce)                 |
-| `reduce_MAC`                | bool | [Reduced MAC Alleles ?](#kinds-of-typings-to-reduce)                |
-| `map_drb345_to_drbx`        | bool | [Map DRB3,4,5 to DRBX using WMDA Rules ?](#map-to-drbx)             |
-| `locus_in_allele_name`      | bool | [Is Locus name specified for each allele ?](#locus-name-in-allele)  |
-| `keep_locus_in_allele_name` | bool | [Output Locus name for each allele ?](#keep-locus-name-in-allele)   |
-| `new_column_for_redux`      | bool | [Create a new column or replace the original ?](#create-new-column) |
-| `reduced_column_prefix`     | str  | [Prefix to use for reduced column](#create-new-column)              |
-| `generate_glstring`         | bool | [Generate a GL String column for each subject ?](#gl-string)        |
-| `output_file_format`        | str  | [Format of the output file](#output-format)                         |
-| `apply_compression`         | str  | [Compression format for the output file](#compression-options)      |
-| `verbose_log`               | bool | [Output verbose log to the screen ?](#verbose-log-options)          |
+| Configuration Option          | Type | Description                                                                         |
+|-------------------------------|------|-------------------------------------------------------------------------------------|
+| `in_csv_filename`             | str  | [Input CSV filename](#input-csv-filename)                                           |
+| `out_csv_filename`            | str  | [Output CSV filename](#output-csv-filename)                                         |
+| `columns_from_csv`            | list | [CSV Columns to read](#csv-columns-to-read)                                         |
+| `locus_column_mapping`        | dict | [CSV Columns to reduce](#csv-columns-to-reduce)                                     |
+| `redux_type`                  | str  | [Reduction Type](#redux-options)                                                    |
+| `redux_cache_size`            | int  | [Cache size](#cache-size)                                                           |
+| `reduce_serology`             | bool | [Reduce Serology ?](#kinds-of-typings-to-reduce)                                    |
+| `reduce_v2`                   | bool | [Reduce V2 formatted alleles ?](#kinds-of-typings-to-reduce)                        |
+| `convert_v2_to_v3`            | bool | [Convert V2 format to V3 ?](#kinds-of-typings-to-reduce)                            |
+| `reduce_2field`               | bool | [Reduced alleles that are 2 field ?](#kinds-of-typings-to-reduce)                   |
+| `reduce_3field`               | bool | [Reduced alleles that are 3 field ?](#kinds-of-typings-to-reduce)                   |
+| `reduce_P`                    | bool | [Reduced alleles that have P suffix ?](#kinds-of-typings-to-reduce)                 |
+| `reduce_XX`                   | bool | [Reduced XX Alleles ?](#kinds-of-typings-to-reduce)                                 |
+| `reduce_MAC`                  | bool | [Reduced MAC Alleles ?](#kinds-of-typings-to-reduce)                                |
+| `reduce_shortnull`            | bool | [Reduced Short Nulls ?](#kinds-of-typings-to-reduce)                                |
+| `map_drb345_to_drbx`          | bool | [Map DRB3,4,5 to DRBX using WMDA Rules ?](#map-to-drbx)                             |
+| `locus_in_allele_name`        | bool | [Is Locus name specified for each allele ?](#locus-name-in-allele)                  |
+| `keep_locus_in_allele_name`   | bool | [Output Locus name for each allele ?](#keep-locus-name-in-allele)                   |
+| `new_column_for_redux`        | bool | [Create a new column or replace the original ?](#create-new-column)                 |
+| `reduced_column_prefix`       | str  | [Prefix to use for reduced column](#create-new-column)                              |
+| `generate_glstring`           | bool | [Generate a GL String column for each subject ?](#gl-string)                        |
+| `output_file_format`          | str  | [Format of the output file](#output-format)                                         |
+| `apply_compression`           | str  | [Compression format for the output file](#compression-options)                      |
+| `verbose_log`                 | bool | [Output verbose log to the screen ?](#verbose-log-options)                          |
+| `ping`                        | bool | [P group if G not avaialble ?](#P-in-G-mode)                                        |
+| `ARS_as_lg`                   | bool | [Use ARS suffix instead of g in lg mode ?](#Use-ARS-suffix-instead-of-g-in-lg-mode) |
+| `ignore_allele_with_suffixes` | str  | [Ignore alleles with given suffixes as valid alleles](#Ignore-Suffixes)             |
 
 ### Input CSV filename
 
@@ -119,34 +141,34 @@ The column names corresponding to the loci will be reduced and must appear in th
 
 ```json
   "locus_column_mapping": {
-    "recipient": {
-        "A": [
-            "r_a_typ1",
-            "r_a_typ2"
-        ],
-        "B": [
-            "r_b_typ1",
-            "r_b_typ2"
-        ],
-        "C": [
-            "r_c_typ1",
-            "r_c_typ2"
-        ]
-    },
-    "donor": {
-        "A": [
-            "d_a_typ1",
-            "d_a_typ2"
-        ],
-        "B": [
-            "d_b_typ1",
-            "d_b_typ2"
-        ],
-        "C": [
-            "d_c_typ1",
-            "d_c_typ2"
-        ]
-    }
+"recipient": {
+"A": [
+"r_a_typ1",
+"r_a_typ2"
+],
+"B": [
+"r_b_typ1",
+"r_b_typ2"
+],
+"C": [
+"r_c_typ1",
+"r_c_typ2"
+]
+},
+"donor": {
+"A": [
+"d_a_typ1",
+"d_a_typ2"
+],
+"B": [
+"d_b_typ1",
+"d_b_typ2"
+],
+"C": [
+"d_c_typ1",
+"d_c_typ2"
+]
+}
 }
 ```
 
@@ -157,9 +179,9 @@ genotype can be provided per column. Use `glstring_columns` to provide a list of
 
 ```json
   "glstring_columns": [
-    "donor_gl",
-    "recip_gl"
-  ],
+"donor_gl",
+"recip_gl"
+],
 ```
 
 Depending upon the data, only one of `locus_column_mapping` or `glstring_columns` needs to be provided.
@@ -194,13 +216,15 @@ only 1,000 but this can be increased with the `redux_cache_size` option.
 Pick and choose which of the typings to reduce.
 
 ```json
-    "reduce_serology": false,
-    "reduce_v2": true,
-    "convert_v2_to_v3": false,
-    "reduce_3field": true,
-    "reduce_P": true,
-    "reduce_XX": false,
-    "reduce_MAC": true,
+"reduce_serology": false,
+"reduce_v2": true,
+"convert_v2_to_v3": false,
+"reduce_3field": true,
+"reduce_P": true,
+"reduce_XX": false,
+"reduce_MAC": true,
+"reduce_shortnull": true,
+"ping": true,
 ```
 
 Valid options: `true` or `false`
@@ -272,3 +296,21 @@ Valid options: `'gzip'`, `'zip'` or `null`
 `verbose_log` Show verbose log ?
 
 Valid options: `true` or `false`
+
+### P in G mode
+
+`ping` Use alleles in P group if it doesn't exist in G group
+
+Valid options: `true` or `false`
+
+### Use ARS suffix instead of g in lg mode
+
+`ARS_as_lg` Apply `ARS` suffix to alleles when reducing to `lg`
+
+Valid options: `true` or `false`
+
+### Ignore Suffixes
+
+`ignore_allele_with_suffixes` Ignore any alleles that are suffixed with one in the comma separated suffix list
+
+Valid options: `"NNNN,XXXX"`

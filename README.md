@@ -145,7 +145,7 @@ ard = pyard.init('3510', data_dir='~/.py-ard/')
 # Version: 3510
 ```
 
-As MAC data changes frequently, you can choose to refresh the MAC code for current IMGT HLA database version.
+As MAC data changes frequently, you can choose to refresh the MAC code for current IPD/IMGT-HLA database version.
 
 ```python
 ard.refresh_mac_codes()
@@ -356,17 +356,20 @@ Use `pyard-import -h` to see all the options available.
 
 ```shell
 $ pyard-import -h
-usage: pyard-import [-h] [--list] [-i IMGT_VERSION] [-d DATA_DIR] [--v2-to-v3-mapping V2_V3_MAPPING] [--refresh-mac] [--re-install] [--skip-mac]
+usage: pyard-import [-h] [--list] [-i IPD_VERSION] [-d DATA_DIR]
+                    [--v2-to-v3-mapping V2_V3_MAPPING] [--refresh-mac]
+                    [--re-install] [--skip-mac]
 
-py-ard tool to generate reference SQLite database. Allows updating db with custom V2 to V3 mappings. Displays the list of available IMGT database
+py-ard tool to generate reference SQLite database. Allows updating db with
+custom V2 to V3 mappings. Displays the list of available IPD/IMGT-HLA database
 versions.
 
 options:
   -h, --help            show this help message and exit
-  --list                Show Versions of available IMGT Databases
-  -i IMGT_VERSION, --imgt-version IMGT_VERSION
-                        Import supplied IMGT_VERSION DB Version
-  -d DATA_DIR, --data-dir DATA_DIR
+  --list                Show Versions of available IPD/IMGT-HLA Databases
+  -i, --ipd-version IPD_VERSION
+                        Import supplied IPD/IMGT-HLA DB Version
+  -d, --data-dir DATA_DIR
                         Data directory to store imported data
   --v2-to-v3-mapping V2_V3_MAPPING
                         V2 to V3 mapping CSV file
@@ -382,14 +385,14 @@ $ pyard-import
 Created Latest py-ard database
 ```
 
-#### Import particular version of IMGT database
+#### Import particular version of IPD/IMGT-HLA database
 
 ```shell
 $ pyard-import --db-version 3.29.0
 Created py-ard version 3290 database
 ```
 
-Import particular version of IMGT database and replace the v2 to v3 mapping
+Import particular version of IPD/IMGT-HLA database and replace the v2 to v3 mapping
 table from a CSV file.
 
 ```shell
@@ -398,13 +401,13 @@ Created py-ard version 3290 database
 Updated v2_mapping table with 'map2to3.csv' mapping file.
 ```
 
-#### Reinstall a particular IMGT database
+#### Reinstall a particular IPD/IMGT-HLA database
 
 ```shell
 pyard-import --imgt-version 3340 --re-install
 ```
 
-#### Replace the Latest IMGT database with V2 mappings
+#### Replace the Latest IPD/IMGT-HLA database with V2 mappings
 
 ```shell
 $ pyard-import --v2-to-v3-mapping map2to3.csv
@@ -439,28 +442,33 @@ Use ` --data-dir` to specify an alternate directory for cached database files.
 
 ```shell
 $ pyard-status  --data-dir ~/.pyard/
-IMGT DB Version: Latest (3440)
-There is a newer IMGT release than version 3440
-Upgrade to latest version '3510' with 'pyard-import --re-install'
-File: /Users/pbashyal/.pyard/pyard-Latest.sqlite3
-Size: 533.37MB
--------------------------------------------
-|Table Name          |Rows                |
-|-----------------------------------------|
-|dup_g               |                  59|
-|dup_lgx             |                   1|
-|g_group             |               14223|
-|p_group             |               18872|
-|lgx_group           |               14223|
-|exon_group          |               12934|
-|p_not_g             |                1681|
-|xx_codes            |                1517|
-|who_group           |               30785|
-|alleles             |               32504|
-|exp_alleles         |                  60|
-|who_alleles         |               30523|
-|mac_codes           |             1089379|
--------------------------------------------
+=============================================
+IPD/IMGT-HLA DB Version: Latest (3530)
+There is a newer IPD/IMGT-HLA release than version 3530
+Upgrade to latest version '3630' with 'pyard-import --re-install'
+File: /Users/pbashyal-nmdp/.pyard/pyard-Latest.sqlite3
+Size: 577.42MB
+---------------------------------------------
+|Table Name                    |        Rows|
+|-------------------------------------------|
+|alleles                       |      39,977|
+|cwd2                          |         336|
+|dup_g                         |          70|
+|exon_group                    |      13,406|
+|exp_alleles                   |          91|
+|g_group                       |      14,736|
+|lgx_group                     |      14,736|
+|mac_codes                     |   1,138,229|
+|p_group                       |      21,534|
+|p_not_g                       |       1,709|
+|serology_broad_split_mapping  |          23|
+|serology_mapping              |         131|
+|shortnulls                    |         176|
+|v2_mapping                    |          11|
+|who_alleles                   |      37,619|
+|who_group                     |      36,576|
+|xx_codes                      |       2,019|
+---------------------------------------------
 ```
 
 ### `pyard` Redux quickly
@@ -470,24 +478,23 @@ options.
 
 ```shell
 $ pyard --help
-usage: pyard [-h] [-v] [-d DATA_DIR] [-i IMGT_VERSION] [-g GL_STRING]
+usage: pyard [-h] [-v] [-d DATA_DIR] [-i IPD_VERSION] [-g GL_STRING]
              [-r {G,P,lg,lgx,W,exon,U2,S}] [--splits SPLITS] [--validate]
              [--cwd CWD] [--expand-mac EXPAND_MAC] [--lookup-mac LOOKUP_MAC]
-             [--expand-xx EXPAND_XX] [--expand EXPAND] [--similar SIMILAR_ALLELE]
-             [--non-strict] [--verbose]
+             [--expand-xx EXPAND_XX] [--expand EXPAND]
+             [--similar SIMILAR_ALLELE] [--non-strict] [--verbose]
 
 py-ard tool to redux GL String
 
 options:
   -h, --help            show this help message and exit
   -v, --version         IPD-IMGT/HLA DB Version number
-  -d DATA_DIR, --data-dir DATA_DIR
+  -d, --data-dir DATA_DIR
                         Data directory to store imported data
-  -i IMGT_VERSION, --imgt-version IMGT_VERSION
+  -i, --ipd-version IPD_VERSION
                         IPD-IMGT/HLA db to use for redux
-  -g GL_STRING, --gl GL_STRING
-                        GL String to reduce
-  -r {G,P,lg,lgx,W,exon,U2,S}, --redux-type {G,P,lg,lgx,W,exon,U2,S}
+  -g, --gl GL_STRING    GL String to reduce
+  -r, --redux-type {G,P,lg,lgx,W,exon,U2,S}
                         Reduction Method
   --splits SPLITS       Find Broad and Splits
   --validate            Validate the provided GL String
@@ -503,7 +510,6 @@ options:
                         Find Similar Alleles with given prefix
   --non-strict          Use non-strict mode
   --verbose             Use verbose mode
-
 ```
 
 Reduce from command line by specifying any typing with `-g` or `--gl` option and the reduction method with `-r`
