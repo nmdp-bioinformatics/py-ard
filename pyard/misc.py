@@ -180,7 +180,7 @@ def get_P_name(a: str) -> str:
 def get_imgt_db_versions() -> List[str]:
     """Fetch available IPD-IMGT/HLA database versions from GitHub
 
-    Queries the ANHIG/IMGTHLA repository to get all available branch names,
+    Queries the IPD/IMGT-HLA repository to get all available branch names,
     which correspond to different database versions.
 
     Returns:
@@ -192,7 +192,7 @@ def get_imgt_db_versions() -> List[str]:
     import urllib.request
     import json
 
-    # Query GitHub API for IMGT/HLA repository branches
+    # Query GitHub API for IMGTIPD/IMGT-HLA repository branches
     req = urllib.request.Request(
         url="https://api.github.com/repos/ANHIG/IMGTHLA/branches?per_page=100"
     )
@@ -208,7 +208,7 @@ def download_to_file(url: str, local_filename: str):
     """Download content from URL and save to local file
 
     Downloads text content from a URL and writes it to a local file.
-    Used for fetching IMGT/HLA database files and other resources.
+    Used for fetching IPD/IMGT-HLA database files and other resources.
 
     Args:
         url: URL to download from
@@ -257,7 +257,7 @@ def get_data_dir(data_dir):
 
 
 def get_imgt_version(imgt_version):
-    """Validate and normalize IMGT database version
+    """Validate and normalize IPD/IMGT-HLA database version
 
     Converts version strings like '3.51.0' to '3510' format used internally.
     Returns 'Latest' if no version is specified.
@@ -277,7 +277,7 @@ def get_imgt_version(imgt_version):
         if version.isdigit():
             return version
         raise RuntimeError(
-            f"{imgt_version} is not a valid IMGT database version number"
+            f"{imgt_version} is not a valid IPD/IMGT-HLA database version number"
         )
     return "Latest"
 

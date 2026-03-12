@@ -125,8 +125,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i",
-        "--imgt-version",
-        dest="imgt_version",
+        "--ipd-version",
+        dest="ipd_version",
         help="IPD-IMGT/HLA db to use for redux",
     )
     parser.add_argument("-g", "--gl", dest="gl_string", help="GL String to reduce")
@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    imgt_version = get_imgt_version(args.imgt_version)
+    imgt_version = get_imgt_version(args.ipd_version)
     data_dir = get_data_dir(args.data_dir)
 
     new_config = {}

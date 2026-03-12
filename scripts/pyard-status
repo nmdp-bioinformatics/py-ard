@@ -49,11 +49,9 @@ def get_file_size(file_name: str) -> float:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="""
+    parser = argparse.ArgumentParser(description="""
         py-ard tool to provide a status report for reference SQLite databases.
-        """
-    )
+        """)
     parser.add_argument(
         "-d",
         "--data-dir",
@@ -67,7 +65,7 @@ if __name__ == "__main__":
     imgt_regex = re.compile(r"pyard-(.+)\.sqlite3")
     for _, _, filenames in os.walk(data_dir):
         for filename in filenames:
-            # Get imgt version from the filename
+            # Get IPD/IMGT-HLA version from the filename
             # eg: get 3440 from 'pyard-3440.sqlite3'
             match = imgt_regex.match(filename)
             imgt_version = match.group(1)  # Get first group
@@ -77,20 +75,22 @@ if __name__ == "__main__":
             print("=" * LONG_DASH_LINE_LENGTH)
             if imgt_version == "Latest":
                 db_version = data_repository.get_db_version(db_connection)
-                print(f"IMGT DB Version: {imgt_version} ({db_version})")
+                print(f"IPD/IMGT-HLA DB Version: {imgt_version} ({db_version})")
                 latest_version = get_latest_imgt_version()
                 if latest_version == db_version:
                     print(
                         f"You're up to date. {db_version} is the most recent version."
                     )
                 else:
-                    print(f"There is a newer IMGT release than version {db_version}")
+                    print(
+                        f"There is a newer IPD/IMGT-HLA release than version {db_version}"
+                    )
                     print(
                         f"Upgrade to latest version '{latest_version}'",
                         "with 'pyard-import --re-install'",
                     )
             else:
-                print(f"IMGT DB Version: {imgt_version}")
+                print(f"IMGT IPD/IMGT-HLA Version: {imgt_version}")
             file_size = get_file_size(db_filename)
             print(f"File: {db_filename}")
             print(f"Size: {file_size:.2f}MB")

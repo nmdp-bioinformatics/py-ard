@@ -461,7 +461,7 @@ def generate_v2_to_v3_mapping(db_connection: sqlite3.Connection, imgt_version):
 
 def set_db_version(db_connection: sqlite3.Connection, imgt_version):
     """
-    Set the IMGT database version number as a user_version string in
+    Set the IPD/IMGT-HLA database version number as a user_version string in
     the database itself.
 
     :param db_connection: Active SQLite Connection
