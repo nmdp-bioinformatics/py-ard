@@ -154,6 +154,29 @@ def get_G_name(a: str) -> str:
         return ":".join(a.split(":")[0:3]) + "G"
 
 
+def get_M_name(a: str) -> str:
+    """Compute a valid M group name from an allele (first representative).
+
+    M groups represent alleles with identical mature protein sequences
+    (IMGT positions >= 1). Uses the same field-truncation convention as
+    get_G_name() but with an 'M' suffix.
+
+    Args:
+        a: Allele string (first member of the M group).
+
+    Returns:
+        Standardized M group name with 'M' suffix, e.g. 'DPB1*04:01:01M'.
+    """
+    a = a.split("/")[0]
+    last_char = a[-1]
+    if last_char in P_and_G_chars + expression_chars:
+        a = a[:-1]
+    if len(a.split(":")) == 2:
+        return ":".join([a, "01"]) + "M"
+    else:
+        return ":".join(a.split(":")[0:3]) + "M"
+
+
 def get_P_name(a: str) -> str:
     """Compute a valid P group name from an allele or ambiguity string
 

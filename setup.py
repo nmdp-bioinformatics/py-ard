@@ -34,7 +34,10 @@ with open("requirements.txt") as requirements_file:
 with open("requirements-tests.txt") as requirements_file:
     test_requirements = requirements_file.read().split("\n")
 
-script_extras = {"script": ["pandas>=2.0"]}
+script_extras = {
+    "script": ["pandas>=2.0"],
+    "alignment": ["rpy2>=3.5.0", "pandas>=1.5.0"],
+}
 
 setup(
     name="py-ard",
@@ -52,6 +55,7 @@ setup(
         "scripts/pyard-import",
         "scripts/pyard-status",
         "scripts/pyard-reduce-csv",
+        "scripts/generate-m-nom",
     ],
     install_requires=requirements,
     extras_require=script_extras,

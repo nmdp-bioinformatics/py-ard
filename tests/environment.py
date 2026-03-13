@@ -20,6 +20,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import pyard
+from pyard.alignment_bridge import HLAToolsBridge
 
 
 def before_all(context):
@@ -47,3 +48,13 @@ def before_all(context):
     context.ard_ignore_suffix = pyard.init(
         "3440", data_dir="/tmp/py-ard", config=ignore_suffix_mode
     )
+
+    # HLAtools alignment bridge — lightweight constructor; R is only contacted
+    # on the first get_alignment() call (lazy initialisation)
+    context.bridge = HLAToolsBridge()
+    context.hlatools_available = context.bridge.is_available
+
+
+def before_scenario(context, scenario):
+    if "hlatools" in scenario.tags and not context.hlatools_available:
+        scenario.skip("HLAtools R package is not available in this environment")

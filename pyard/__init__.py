@@ -30,6 +30,23 @@ from .misc import get_imgt_db_versions as db_versions
 __author__ = """NMDP Bioinformatics"""
 __version__ = "2.0.0RC"
 
+try:
+    from .alignment_bridge import HLAToolsBridge, load_protein_alignment
+except ImportError:
+    pass
+
+try:
+    from .analysis import (
+        parse_gl_genotype,
+        is_null_allele,
+        analyze_mismatches,
+        mature_protein_redux,
+        compute_aamm,
+        check_identical_aamm,
+    )
+except ImportError:
+    pass
+
 
 def init(
     imgt_version: str = "Latest",

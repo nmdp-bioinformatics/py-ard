@@ -392,6 +392,19 @@ class ARD(object):
 
         return True
 
+    @property
+    def alignment_bridge(self):
+        """Lazy accessor for the HLAtools alignment bridge. Returns None if unavailable."""
+        if not hasattr(self, "_alignment_bridge"):
+            try:
+                from .alignment_bridge import HLAToolsBridge
+
+                bridge = HLAToolsBridge()
+                self._alignment_bridge = bridge if bridge.is_available else None
+            except ImportError:
+                self._alignment_bridge = None
+        return self._alignment_bridge
+
     # Keep remaining methods unchanged
     def is_exp_allele(self, allele: str) -> bool:
         return allele in self.allele_group.exp_alleles
