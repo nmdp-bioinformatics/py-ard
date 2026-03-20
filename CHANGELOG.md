@@ -1,3 +1,27 @@
+<a id="2.0.0"></a>
+# [🚀 2.0.0 Release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.0.0) - 2026-03-20
+
+## What's Changed
+* Remove pandas library dependency by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#358](https://github.com/nmdp-bioinformatics/py-ard/pull/358)
+* Major refactor `2.0.0b2` by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#359](https://github.com/nmdp-bioinformatics/py-ard/pull/359)
+* Install pandas as extras. by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#364](https://github.com/nmdp-bioinformatics/py-ard/pull/364)
+* Bump wheel from 0.43.0 to 0.46.2 by [@dependabot](https://github.com/dependabot)[bot] in [#361](https://github.com/nmdp-bioinformatics/py-ard/pull/361)
+* Fix `HLA-` prefix on no result by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#368](https://github.com/nmdp-bioinformatics/py-ard/pull/368)
+* Update to the latest dependencies by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#369](https://github.com/nmdp-bioinformatics/py-ard/pull/369)
+* Bump psf/black from 26.1.0 to 26.3.0 in /.github/workflows by [@dependabot](https://github.com/dependabot)[bot] in [#372](https://github.com/nmdp-bioinformatics/py-ard/pull/372)
+* Expand XX without reducing by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#371](https://github.com/nmdp-bioinformatics/py-ard/pull/371)
+* Fix issues when validating alleles with little g prefix. by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#373](https://github.com/nmdp-bioinformatics/py-ard/pull/373)
+* Little g alleles are valid in only non-strict mode by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#375](https://github.com/nmdp-bioinformatics/py-ard/pull/375)
+* MAC reduction in `ARS_as_lg` mode by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#376](https://github.com/nmdp-bioinformatics/py-ard/pull/376)
+* Update README with latest changes by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#377](https://github.com/nmdp-bioinformatics/py-ard/pull/377)
+* 🚀 2.0.0 Release. by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#378](https://github.com/nmdp-bioinformatics/py-ard/pull/378)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.5...2.0.0
+
+[Changes][2.0.0]
+
+
 <a id="1.5.5"></a>
 # [Allow ignorable alleles in GL String (1.5.5)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.5.5) - 2025-08-22
 
@@ -717,6 +741,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.5...2.0.0
 [1.5.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.3...1.5.5
 [1.5.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.1...1.5.3
 [1.5.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.0...1.5.1
