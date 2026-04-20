@@ -58,17 +58,20 @@ def load_serology_mappings(imgt_version):
         # Original format: "A;A*01:01:01:01;A1;A1;;"
         data_tuples = []
         for line in data_lines:
-            if line:
-                fields = line.split(";")
-                if len(fields) >= 6:
-                    # Extract first 6 fields as tuple, replace empty strings with None
-                    rel_dna_fields = tuple(
-                        field if field else None for field in fields[:6]
-                    )
-                    data_tuples.append(rel_dna_fields)
-
-        columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE"]
-
+            if not line:
+                continue
+            fields = line.split(";")
+            # as of 3.64.0 rel_dna_ser.txt has 7 fields
+            if len(fields) == 7:
+                # Extract 7 fields as tuple, replace empty strings with None
+                rel_dna_fields = tuple(field if field else None for field in fields)
+                data_tuples.append(rel_dna_fields)
+                columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE", "HATS"]
+            elif len(fields) == 6:
+                # Extract 6 fields as tuple, replace empty strings with None
+                rel_dna_fields = tuple(field if field else None for field in fields)
+                data_tuples.append(rel_dna_fields)
+                columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE"]
         return Table(data_tuples, columns)
     except URLError as e:
         print(f"Error downloading {rel_dna_ser_url}", e, file=sys.stderr)
