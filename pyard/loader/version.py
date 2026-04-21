@@ -1,13 +1,13 @@
 import sys
 from urllib.error import URLError
 
+from ..loader import IMGT_HLA_URL
+
 
 def load_latest_version():
     from urllib.request import urlopen
 
-    version_txt = (
-        "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/release_version.txt"
-    )
+    version_txt = f"{IMGT_HLA_URL}/Latest/release_version.txt"
     try:
         response = urlopen(version_txt)
     except URLError as e:

@@ -585,7 +585,7 @@ def save_serology_mappings(db_connection, sero_mapping):
                             serology TEXT PRIMARY KEY,
                             allele_list TEXT,
                             lgx_allele_list TEXT,
-                            xx TEXT NOT NULL
+                            xx TEXT
                     )"""
     cursor.execute(create_table_sql)
 

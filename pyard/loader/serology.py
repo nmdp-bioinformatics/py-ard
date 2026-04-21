@@ -4,42 +4,26 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 from ..simple_table import Table
-
-# GitHub URL where IMGT HLA files are downloaded.
-IMGT_HLA_URL = "https://raw.githubusercontent.com/ANHIG/IMGTHLA/"
+from ..loader import IMGT_HLA_URL
 
 
 def load_serology_mappings(imgt_version):
     """
     Read `rel_dna_ser.txt` file that contains alleles and their serological equivalents.
-
-    # file: rel_dna_ser.txt
-    # date: 2025-10-08
-    # version: IPD-IMGT/HLA 3.62.0
-    # origin: http://hla.alleles.org/wmda/rel_dna_ser.txt
-    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/rel_dna_ser.txt
-    # author: WHO, Steven G. E. Marsh (steven.marsh@ucl.ac.uk)
-    A*;01:01:01:01;1;;;
-    A*;01:01:01:02N;0;;;
-    A*;01:01:01:03;1;;;
-    A*;01:01:01:04;1;;;
-    A*;01:01:01:05;1;;;
-    A*;01:01:01:06;1;;;
-    A*;01:01:01:07;1;;;
-    A*;01:01:01:08;1;;;
-    A*;01:01:01:09;1;;;
-    A*;01:01:01:10;1;;;
-    A*;01:01:01:11;1;;;
-
     The fields of the Alleles->Serological mapping file are:
-       Locus - HLA Locus
-       Allele - HLA Allele Name
-       USA - Unambiguous Serological Antigen associated with allele
-       PSA - Possible Serological Antigen associated with allele
-       ASA - Assumed Serological Antigen associated with allele
-       EAE - Expert Assigned Exceptions in search determinants of some registries
-
+    |--------|----------------------------------------------------------------------|
+    | Field  | Description                                                          |
+    |--------|----------------------------------------------------------------------|
+    | Locus  | HLA Locus                                                            |
+    | Allele | HLA Allele Name                                                      |
+    | USA    | Unambiguous Serological Antigen associated with allele               |
+    | PSA    | Possible Serological Antigen associated with allele                  |
+    | ASA    | Assumed Serological Antigen associated with allele                   |
+    | EAE    | Expert Assigned Exceptions in search determinants of some registries |
+    | HATS   | Assigned specificity as calculated by HATS                           |
+    |--------|----------------------------------------------------------------------|
     EAE is ignored when generating the serology map.
+    HATS is ignored when generating the serology map.
 
     :param imgt_version: IMGT database version
     :return: Table object with serology mapping data
@@ -56,7 +40,9 @@ def load_serology_mappings(imgt_version):
 
         # Convert semicolon-separated data to list of tuples
         # Original format: "A;A*01:01:01:01;A1;A1;;"
+        # Version >= IPD-IMGT/HLA 3.64.0: "A*;01:01:01:01;1;;;;1"
         data_tuples = []
+        columns = []
         for line in data_lines:
             if not line:
                 continue
@@ -66,12 +52,14 @@ def load_serology_mappings(imgt_version):
                 # Extract 7 fields as tuple, replace empty strings with None
                 rel_dna_fields = tuple(field if field else None for field in fields)
                 data_tuples.append(rel_dna_fields)
-                columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE", "HATS"]
+                if not columns:
+                    columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE", "HATS"]
             elif len(fields) == 6:
                 # Extract 6 fields as tuple, replace empty strings with None
                 rel_dna_fields = tuple(field if field else None for field in fields)
                 data_tuples.append(rel_dna_fields)
-                columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE"]
+                if not columns:
+                    columns = ["Locus", "Allele", "USA", "PSA", "ASA", "EAE"]
         return Table(data_tuples, columns)
     except URLError as e:
         print(f"Error downloading {rel_dna_ser_url}", e, file=sys.stderr)

@@ -108,6 +108,6 @@ if __name__ == "__main__":
                     total_rows = db.count_rows(db_connection, table)
                     print(f"|{table:30}|{int(total_rows):12,d}|")
                 else:
-                    print(f"MISSING: {table} table")
+                    print(f"|{table:30}| --MISSING--|")
             print("-" * LONG_DASH_LINE_LENGTH)
             db_connection.close()
