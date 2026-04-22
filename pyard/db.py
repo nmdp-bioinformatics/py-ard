@@ -184,7 +184,7 @@ def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[s
     cursor = connection.execute(serology_query, (serology,))
     result = cursor.fetchone()
     cursor.close()
-    if result:
+    if result and result[0]:
         alleles = result[0].split("/")
     else:
         alleles = []
