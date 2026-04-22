@@ -1,3 +1,17 @@
+<a id="2.1.0"></a>
+# [Support HATS in Serology Assignment (2.1.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.1.0) - 2026-04-22
+
+## What's Changed
+* Support for addition of HATS in `rel_dna_ser.txt` by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#384](https://github.com/nmdp-bioinformatics/py-ard/pull/384)
+* updated format of rel_dna_ser.txt by [@mmaiers-nmdp](https://github.com/mmaiers-nmdp) in [#382](https://github.com/nmdp-bioinformatics/py-ard/pull/382)
+* Bump pytest from 9.0.2 to 9.0.3 by [@dependabot](https://github.com/dependabot)[bot] in [#380](https://github.com/nmdp-bioinformatics/py-ard/pull/380)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.0.0...2.1.0
+
+[Changes][2.1.0]
+
+
 <a id="2.0.0"></a>
 # [🚀 2.0.0 Release](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.0.0) - 2026-03-20
 
@@ -741,6 +755,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.1.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.5...2.0.0
 [1.5.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.3...1.5.5
 [1.5.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.1...1.5.3
