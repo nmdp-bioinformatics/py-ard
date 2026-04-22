@@ -430,25 +430,29 @@ def generate_serology_mapping(
 
         # Create a mapping of serology to alleles, lgx_alleles and associated XX allele
         serology_xx_mapping = serology_mapping.get_xx_mappings()
+        # Create a mapping of `serology` to tuple of:
+        #     allele_list
+        #     lgx_allele_list
+        #     xx
         # re-sort allele lists into smart-sort order
+        for sero in sero_mapping:
+            sero_mapping[sero] = (
+                "/".join(
+                    sorted(
+                        sero_mapping[sero][0],
+                        key=functools.cmp_to_key(smart_sort_comparator),
+                    )
+                ),
+                "/".join(
+                    sorted(
+                        sero_mapping[sero][1],
+                        key=functools.cmp_to_key(smart_sort_comparator),
+                    ),
+                ),
+                serology_xx_mapping[sero] if sero in serology_xx_mapping else None,
+            )
         for sero in serology_xx_mapping:
-            if sero in sero_mapping:
-                sero_mapping[sero] = (
-                    "/".join(
-                        sorted(
-                            sero_mapping[sero][0],
-                            key=functools.cmp_to_key(smart_sort_comparator),
-                        )
-                    ),
-                    "/".join(
-                        sorted(
-                            sero_mapping[sero][1],
-                            key=functools.cmp_to_key(smart_sort_comparator),
-                        ),
-                    ),
-                    serology_xx_mapping[sero],
-                )
-            else:
+            if sero not in sero_mapping:
                 sero_mapping[sero] = (None, None, serology_xx_mapping[sero])
 
         db.save_serology_mappings(db_connection, sero_mapping)
