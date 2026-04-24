@@ -38,6 +38,17 @@ Feature: Serology Reduction
       | DRB1*07:34:02 | S     | DR7            |
       | DRB4*01:03N   | S     | X              |
 
+  Scenario Outline: Serology without corresponding allele_list
+
+    Given the allele as <Allele>
+    When reducing on the <Level> level with ping
+    Then the reduced allele is found to be <Redux>
+
+    Examples: Sero to Serology
+      | Allele | Level | Redux |
+      | Bw4    | lgx   | X     |
+      | Dw8    | lgx   | X     |
+
   Scenario Outline: Serology Validation
 
   All recognized serology are valid, even those with no corresponding DNA alleles.

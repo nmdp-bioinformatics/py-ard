@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import functools
 from typing import Iterable, TYPE_CHECKING
 
 from .. import db
@@ -26,6 +26,7 @@ class SerologyHandler:
         """
         self.ard = ard_instance
 
+    @functools.lru_cache(maxsize=1_000)
     def is_serology(self, allele: str) -> bool:
         """Check if allele is valid serology
 
@@ -42,7 +43,7 @@ class SerologyHandler:
         if "*" in allele or ":" in allele:
             return False
         # Check against the set of valid serology codes in the database
-        return allele in self.ard.valid_serology_set
+        return db.is_valid_serology(self.ard.db_connection, allele)
 
     def get_alleles_from_serology(self, serology: str) -> Iterable[str]:
         """Get alleles corresponding to serology

@@ -436,6 +436,7 @@ def generate_serology_mapping(
         #     xx
         # re-sort allele lists into smart-sort order
         for sero in sero_mapping:
+            xx = serology_mapping.map_serology_to_xx(serology=sero)
             sero_mapping[sero] = (
                 "/".join(
                     sorted(
@@ -449,7 +450,7 @@ def generate_serology_mapping(
                         key=functools.cmp_to_key(smart_sort_comparator),
                     ),
                 ),
-                serology_xx_mapping[sero] if sero in serology_xx_mapping else None,
+                xx,
             )
         for sero in serology_xx_mapping:
             if sero not in sero_mapping:
