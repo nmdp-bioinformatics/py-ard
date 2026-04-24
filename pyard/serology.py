@@ -61,6 +61,9 @@ broad_splits_dna_mapping = {
 # Special mappings for serologies that don't follow standard XX code patterns
 # These serologies map to different molecular families than their numeric designation suggests
 serology_xx_exception_mapping = {
+    # Locus A
+    "A203": "A*02:XX",
+    "A210": "A*02:XX",
     # Locus B
     # Broad B40 - these serologies map to B*40 family despite different numbers
     "B60": "B*40:XX",
@@ -78,9 +81,11 @@ serology_xx_exception_mapping = {
     # Broad B70 - these also map to B*15 family
     "B71": "B*15:XX",
     "B72": "B*15:XX",
+    "B703": "B*07:XX",
     # DR17/18 are splits of DR3
     "DR17": "DRB1*03:XX",
     "DR18": "DRB1*03:XX",
+    "DR103": "DRB1*01:XX",
     # Locus DQB1
     # Broad DQ3 - these DQ serologies map to DQB1*03 family
     "DQ7": "DQB1*03:XX",
@@ -91,6 +96,16 @@ serology_xx_exception_mapping = {
 # Regular expression to separate locus letters from antigen numbers in serology
 # Matches non-digit characters followed by digits (e.g., 'A1' -> 'A' and '1')
 sero_antigen_regex = re.compile(r"(\D+)(\d+)")
+
+# Map non-standard serology locu prefix's to their HLA locus
+serology_locus_mapping = {
+    "Bw": "B",
+    "Cw": "C",
+    "Dw": "D",
+    "DR": "DRB1",
+    "DQ": "DQB1",
+    "DPw": "DPB1",
+}
 
 
 class SerologyMapping:
@@ -332,26 +347,13 @@ class SerologyMapping:
         # Process each locus and its serologies
         for locus, serologies in SerologyMapping.valid_serology_map.items():
             xx_mapping = {
-                serology: self._map_serology_to_xx(locus, serology)
+                serology: self.map_serology_to_xx(serology, locus)
                 for serology in serologies
             }
             all_xx_mappings.update(xx_mapping)
         return all_xx_mappings
 
-    @classmethod
-    def get_valid_serology_names(cls):
-        """Get set of all valid serological designation names
-
-        Flattens the valid_serology_map to create a single set containing
-        all recognized serological designations across all loci.
-
-        Returns:
-            Set of all valid serology names
-        """
-        all_serology_names = {x for v in cls.valid_serology_map.values() for x in v}
-        return all_serology_names
-
-    def _map_serology_to_xx(self, locus, serology):
+    def map_serology_to_xx(self, serology, locus=None):
         """Map a serology to its corresponding XX code
 
         Converts serological designations to XX codes, which represent
@@ -372,15 +374,23 @@ class SerologyMapping:
         # Use the associated serology for XX version (handles equivalencies)
         serology = self.find_associated_antigen(serology)
 
-        # Extract the numeric part from serology (e.g., '27' from 'B27')
-        antigen_group = sero_antigen_regex.match(serology).group(2)
-        # Pad single digit numbers with leading zero for consistency
-        antigen_group_num = int(antigen_group)
-        if antigen_group_num < 10:
-            antigen_group = f"{antigen_group_num:02}"
+        # Extract parts from serology
+        # - non-numeric prefix as locus
+        # - numeric part (e.g., '27' from 'B27') as antigen_group
+        match = sero_antigen_regex.match(serology)
+        if match:
+            antigen_group = match.group(2)
+            if not locus:
+                antigen_locus = match.group(1)
+                locus = serology_locus_mapping.get(antigen_locus, antigen_locus)
+            # Pad single digit numbers with leading zero for consistency
+            antigen_group_num = int(antigen_group)
+            if antigen_group_num < 10:
+                antigen_group = f"{antigen_group_num:02}"
 
-        # Build the XX allele in standard format
-        return f"{locus}*{antigen_group}:XX"
+            # Build the XX allele in standard format
+            return f"{locus}*{antigen_group}:XX"
+        return None
 
     @classmethod
     def _get_mapping(cls, broad, mapping, prefix):

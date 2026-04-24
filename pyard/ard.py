@@ -90,7 +90,6 @@ class ARD(object):
         dr.generate_serology_mapping(
             self.db_connection, imgt_version, self.serology_mapping, self._redux_allele
         )
-        self.valid_serology_set = SerologyMapping.get_valid_serology_names()
 
         # Load other mappings
         dr.generate_v2_to_v3_mapping(self.db_connection, imgt_version)
