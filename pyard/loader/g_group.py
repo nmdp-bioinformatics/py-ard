@@ -41,7 +41,14 @@ def load_g_group(imgt_version):
             if line:
                 fields = line.split(";")
                 if len(fields) >= 3 and fields[1] and fields[2]:
-                    locus, a_list, g_name = fields[0], fields[1], fields[2]
+                    locus, a_list, g = fields[0], fields[1], fields[2]
+                    # Ignore the G group (g) from the file.
+                    # We need to manually get the G group name from the allele list
+                    # For cases:
+                    # | C*02:02        | lgx   | C*02:02         |
+                    # | C*02:10        | lgx   | C*02:02         |
+                    g_name = get_G_name(a_list)
+                    print(f"{locus}{g} == {locus}{g_name} : {g == g_name}")
                     # Explode slash-delimited alleles
                     for a in a_list.split("/"):
                         full_a = locus + a

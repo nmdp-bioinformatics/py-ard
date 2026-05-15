@@ -37,8 +37,8 @@ B;14;64/65;64/65
         assert len(splits_col[1].split("/")) == 2  # 2 B splits
 
         # Test associated table
-        split_col = associated_table["split"]
-        broad_assoc_col = associated_table["broad"]
+        split_col = associated_table["associated"]
+        broad_assoc_col = associated_table["antigen"]
         assert len(split_col) == 6  # 4 A associated + 2 B associated
         assert "A25" in split_col
         assert "A10" in broad_assoc_col
