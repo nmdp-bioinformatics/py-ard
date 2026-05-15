@@ -44,7 +44,7 @@ def load_allele_list(imgt_version):
             # 3130 was renamed to 3131 for Allelelist file only 🤷🏾
             imgt_version = "3131"
         allele_list_url = (
-            f"{IMGT_HLA_URL}{imgt_version}/allelelist/Allelelist.{imgt_version}.txt"
+            f"{IMGT_HLA_URL}Latest/allelelist/Allelelist.{imgt_version}.txt"
         )
 
     try:
