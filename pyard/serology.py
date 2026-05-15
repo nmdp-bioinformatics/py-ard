@@ -24,13 +24,6 @@ import re
 
 from pyard.constants import HLA_regex
 
-#
-# HLA Antigens
-# List of all recognised serological collected from:
-# https://hla.alleles.org/antigens/recognised_serology.html
-#
-
-
 # -#
 # Broad, Splits and Associated Antigens
 # http://hla.alleles.org/antigens/broads_splits.html
@@ -116,8 +109,12 @@ class SerologyMapping:
     relationships and XX code mappings.
     """
 
+    # HLA Antigens
+    #
     # Complete list of recognized serological designations by locus
     # Based on official WHO nomenclature committee recognized serology
+    # Collected from: https://hla.alleles.org/antigens/recognised_serology.html
+    #
     valid_serology_map = {
         "A": [
             "A1",

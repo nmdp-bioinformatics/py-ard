@@ -68,7 +68,38 @@ def load_serology_mappings(imgt_version):
 
 def load_serology_broad_split_mapping(imgt_version: str) -> Tuple[Table, Table]:
     """
-    Load serology broad/split mapping from rel_ser_ser.txt file.
+    `rel_ser_ser.txt` — Serology-to-Serology Relationships
+
+    Maps hierarchical relationships between broad, split, and associated antigens.
+
+    **Fields (4, semicolon-separated):**
+
+    | # | Field               | Type   | Description                             | Example          |
+    |---|---------------------|--------|-----------------------------------------|------------------|
+    | 1 | Locus               | String | HLA locus                               | `A`              |
+    | 2 | Antigen             | String | Broad or split antigen name             | `9`              |
+    | 3 | Split Antigens      | String | `/`-separated split antigens (if broad) | `23/24`          |
+    | 4 | Associated Antigens | String | `/`-separated associated antigens       | `0201/0203/0210` |
+
+    **Key observations:**
+    - Only antigens with splits or associated antigens are listed
+    - A broad antigen has splits in field 3 (e.g., `A;9;23/24;`)
+    - A split antigen has associated antigens in field 4 (e.g., `A;23;;2301/2304/2424`)
+    - Associated antigens use 4-digit designations (zero-padded)
+
+    ```
+    ┌────────────────────────────────────────────────────────────────┐
+    │                      rel_ser_ser.txt                           │
+    ├─────────┬─────────┬──────────────────┬─────────────────────────┤
+    │  Locus  │ Antigen │ Split Antigens   │ Associated Antigens     │
+    ├─────────┼─────────┼──────────────────┼─────────────────────────┤
+    │ A       │ 2       │                  │ 0201/0202/0203/0208/... │
+    │ A       │ 9       │ 23/24            │                         │
+    │ A       │ 10      │ 25/26/34/66      │                         │
+    │ A       │ 23      │                  │ 2301/2304/2424          │
+    │ B       │ 21      │ 49/50            │ 4005                    │
+    └─────────┴─────────┴──────────────────┴─────────────────────────┘
+    ```
 
     :param imgt_version: IMGT database version
     :return: Tuple of (splits_table, associated_table) Table objects
@@ -116,7 +147,7 @@ def load_serology_broad_split_mapping(imgt_version: str) -> Tuple[Table, Table]:
                             associated_tuples.append((assoc, sero))
 
         splits_table = Table(splits_tuples, ["broad", "splits"])
-        associated_table = Table(associated_tuples, ["split", "broad"])
+        associated_table = Table(associated_tuples, ["associated", "antigen"])
 
         return splits_table, associated_table
     except URLError as e:
