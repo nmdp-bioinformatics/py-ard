@@ -11,21 +11,24 @@ def load_allele_list(imgt_version):
     """
     The format of the AlleleList file has a 6-line header with a header
     on the 7th line
+
+    **Fields (2, semicolon-separated):**
+
+    | # | Field    | Type   | Description        | Example         |
+    |---|----------|--------|--------------------|-----------------|
+    | 1 | AlleleID | String | HLA locus with `*` |                 |
+    | 2 | Allele   | String | HLA locus with `*` | `A*01:01:01:05` |
+
     ```
-    # file: Allelelist.3290.txt
-    # date: 2017-07-10
-    # version: IPD-IMGT/HLA 3.29.0
-    # origin: https://github.com/ANHIG/IMGTHLA/Allelelist.3290.txt
-    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/allelelist/Allelelist.3290.txt
-    # author: WHO, Steven G. E. Marsh (steven.marsh@ucl.ac.uk)
-    AlleleID,Allele
-    HLA00001,A*01:01:01:01
-    HLA02169,A*01:01:01:02N
-    HLA14798,A*01:01:01:03
-    HLA15760,A*01:01:01:04
-    HLA16415,A*01:01:01:05
-    HLA16417,A*01:01:01:06
-    HLA16436,A*01:01:01:07
+    ┌──────────────────────────────┐
+    │        Allelelist.txt        │
+    ├────────────┬─────────────────┤
+    │  AlleleID  │     Allele      │
+    ├────────────┬─────────────────┤
+    │  HLA00001  │  A*01:01:01:01  │
+    │  HLA02169  │  A*01:01:01:02N │
+    │  HLA16415  │  A*01:01:01:05  │
+    └────────────┴─────────────────┘
     ```
 
     Returns a Table object with AlleleID and Allele columns

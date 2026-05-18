@@ -30,23 +30,31 @@ class TestSerologyHandler:
         handler = SerologyHandler(mock_ard)
         assert handler.ard == mock_ard
 
-    def test_is_serology_valid_serology(self, serology_handler):
+    @patch("pyard.handlers.serology_handler.db.is_valid_serology")
+    def test_is_serology_valid_serology(self, mock_valid_serology, serology_handler):
         """Test is_serology with valid serology"""
+        mock_valid_serology.return_value = True
         result = serology_handler.is_serology("A1")
         assert result is True
 
-    def test_is_serology_invalid_serology(self, serology_handler):
+    @patch("pyard.handlers.serology_handler.db.is_valid_serology")
+    def test_is_serology_invalid_serology(self, mock_valid_serology, serology_handler):
         """Test is_serology with invalid serology"""
+        mock_valid_serology.return_value = False
         result = serology_handler.is_serology("INVALID")
         assert result is False
 
-    def test_is_serology_with_asterisk(self, serology_handler):
+    @patch("pyard.handlers.serology_handler.db.is_valid_serology")
+    def test_is_serology_with_asterisk(self, mock_valid_serology, serology_handler):
         """Test is_serology with molecular format (contains *)"""
+        mock_valid_serology.return_value = True
         result = serology_handler.is_serology("A*01:01")
         assert result is False
 
-    def test_is_serology_with_colon(self, serology_handler):
+    @patch("pyard.handlers.serology_handler.db.is_valid_serology")
+    def test_is_serology_with_colon(self, mock_valid_serology, serology_handler):
         """Test is_serology with molecular format (contains :)"""
+        mock_valid_serology.return_value = True
         result = serology_handler.is_serology("A*01:01")
         assert result is False
 
@@ -99,10 +107,14 @@ class TestSerologyHandler:
             "A1"
         )
 
+    @patch("pyard.handlers.serology_handler.SerologyHandler.is_serology")
     @patch("pyard.handlers.serology_handler.db.find_xx_for_serology")
-    def test_find_xx_from_serology_valid(self, mock_find_xx, serology_handler):
+    def test_find_xx_from_serology_valid(
+        self, mock_find_xx, mock_is_serology, serology_handler
+    ):
         """Test find_xx_from_serology with valid serology"""
         mock_find_xx.return_value = "A*01:XX"
+        mock_is_serology.return_value = True
 
         result = serology_handler.find_xx_from_serology("A1")
         assert result == "A*01:XX"
@@ -126,7 +138,14 @@ class TestSerologyHandler:
             ("A1:01", False),
         ],
     )
-    def test_is_serology_various_inputs(self, serology_handler, serology, expected):
+    @patch("pyard.handlers.serology_handler.db.is_valid_serology")
+    def test_is_serology_various_inputs(
+        self, mock_valid_serology, serology_handler, serology, expected
+    ):
         """Test is_serology with various input formats"""
+        if ":" in serology or serology.isalpha():
+            mock_valid_serology.return_value = False
+        else:
+            mock_valid_serology.return_value = True
         result = serology_handler.is_serology(serology)
         assert result == expected

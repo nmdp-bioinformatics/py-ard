@@ -9,31 +9,24 @@ from ..simple_table import Table
 
 def load_g_group(imgt_version):
     """
-    load the hla_nom_g.txt
-    Sample file:
-    # file: hla_nom_g.txt
-    # date: 2025-10-08
-    # version: IPD-IMGT/HLA 3.62.0
-    # origin: http://hla.alleles.org/wmda/hla_nom_g.txt
-    # repository: https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/hla_nom_g.txt
-    # author: IPD Team (ipdsubs@anthonynolan.org)
-    A*;01:01:01:01/01:01:01:02N/01:01:01:03/ ... /01:481;01:01:01G
-    A*;01:01:02;
-    A*;01:01:03;
-    A*;01:01:04;
-    A*;01:01:05;
-    A*;01:01:06;
-    A*;01:01:07;
-    A*;01:01:08;
-    A*;01:01:09;
-    A*;01:01:10;
-    A*;01:01:11;
-    A*;01:01:12;
-    A*;01:01:13;
-    A*;01:01:14;
-    A*;01:01:15;
-    A*;01:01:16;
-    ...
+    `hla_nom_g.txt` — G Groups (Nucleotide-level)
+
+    Groups alleles with identical nucleotide sequences across peptide-binding
+    domain exons (exons 2+3 for Class I, exon 2 for Class II).
+
+    **Fields (3, semicolon-separated):**
+
+    | # | Field        | Type   | Description                                           | Example                        |
+    |---|--------------|--------|-------------------------------------------------------|--------------------------------|
+    | 1 | Locus        | String | HLA locus with `*`                                    | `A*`                           |
+    | 2 | Allele List  | String | `/`-separated allele names in the group               | `01:01:01:01/01:01:01:02N/...` |
+    | 3 | G Group Name | String | Group designation (empty if allele is not in a group) | `01:01:01G`                    |
+
+    **Key observations:**
+    - Lines with a G group name contain all member alleles in field 2
+    - Lines with an empty G group name are alleles not belonging to any group
+    - Allele suffixes: `N` = Null, `L` = Low expression, `Q` = Questionable
+
     :param imgt_version: version of IPD/IMGT database
     :return: Table of data from hla_nom_g with "Locus", "A", "G", "2d", "3d", "lgx" columns
     """
@@ -49,8 +42,12 @@ def load_g_group(imgt_version):
                 fields = line.split(";")
                 if len(fields) >= 3 and fields[1] and fields[2]:
                     locus, a_list, g = fields[0], fields[1], fields[2]
+                    # Ignore the G group (g) from the file.
+                    # We need to manually get the G group name from the allele list
+                    # For cases:
+                    # | C*02:02        | lgx   | C*02:02         |
+                    # | C*02:10        | lgx   | C*02:02         |
                     g_name = get_G_name(a_list)
-
                     # Explode slash-delimited alleles
                     for a in a_list.split("/"):
                         full_a = locus + a
