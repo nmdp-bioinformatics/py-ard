@@ -1,3 +1,15 @@
+<a id="2.1.1"></a>
+# [2.1.1 Checks db for valid serology](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.1.1) - 2026-05-18
+
+## What's Changed
+* Fix serology mapping by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#386](https://github.com/nmdp-bioinformatics/py-ard/pull/386)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.0...2.1.1
+
+[Changes][2.1.1]
+
+
 <a id="2.1.0"></a>
 # [Support HATS in Serology Assignment (2.1.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.1.0) - 2026-04-22
 
@@ -755,6 +767,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.5...2.0.0
 [1.5.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/1.5.3...1.5.5
