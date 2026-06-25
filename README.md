@@ -321,6 +321,19 @@ ard.is_shortnull('A*01:01N') # Check if short null
 ard.is_null('A*01:01N')      # Check if null allele
 ```
 
+Validate an allele:
+
+```python
+ard.is_valid_allele('A*01:01:01')  # True - valid 3-field allele
+ard.is_valid_allele('A*01:01')     # True - valid 2-field allele
+ard.is_valid_allele('A*01:01:01G') # True - valid G group allele
+ard.is_valid_allele('A*01:01P')    # True - valid P group allele
+ard.is_valid_allele('A*01:01g')    # True - valid lg allele (non-strict mode)
+ard.is_valid_allele('A*99:99')     # False - allele not in database
+```
+
+`is_valid_allele` checks whether an allele exists in the IPD-IMGT/HLA database. It handles G group (suffix `G`), P group (suffix `P`), and lg (suffix `g`) allele designations. In strict mode, G and P group alleles are validated against their respective group mappings. For alleles with more than 2 fields, it falls back to checking the 2-field version if the full allele is not found.
+
 Find serology relationships:
 
 ```python
