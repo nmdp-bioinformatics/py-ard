@@ -147,7 +147,7 @@ class ARD(object):
             allele = self._get_non_strict_allele(allele)
 
         # Handle P/G suffixes
-        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G"]:
+        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G", "P"]:
             allele = allele[:-1]
 
         # Handle ping mode
