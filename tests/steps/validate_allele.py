@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -20,31 +19,21 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-
-# exports for `pyard`
-from .blender import blender as dr_blender
-from .config import ARDConfig
-from .constants import DEFAULT_CACHE_SIZE
-from .misc import get_imgt_db_versions as db_versions
-
-__author__ = """NMDP Bioinformatics"""
-__version__ = "2.2.0"
+from behave import when, then
+from hamcrest import assert_that, is_
 
 
-def init(
-    imgt_version: str = "Latest",
-    data_dir: str = None,
-    load_mac: bool = True,
-    cache_size: int = DEFAULT_CACHE_SIZE,
-    config: dict = None,
-):
-    from .ard import ARD
+@when("checking if the allele is valid in strict mode")
+def step_impl(context):
+    context.is_valid_allele = context.ard.is_valid_allele(context.allele)
 
-    ard = ARD(
-        imgt_version=imgt_version,
-        data_dir=data_dir,
-        load_mac=load_mac,
-        max_cache_size=cache_size,
-        config=config,
-    )
-    return ard
+
+@when("checking if the allele is valid in non-strict mode")
+def step_impl(context):
+    context.is_valid_allele = context.ard_non_strict.is_valid_allele(context.allele)
+
+
+@then("the allele validity is {validity}")
+def step_impl(context, validity):
+    expected = validity == "Valid"
+    assert_that(context.is_valid_allele, is_(expected))

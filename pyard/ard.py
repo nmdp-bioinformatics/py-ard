@@ -143,11 +143,11 @@ class ARD(object):
         self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
     ) -> str:
         """Core allele reduction with ping logic"""
-        if not self.config.strict:
+        if not self.config.strict_enabled:
             allele = self._get_non_strict_allele(allele)
 
         # Handle P/G suffixes
-        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G"]:
+        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G", "P"]:
             allele = allele[:-1]
 
         # Handle ping mode
@@ -345,14 +345,37 @@ class ARD(object):
         return allele in self.allele_group.alleles
 
     def is_valid_allele(self, allele: str) -> bool:
-        if allele.endswith(("P", "G")):
+        """Check whether an allele exists in the IPD-IMGT/HLA database.
+
+        Handles G group (suffix 'G'), P group (suffix 'P'), and lg (suffix 'g')
+        allele designations. In strict mode, G and P group alleles are validated
+        against their respective group mappings. For alleles with more than 2
+        fields, falls back to checking the 2-field version if the full allele
+        is not found.
+
+        Args:
+            allele: An HLA allele string (e.g. 'A*01:01', 'A*01:01:01G').
+
+        Returns:
+            True if the allele is valid, False otherwise.
+        """
+        if allele.endswith("G"):
+            if self.config.strict_enabled:
+                return allele in self.ars_mappings.g_group.values()
             allele = allele[:-1]
-        if not self.config.strict and allele.endswith("g"):
+        elif allele.endswith("P"):
+            if self.config.strict_enabled:
+                return allele in self.ars_mappings.p_group.values()
             allele = allele[:-1]
+        elif allele.endswith("g"):
+            if not self.config.strict_enabled:
+                allele = allele[:-1]
+
         if "*" in allele:
             _, fields = allele.split("*")
             if not all(map(str.isalnum, fields.split(":"))):
                 return False
+
         if self._is_allele_in_db(allele):
             return True
         else:
@@ -377,7 +400,7 @@ class ARD(object):
                 if fields in self.config.ignore_allele_with_suffixes:
                     return True
 
-        if not self.config.strict:
+        if not self.config.strict_enabled:
             allele = self._get_non_strict_allele(allele)
 
         if (

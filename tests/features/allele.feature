@@ -59,39 +59,6 @@ Feature: Alleles
       | A*24:329    | lgx   | A*24:329Q    |
       | DQB1*03:276 | lgx   | DQB1*03:01   |
 
-  Scenario Outline: Allele validation in strict mode
-
-    liggle g alleles are valid in non-strict mode
-
-    Given the allele as <Allele>
-    When checking for validity of the allele in strict mode
-    Then the validness of the allele is <Validity>
-
-    Examples:
-      | Allele        | Validity |
-      | A*24:329      | InValid  |
-      | DRBX*NNNN     | Invalid  |
-      | A*30:02g      | Invalid  |
-      | HLA-A*01:04Ng | Invalid  |
-
-  Scenario Outline: Allele validation in non-strict mode
-
-  Similar to reduction, handle non-strict mode when validating an allele.
-  The test version of IPD/IMGT-HLA database (see environment.py),
-  A*11:403 is invalid and A*24:329 is valid for A*24:329Q
-
-    Given the allele as <Allele>
-    When checking for validity of the allele in non-strict mode
-    Then the validness of the allele is <Validity>
-
-    Examples:
-      | Allele        | Validity |
-      | A*11:403      | Invalid  |
-      | A*24:329      | Valid    |
-      | DRBX*NNNN     | Invalid  |
-      | A*30:02g      | Valid    |
-      | HLA-A*01:04Ng | Valid    |
-
   Scenario Outline: Single field MICA, MICB Alleles
 
   For MICA, MICB alleles with single field, their reduced version is self.

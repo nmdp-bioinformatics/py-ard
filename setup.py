@@ -38,7 +38,7 @@ script_extras = {"script": ["pandas>=2.0"]}
 
 setup(
     name="py-ard",
-    version="2.1.1",
+    version="2.2.0",
     description="ARD reduction for HLA with Python",
     long_description=readme,
     long_description_content_type="text/markdown",
