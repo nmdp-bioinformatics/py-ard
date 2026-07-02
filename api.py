@@ -52,7 +52,12 @@ def redux_controller(body):
         # Perform redux
         try:
             redux_string = ard.redux(gl_string, reduction_method)
-            return {"ard": redux_string}, 200
+            ipd_version = ard.get_db_version()
+            return {
+                "ard": redux_string,
+                "ipd_version": ipd_version,
+                "pyard_version": pyard.__version__,
+            }, 200
         except PyArdError as e:
             return {"message": e.message}, 400
 

@@ -128,6 +128,14 @@ paths:
                     description: ARD reduced version of GL String
                     type: string
                     example: "A*01:01+A*01:01^B*07:02+B*08:01^C*02:02/C*02:10+C*07:01/C*07:150Q^DPB1*28:01+DPB1*28:01"
+                  ipd_version:
+                    description: IPD-IMGT/HLA DB Version
+                    type: integer
+                    example: 3580
+                  pyard_version:
+                    description: py-ard library version
+                    type: string
+                    example: "1.5.0"
         400:
           description: Invalid GL String Form
           content:
@@ -298,7 +306,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  mac:
+                  xx_code:
                     description: XX Code
                     type: string
                     example: "HLA-A*43:XX"
@@ -615,15 +623,16 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: A*01:91
-                    - A*01:92
-                    - A*01:93
-                    - A*01:94
-                    - A*01:95
-                    - A*01:96
-                    - A*01:97
-                    - A*01:98
-                    - A*01:99
+                example:
+                  - A*01:91
+                  - A*01:92
+                  - A*01:93
+                  - A*01:94
+                  - A*01:95
+                  - A*01:96
+                  - A*01:97
+                  - A*01:98
+                  - A*01:99
         404:
           description: |
             No matching alleles or MACs found
