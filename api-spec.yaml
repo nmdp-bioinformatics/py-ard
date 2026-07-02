@@ -16,6 +16,7 @@ servers:
     description: Local development server
   - url: 'https://py-ard.nmdp.org/'
     description: Production server
+security: []
 components:
   schemas:
     ErrorResponse:
@@ -80,6 +81,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VersionInfo'
+        500:
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /redux:
     post:
       tags:
@@ -280,13 +287,7 @@ paths:
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
-                    description: Alleles corresponding to MAC
-                    type: array
-                    items:
-                      type: string
-                    example:
-                      - "HLA-A*01:01"
-                      - "HLA-A*01:02"
+                    $ref: '#/components/schemas/AlleleList/properties/alleles'
         400:
           description: Invalid MAC Code
           content:
@@ -333,6 +334,12 @@ paths:
                     example:
                       - "HLA-A*43:01"
                       - "HLA-A*43:02N"
+        400:
+          description: Invalid XX Code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /mac:
     post:
       tags:
@@ -370,13 +377,7 @@ paths:
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
-                    description: Alleles corresponding to MAC
-                    type: array
-                    items:
-                      type: string
-                    example:
-                      - "HLA-A*01:01"
-                      - "HLA-A*01:02"
+                    $ref: '#/components/schemas/AlleleList/properties/alleles'
         400:
           description: Invalid MAC Code
           content:
