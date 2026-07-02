@@ -1,10 +1,21 @@
 openapi: 3.0.3
 info:
   title: ARD Reduction
-  description: Reduce to ARD Level
+  description: |
+    Swiss army knife of HLA Nomenclature. Provides ARD reduction, CWD reduction,
+    MAC expansion/lookup, XX code expansion, GL String validation, and DRBX blending
+    based on IPD-IMGT/HLA allele data.
+
+    See [py-ard.org](https://py-ard.org) for full documentation.
   version: "2.2.0"
+  license:
+    name: LGPL-3
+    url: https://www.gnu.org/licenses/lgpl-3.0.html
 servers:
   - url: 'http://localhost:8080'
+    description: Local development server
+  - url: 'https://py-ard.nmdp.org/'
+    description: Production server
 components:
   schemas:
     ErrorResponse:
