@@ -168,7 +168,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "DPA1*02:07:01"
+            example: "DPA1*02:07:01"
       responses:
         200:
           description: ARD Reduction Result
@@ -262,7 +262,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "HLA-A*01:AB"
+            example: "HLA-A*01:AB"
       responses:
         200:
           description: Alleles corresponding to MAC
@@ -308,7 +308,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "HLA-A*43:XX"
+            example: "HLA-A*43:XX"
       responses:
         200:
           description: Alleles corresponding to XX Code
@@ -574,7 +574,7 @@ paths:
           required: true
           schema:
             type: string
-          example: A*10
+            example: "A*10"
       responses:
         200:
           description: Broad/Split mapping
@@ -590,6 +590,8 @@ paths:
                   splits:
                     description: Corresponding Splits
                     type: array
+                    items:
+                      type: string
                     example:
                       - "A*25"
                       - "A*26"
@@ -624,7 +626,7 @@ paths:
           required: true
           schema:
             type: string
-          example: A*01:9
+            example: "A*01:9"
       responses:
         200:
           description: List of alleles with the given prefix
