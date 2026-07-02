@@ -88,7 +88,7 @@ def xx_expand_controller(xx_code: str):
         if ard.is_XX(xx_code):
             allele_list = ard.expand_xx(xx_code)
             return {
-                "XX": xx_code,
+                "xx_code": xx_code,
                 "alleles": allele_list.split("/"),
                 "gl_string": allele_list,
             }, 200

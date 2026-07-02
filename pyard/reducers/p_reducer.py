@@ -57,8 +57,8 @@ class PGroupReducer(DefaultReducer):
             >>> reducer = PGroupReducer(ard)
             >>> reducer.reduce("A*01:01:01:01")
             "A*01:01P"
-            >>> reducer.reduce("A*01:01:01:02N")
-            "A*01:01P"
+            >>> reducer.reduce("DQB1*06:02:02G")
+            "DQB1*06:02P"
             >>> reducer.reduce("B*07:02:01")
             "B*07:02P"
 
