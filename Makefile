@@ -2,18 +2,8 @@ PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
 PYARD_VERSION := 2.2.0
 
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: help clean clean-test clean-pyc clean-build docs behave lint pytest test coverage docs servedocs release dist docker-build docker install venv activate
 .DEFAULT_GOAL := help
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
 
 define PRINT_HELP_PYSCRIPT
 import re, sys
@@ -26,13 +16,10 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
-
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
-
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -54,12 +41,13 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 	rm -fr allure_report
 
-lint: ## check style with flake8
-    # stop the build if there are Python syntax errors or undefined names \
-	  exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+lint: ## check style with flake8 and pre-commit
+	# stop the build if there are Python syntax errors or undefined names
 	flake8 $(PACKAGE_NAME) tests --count --select=E9,F63,F7,F82 --show-source --statistics
+	# exit-zero treats all errors as warnings
 	flake8 $(PACKAGE_NAME) --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-	pre-commit
+	pre-commit run --all-files
+	npx @redocly/cli lint api-spec.yaml
 
 behave: clean-test ## run the behave tests, generate and serve report
 	- behave -f allure_behave.formatter:AllureFormatter -o allure_report
@@ -76,15 +64,15 @@ coverage: ## check code coverage quickly with the default Python
 	coverage run --source pyard -m pytest
 	coverage report -m
 	coverage html
-	$(BROWSER) htmlcov/index.html
+	@python -m webbrowser htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/pyars.rst
+	rm -f docs/pyard.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ pyars
+	sphinx-apidoc -o docs/ pyard
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
+	@python -m webbrowser docs/build/html/index.html
 
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
@@ -112,7 +100,7 @@ install: clean ## install the package to the active Python's site-packages
 	pip install -r requirements-tests.txt
 	pip install -r requirements-dev.txt
 	pip install -r requirements-deploy.txt
-	python setup.py install
+	pip install -e .
 	pre-commit install
 
 venv: ## creates a Python3 virtualenv environment in venv
