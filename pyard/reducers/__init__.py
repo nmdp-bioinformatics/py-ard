@@ -3,6 +3,7 @@
 from .base_reducer import Reducer
 from .default_reducer import DefaultReducer
 from .exon_reducer import ExonReducer
+from .first_field_reducer import FirstFieldReducer
 from .g_reducer import GGroupReducer
 from .lg_reducer import LGReducer, LGXReducer
 from .p_reducer import PGroupReducer
@@ -13,6 +14,7 @@ from .w_reducer import WReducer
 
 __all__ = [
     "Reducer",
+    "FirstFieldReducer",
     "GGroupReducer",
     "PGroupReducer",
     "LGReducer",

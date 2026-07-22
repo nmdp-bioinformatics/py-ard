@@ -238,6 +238,7 @@ ard.redux('B14', 'lg')
 | `exon`         | Reduce/Expand to 3 field level                            |
 | `U2`           | Reduce to 2 field unambiguous level                       |
 | `S`            | Reduce to Serological level                               |
+| `1F`           | Reduce to First Field level                               |
 
 ### Perform DRB1 blending with DRB3, DRB4 and DRB5
 

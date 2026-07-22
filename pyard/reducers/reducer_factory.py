@@ -5,6 +5,7 @@ from typing import Dict
 from .base_reducer import Reducer
 from .default_reducer import DefaultReducer
 from .exon_reducer import ExonReducer
+from .first_field_reducer import FirstFieldReducer
 from .g_reducer import GGroupReducer
 from .lg_reducer import LGReducer, LGXReducer
 from .p_reducer import PGroupReducer
@@ -38,6 +39,7 @@ class StrategyFactory:
             "exon": ExonReducer(self.ard),
             "U2": U2Reducer(self.ard),
             "S": SReducer(self.ard),
+            "1F": FirstFieldReducer(self.ard),
             "default": DefaultReducer(self.ard),
         }
 
