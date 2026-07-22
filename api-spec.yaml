@@ -1,10 +1,53 @@
 openapi: 3.0.3
 info:
   title: ARD Reduction
-  description: Reduce to ARD Level
+  description: |
+    Swiss army knife of HLA Nomenclature. Provides ARD reduction, CWD reduction,
+    MAC expansion/lookup, XX code expansion, GL String validation, and DRBX blending
+    based on IPD-IMGT/HLA allele data.
+
+    See [py-ard.org](https://py-ard.org) for full documentation.
   version: "2.2.0"
+  license:
+    name: LGPL-3
+    url: https://www.gnu.org/licenses/lgpl-3.0.html
 servers:
   - url: 'http://localhost:8080'
+    description: Local development server
+  - url: 'https://py-ard.nmdp.org/'
+    description: Production server
+security: []
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          description: Describes what went wrong
+          type: string
+          example: "Invalid HLA locus"
+    VersionInfo:
+      type: object
+      properties:
+        ipd_version:
+          description: IPD-IMGT/HLA DB Version
+          type: integer
+          example: 3580
+        pyard_version:
+          description: py-ard library version
+          type: string
+          example: "1.5.0"
+    AlleleList:
+      type: object
+      properties:
+        gl_string:
+          description: GL String version of allele list
+          type: string
+        alleles:
+          description: List of alleles
+          type: array
+          items:
+            type: string
 tags:
   - name: ARD Reduction
     description: Reduce GL String to ARD
@@ -37,15 +80,13 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                 ipd_version:
-                    description: IPD-IMGT/HLA DB Version
-                    type: integer
-                    example: 3580
-                 pyard_version:
-                    description: py-ard library version
-                    type: string
-                    example: "1.5.0"
+                $ref: '#/components/schemas/VersionInfo'
+        500:
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /redux:
     post:
       tags:
@@ -71,6 +112,10 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              required:
+                - gl_string
+                - reduction_method
               properties:
                 gl_string:
                   description: GL String
@@ -101,17 +146,20 @@ paths:
                     description: ARD reduced version of GL String
                     type: string
                     example: "A*01:01+A*01:01^B*07:02+B*08:01^C*02:02/C*02:10+C*07:01/C*07:150Q^DPB1*28:01+DPB1*28:01"
+                  ipd_version:
+                    description: IPD-IMGT/HLA DB Version
+                    type: integer
+                    example: 3580
+                  pyard_version:
+                    description: py-ard library version
+                    type: string
+                    example: "1.5.0"
         400:
           description: Invalid GL String Form
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "Invalid HLA locus"
+                $ref: '#/components/schemas/ErrorResponse'
   /ard/{allele}:
     get:
       tags:
@@ -127,7 +175,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "DPA1*02:07:01"
+            example: "DPA1*02:07:01"
       responses:
         200:
           description: ARD Reduction Result
@@ -158,12 +206,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "Invalid HLA locus"
+                $ref: '#/components/schemas/ErrorResponse'
   /cwd-redux:
     post:
       tags:
@@ -177,6 +220,9 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              required:
+                - gl_string
               properties:
                 gl_string:
                   description: GL String of Allele List or a MAC code
@@ -207,12 +253,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "Invalid HLA locus"
+                $ref: '#/components/schemas/ErrorResponse'
   /mac/{allele_code}:
     get:
       tags:
@@ -228,7 +269,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "HLA-A*01:AB"
+            example: "HLA-A*01:AB"
       responses:
         200:
           description: Alleles corresponding to MAC
@@ -246,22 +287,13 @@ paths:
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
-                    description: Alleles corresponding to MAC
-                    type: array
-                    example:
-                      - "HLA-A*01:01"
-                      - "HLA-A*01:02"
+                    $ref: '#/components/schemas/AlleleList/properties/alleles'
         400:
           description: Invalid MAC Code
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: MAC Code is not valid
-                    type: string
-                    example: "Invalid MAC Code"
+                $ref: '#/components/schemas/ErrorResponse'
   /xx/{xx_code}:
     get:
       tags:
@@ -277,7 +309,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "HLA-A*43:XX"
+            example: "HLA-A*43:XX"
       responses:
         200:
           description: Alleles corresponding to XX Code
@@ -286,7 +318,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  mac:
+                  xx_code:
                     description: XX Code
                     type: string
                     example: "HLA-A*43:XX"
@@ -295,11 +327,19 @@ paths:
                     type: string
                     example: "HLA-A*43:01/HLA-A*43:02N"
                   alleles:
-                    description: Alleles corresponding to MAC
+                    description: Alleles corresponding to XX Code
                     type: array
+                    items:
+                      type: string
                     example:
                       - "HLA-A*43:01"
                       - "HLA-A*43:02N"
+        400:
+          description: Invalid XX Code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /mac:
     post:
       tags:
@@ -312,6 +352,9 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              required:
+                - gl_string
               properties:
                 gl_string:
                   description: GL String version of allele list
@@ -334,22 +377,13 @@ paths:
                     type: string
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
-                    description: Alleles corresponding to MAC
-                    type: array
-                    example:
-                      - "HLA-A*01:01"
-                      - "HLA-A*01:02"
+                    $ref: '#/components/schemas/AlleleList/properties/alleles'
         400:
           description: Invalid MAC Code
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: MAC Code is not valid
-                    type: string
-                    example: "Invalid MAC Code"
+                $ref: '#/components/schemas/ErrorResponse'
   /validate:
     post:
       tags:
@@ -362,6 +396,9 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              required:
+                - gl_string
               properties:
                 gl_string:
                   description: GL String
@@ -403,12 +440,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "Invalid HLA locus"
+                $ref: '#/components/schemas/ErrorResponse'
   /valid:
     get:
       tags:
@@ -460,12 +492,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "Invalid HLA locus"
+                $ref: '#/components/schemas/ErrorResponse'
   /blend:
     post:
       tags:
@@ -531,12 +558,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    description: Describes what went wrong
-                    type: string
-                    example: "All of DRB1_SLUG, DRB3, DRB4, DRB5 values not provided"
+                $ref: '#/components/schemas/ErrorResponse'
   /splits/{allele}:
     get:
       tags:
@@ -553,7 +575,7 @@ paths:
           required: true
           schema:
             type: string
-          example: A*10
+            example: "A*10"
       responses:
         200:
           description: Broad/Split mapping
@@ -569,6 +591,8 @@ paths:
                   splits:
                     description: Corresponding Splits
                     type: array
+                    items:
+                      type: string
                     example:
                       - "A*25"
                       - "A*26"
@@ -603,7 +627,7 @@ paths:
           required: true
           schema:
             type: string
-          example: A*01:9
+            example: "A*01:9"
       responses:
         200:
           description: List of alleles with the given prefix
@@ -612,16 +636,17 @@ paths:
               schema:
                 type: array
                 items:
-                  example:
-                    - A*01:91
-                    - A*01:92
-                    - A*01:93
-                    - A*01:94
-                    - A*01:95
-                    - A*01:96
-                    - A*01:97
-                    - A*01:98
-                    - A*01:99
+                  type: string
+                example:
+                  - A*01:91
+                  - A*01:92
+                  - A*01:93
+                  - A*01:94
+                  - A*01:95
+                  - A*01:96
+                  - A*01:97
+                  - A*01:98
+                  - A*01:99
         404:
           description: |
             No matching alleles or MACs found

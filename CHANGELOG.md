@@ -158,7 +158,7 @@ Feature:
 Bug Fixes:
  - When looking up MAC codes for allele list, look up with smart sort
  - Batch processing failed for zip and no compression
- 
+
 
 [Changes][1.1.2]
 
@@ -173,9 +173,9 @@ Note: This release changes and updates Serology related data. Please rebuild the
 pyard-import --re-install
 ```
 
-- Support Associated Antigens in addition to broad/splits [#303](https://github.com/nmdp-bioinformatics/py-ard/issues/303) 
+- Support Associated Antigens in addition to broad/splits [#303](https://github.com/nmdp-bioinformatics/py-ard/issues/303)
 - Fix Serology reduction for 2 field alleles
-- All recognized serology to be valid, not only the ones that have corresponding DNA Alleles [#306](https://github.com/nmdp-bioinformatics/py-ard/issues/306) 
+- All recognized serology to be valid, not only the ones that have corresponding DNA Alleles [#306](https://github.com/nmdp-bioinformatics/py-ard/issues/306)
 - Fix batch processing for DRBX column
 - Map Serology to the correct XX version
 
@@ -210,7 +210,7 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 # [1.0.9 Updated CWD2 Reference Data](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.9) - 2023-12-15
 
 - Updated CWD2 Reference Data from igdawg
-- `cwd_redux()` can handle CWD2 allele that are Nulls 
+- `cwd_redux()` can handle CWD2 allele that are Nulls
 
 
 [Changes][1.0.9]
@@ -230,11 +230,11 @@ See [#301](https://github.com/nmdp-bioinformatics/py-ard/issues/301) For details
 # [Find Similar Alleles (1.0.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.7) - 2023-11-09
 
 Features:
- - Find similar Alleles options with `pyard` command [#264](https://github.com/nmdp-bioinformatics/py-ard/issues/264) 
+ - Find similar Alleles options with `pyard` command [#264](https://github.com/nmdp-bioinformatics/py-ard/issues/264)
 
 Bug Fixes:
- - V2 formats that are not valid [#283](https://github.com/nmdp-bioinformatics/py-ard/issues/283) 
- - MICA, MICB, HFE alleles that show up as V2 formats [#280](https://github.com/nmdp-bioinformatics/py-ard/issues/280) 
+ - V2 formats that are not valid [#283](https://github.com/nmdp-bioinformatics/py-ard/issues/283)
+ - MICA, MICB, HFE alleles that show up as V2 formats [#280](https://github.com/nmdp-bioinformatics/py-ard/issues/280)
 
 [Changes][1.0.7]
 
@@ -308,7 +308,7 @@ Fixed the OSError when running without a login user.
 <a id="1.0.2"></a>
 # [Fixes issue with using py-ard without MAC (1.0.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/1.0.2) - 2023-08-03
 
-Fixes issue with using py-ard without MAC 
+Fixes issue with using py-ard without MAC
  - When using py-ard with `load_mac=False`, check if the allele looks like a MAC
 
 [Changes][1.0.2]
@@ -319,11 +319,11 @@ Fixes issue with using py-ard without MAC
 
 Fixed bugs and added some niceties
 
-[#237](https://github.com/nmdp-bioinformatics/py-ard/issues/237)	Additional functionalities for `pyard` CLI command	enhancement	
-[#235](https://github.com/nmdp-bioinformatics/py-ard/issues/235)	Invalid allele in CWD2 mapping	bug	
-[#234](https://github.com/nmdp-bioinformatics/py-ard/issues/234)	Success with lgx when given Invalid format	bug	
-[#233](https://github.com/nmdp-bioinformatics/py-ard/issues/233)	`validate` endpoint can be a GET request	enhancement	
-[#230](https://github.com/nmdp-bioinformatics/py-ard/issues/230)	Redux with a "P" option does not return P-groups for two-field or three-field alleles	bug	
+[#237](https://github.com/nmdp-bioinformatics/py-ard/issues/237)	Additional functionalities for `pyard` CLI command	enhancement
+[#235](https://github.com/nmdp-bioinformatics/py-ard/issues/235)	Invalid allele in CWD2 mapping	bug
+[#234](https://github.com/nmdp-bioinformatics/py-ard/issues/234)	Success with lgx when given Invalid format	bug
+[#233](https://github.com/nmdp-bioinformatics/py-ard/issues/233)	`validate` endpoint can be a GET request	enhancement
+[#230](https://github.com/nmdp-bioinformatics/py-ard/issues/230)	Redux with a "P" option does not return P-groups for two-field or three-field alleles	bug
 
 
 [Changes][1.0.1]
@@ -361,7 +361,7 @@ Set to `pandas==1.5.3`
 <a id="0.8.2"></a>
 # [Shortnulls for exon mode fixed (0.8.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.8.2) - 2022-11-18
 
-See PR [#183](https://github.com/nmdp-bioinformatics/py-ard/issues/183) to fix [#161](https://github.com/nmdp-bioinformatics/py-ard/issues/161) 
+See PR [#183](https://github.com/nmdp-bioinformatics/py-ard/issues/183) to fix [#161](https://github.com/nmdp-bioinformatics/py-ard/issues/161)
 
 [Changes][0.8.2]
 
@@ -374,7 +374,7 @@ PING mode
 
 DR Blending
  - Support DRBX Blending from DRB1
- 
+
 
 [Changes][0.8.1]
 
@@ -393,7 +393,7 @@ DR Blending
 <a id="0.7.7"></a>
 # [BugFix for HLA  Prefix (0.7.7)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.7) - 2022-05-19
 
-See [#165](https://github.com/nmdp-bioinformatics/py-ard/issues/165) 
+See [#165](https://github.com/nmdp-bioinformatics/py-ard/issues/165)
 
 [Changes][0.7.7]
 
@@ -422,7 +422,7 @@ When there are multiple expression characters in the same group defined by a sho
 {'N', 'Q'}  B*44:02
 ```
 
-See [#154](https://github.com/nmdp-bioinformatics/py-ard/issues/154) and [#155](https://github.com/nmdp-bioinformatics/py-ard/issues/155) 
+See [#154](https://github.com/nmdp-bioinformatics/py-ard/issues/154) and [#155](https://github.com/nmdp-bioinformatics/py-ard/issues/155)
 
 [Changes][0.7.6]
 
@@ -463,7 +463,7 @@ Summary
 <a id="0.7.3"></a>
 # [Fix batch regression error (0.7.3)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.3) - 2022-03-21
 
- Fix regression error for MAC reduction [#152](https://github.com/nmdp-bioinformatics/py-ard/issues/152) 
+ Fix regression error for MAC reduction [#152](https://github.com/nmdp-bioinformatics/py-ard/issues/152)
 
 [Changes][0.7.3]
 
@@ -479,7 +479,7 @@ Batch csv `pyard-reduce-csv` takes in `reduce_2field` option to reduce 2 fields 
 <a id="0.7.2"></a>
 # [Stricter Data Validation (0.7.2)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.7.2) - 2022-02-14
 
-Version `0.7.0` has stricter data validation. It will not silently fail by returning an empty `''` string. It'll return of the  `Invalid` exceptions in `pyard.exceptions` when calling `redux_gl` method with invalid GL String. 
+Version `0.7.0` has stricter data validation. It will not silently fail by returning an empty `''` string. It'll return of the  `Invalid` exceptions in `pyard.exceptions` when calling `redux_gl` method with invalid GL String.
 
 See [CHANGELOG.md](https://github.com/nmdp-bioinformatics/py-ard/blob/master/CHANGELOG.md) for full changelog.
 
@@ -541,9 +541,9 @@ MISSING: who_group table
 # [Supports WHO and exon Reduction Types (0.6.8)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.8) - 2021-09-24
 
 - Handle cases when there is no typing and when redux fails.
-- added `exon` resolution group 
+- added `exon` resolution group
 - added `W` resolution group
-- Fix validation issues with empty alleles, NNNNs, and non-allelic values. 
+- Fix validation issues with empty alleles, NNNNs, and non-allelic values.
 - pyard-import can refresh MACs and rebuild databases
 
 [Changes][0.6.8]
@@ -573,9 +573,9 @@ handle cases with no input and redux fails
 <a id="0.6.4"></a>
 # [DRBX Mapping and Cw Serology (0.6.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.6.4) - 2021-06-16
 
- - Map DRB3, DRB4 and DRB5 typings to DRBX. [#82](https://github.com/nmdp-bioinformatics/py-ard/issues/82) 
- - Change C to Cw for serology; [#84](https://github.com/nmdp-bioinformatics/py-ard/issues/84) 
- - Return '' for invalid MACs [#84](https://github.com/nmdp-bioinformatics/py-ard/issues/84) 
+ - Map DRB3, DRB4 and DRB5 typings to DRBX. [#82](https://github.com/nmdp-bioinformatics/py-ard/issues/82)
+ - Change C to Cw for serology; [#84](https://github.com/nmdp-bioinformatics/py-ard/issues/84)
+ - Return '' for invalid MACs [#84](https://github.com/nmdp-bioinformatics/py-ard/issues/84)
 
 [Changes][0.6.4]
 
@@ -646,7 +646,7 @@ Uses WMDA `rel_dna_ser.txt` for the corresponding version of IMGT database to pr
 <a id="0.3.0"></a>
 # [Use sqlite3 database for reference data (0.3.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.3.0) - 2020-10-15
 
- Use sqlite3 database for data 
+ Use sqlite3 database for data
 
 Offload MAC codes from memory to sqlite3 database (natively supported by Python) to reduce
 memory footprint. All MAC lookups happen through the db. The alleles and G group expansions
@@ -761,7 +761,7 @@ yes
 # [0.0.14](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/0.0.14) - 2020-04-14
 
 - Support for Python 3.7
-- Broad XX enhancement 
+- Broad XX enhancement
 - p Performance improvements
 
 [Changes][0.0.14]
