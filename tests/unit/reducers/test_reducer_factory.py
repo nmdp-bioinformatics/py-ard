@@ -10,6 +10,7 @@ from pyard.reducers.w_reducer import WReducer
 from pyard.reducers.exon_reducer import ExonReducer
 from pyard.reducers.u2_reducer import U2Reducer
 from pyard.reducers.s_reducer import SReducer
+from pyard.reducers.first_field_reducer import FirstFieldReducer
 from pyard.reducers.default_reducer import DefaultReducer
 
 
@@ -24,7 +25,7 @@ def test_strategy_factory_initialization(mock_ard):
     factory = StrategyFactory(mock_ard)
 
     assert factory.ard == mock_ard
-    assert len(factory._strategies) == 9
+    assert len(factory._strategies) == 10
 
 
 def test_get_g_strategy(mock_ard):
@@ -89,6 +90,14 @@ def test_get_s_strategy(mock_ard):
     strategy = factory.get_strategy("S")
 
     assert isinstance(strategy, SReducer)
+
+
+def test_get_1f_strategy(mock_ard):
+    """Test getting 1F strategy"""
+    factory = StrategyFactory(mock_ard)
+    strategy = factory.get_strategy("1F")
+
+    assert isinstance(strategy, FirstFieldReducer)
 
 
 def test_get_default_strategy(mock_ard):
