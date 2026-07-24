@@ -102,6 +102,8 @@ def smart_sort_comparator(a1, a2, ignore_suffixes=()):
     # Handle serological designations (no colon separator)
     # Compare numeric parts of serology (e.g., '27' in 'B27')
     if ":" not in a1:
+        if a1.isdigit() and a2.isdigit():
+            return 1 if int(a1) > int(a2) else -1
         serology1_match = serology_splitter.match(a1)
         serology1_num = int(serology1_match.group(2))  # Extract numeric part
         serology2_match = serology_splitter.match(a2)
