@@ -25,7 +25,7 @@ def test_strategy_factory_initialization(mock_ard):
     factory = StrategyFactory(mock_ard)
 
     assert factory.ard == mock_ard
-    assert len(factory._strategies) == 10
+    assert len(factory._strategies) == 11
 
 
 def test_get_g_strategy(mock_ard):

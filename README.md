@@ -239,6 +239,7 @@ ard.redux('B14', 'lg')
 | `U2`           | Reduce to 2 field unambiguous level                       |
 | `S`            | Reduce to Serological level                               |
 | `1F`           | Reduce to First Field level                               |
+| `hats`         | Reduce to Antigen Specificity using HATS strategy         |
 
 ### Perform DRB1 blending with DRB3, DRB4 and DRB5
 

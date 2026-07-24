@@ -8,6 +8,7 @@ from .g_reducer import GGroupReducer
 from .lg_reducer import LGReducer, LGXReducer
 from .p_reducer import PGroupReducer
 from .reducer_factory import StrategyFactory
+from .hats_reducer import HATSReducer
 from .s_reducer import SReducer
 from .u2_reducer import U2Reducer
 from .w_reducer import WReducer
@@ -23,6 +24,7 @@ __all__ = [
     "ExonReducer",
     "U2Reducer",
     "SReducer",
+    "HATSReducer",
     "DefaultReducer",
     "StrategyFactory",
 ]
