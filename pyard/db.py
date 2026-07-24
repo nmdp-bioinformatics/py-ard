@@ -436,7 +436,7 @@ def find_hats(connection: sqlite3.Connection, allele: str) -> str:
     :param allele: allele for which to find the HATS
     :return: HATS value for the given allele, or None if not found
     """
-    query = "SELECT hat FROM antigen_specifities WHERE allele = ?"
+    query = "SELECT hats FROM antigen_specifities WHERE allele = ?"
     cursor = connection.execute(query, (allele,))
     result = cursor.fetchone()
     cursor.close()
@@ -598,7 +598,7 @@ def save_antigen_specifities(db_connection, hats_dict):
         db_connection,
         table_name="antigen_specifities",
         dictionary=hats_dict,
-        columns=("allele", "hat"),
+        columns=("allele", "hats"),
     )
 
 
