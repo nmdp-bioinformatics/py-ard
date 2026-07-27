@@ -7,7 +7,7 @@ info:
     based on IPD-IMGT/HLA allele data.
 
     See [py-ard.org](https://py-ard.org) for full documentation.
-  version: "2.2.0"
+  version: "2.2.1"
   license:
     name: LGPL-3
     url: https://www.gnu.org/licenses/lgpl-3.0.html
