@@ -65,6 +65,8 @@ graph TB
         U2[U2Reducer]
         S[SReducer]
         EXON[ExonReducer]
+        1F[FirstFieldReducer]
+        HATS[HATSReducer]
     end
 
     subgraph "Data Layer"
@@ -93,6 +95,8 @@ graph TB
     FACTORY --> U2
     FACTORY --> S
     FACTORY --> EXON
+    FACTORY --> 1F
+    FACTORY --> HATS
 
     ARD --> DR
     DR --> DB
@@ -311,6 +315,14 @@ classDiagram
         +reduce(allele: str) str
     }
 
+    class FirstFieldReducer {
+        +reduce(allele: str) str
+    }
+
+    class HATSReducer {
+        +reduce(allele: str) str
+    }
+
     Reducer <|-- GGroupReducer
     Reducer <|-- PGroupReducer
     Reducer <|-- LGReducer
@@ -319,6 +331,8 @@ classDiagram
     Reducer <|-- U2Reducer
     Reducer <|-- SReducer
     Reducer <|-- ExonReducer
+    Reducer <|-- FirstFieldReducer
+    Reducer <|-- HATSReducer
 ```
 
 **Reducer Types:**
@@ -455,9 +469,11 @@ erDiagram
         string locus
     }
 
-    ALLELES ||--o{ G_GROUP : "maps to"
-    ALLELES ||--o{ P_GROUP : "maps to"
-    ALLELES ||--o{ LGX_GROUP : "maps to"
+    ANTIGEN_SPECIFITIES {
+        string allele PK
+        string TEXT
+    }
+
 ```
 
 ---

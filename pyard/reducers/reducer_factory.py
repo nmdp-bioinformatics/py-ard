@@ -7,6 +7,7 @@ from .default_reducer import DefaultReducer
 from .exon_reducer import ExonReducer
 from .first_field_reducer import FirstFieldReducer
 from .g_reducer import GGroupReducer
+from .hats_reducer import HATSReducer
 from .lg_reducer import LGReducer, LGXReducer
 from .p_reducer import PGroupReducer
 from .s_reducer import SReducer
@@ -40,6 +41,7 @@ class StrategyFactory:
             "U2": U2Reducer(self.ard),
             "S": SReducer(self.ard),
             "1F": FirstFieldReducer(self.ard),
+            "hats": HATSReducer(self.ard),
             "default": DefaultReducer(self.ard),
         }
 

@@ -370,16 +370,47 @@ def to_serological_name(locus_name: str):
     return sero_name
 
 
+def _generate_antigen_specifities(db_connection, serology_mapping_df):
+    """
+    Generate and persist HATS (HLA Antigen Typing Specificities) mappings.
+
+    For each allele in the serology mapping that has a HATS value, creates
+    mappings from all field-level representations (1F, 2F, 3F, and full allele)
+    to their HATS antigen specificity, then saves them to the database.
+
+    Only called for IPD-IMGT/HLA version >= 3.64.0, which introduced the HATS column.
+
+    :param db_connection: Active SQLite database connection
+    :param serology_mapping_df: Table containing serology data with a 'Locus*Allele'
+        column and a 'HATS' column
+    """
+    hats_df = serology_mapping_df.where_not_null("HATS")[["Locus*Allele", "HATS"]]
+    hats_df.rename({"Locus*Allele": "Allele"})
+    hats_df["1F"] = hats_df["Allele"].apply(get_1field_allele)
+    hats_df["2F"] = hats_df["Allele"].apply(get_2field_allele)
+    hats_df["3F"] = hats_df["Allele"].apply(get_3field_allele)
+    hats_final = (
+        hats_df[["Allele", "HATS"]]
+        .union(hats_df[["1F", "HATS"]].rename({"1F": "Allele"}))
+        .union(hats_df[["2F", "HATS"]].rename({"2F": "Allele"}))
+        .union(hats_df[["3F", "HATS"]].rename({"3F": "Allele"}))
+    )
+    db.save_antigen_specifities(db_connection, hats_final.to_dict())
+
+
 def generate_serology_mapping(
     db_connection: sqlite3.Connection,
     imgt_version: str,
     serology_mapping: SerologyMapping,
     redux_function,
 ):
-    if not db.table_exists(db_connection, "serology_mapping"):
+    if not db.tables_exist(db_connection, ["serology_mapping", "antigen_specifities"]):
         df_sero = load_serology_mappings(imgt_version)
-
         df_sero["Locus*Allele"] = df_sero.concat_columns(["Locus", "Allele"])
+
+        # Only valid for Version >= IPD-IMGT/HLA 3.64.0
+        if "HATS" in df_sero.columns:
+            _generate_antigen_specifities(db_connection, df_sero)
 
         # Remove 0 and ? from USA
         usa = df_sero.where("USA is not null and USA not in ('0', '?')")

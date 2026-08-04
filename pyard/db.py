@@ -428,6 +428,23 @@ def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
     return None
 
 
+def find_hats(connection: sqlite3.Connection, allele: str) -> str:
+    """
+    Find the corresponding HATS (HLA Antigen Typing Specificity) for the given allele.
+
+    :param connection: db connection of type sqlite.Connection
+    :param allele: allele for which to find the HATS
+    :return: HATS value for the given allele, or None if not found
+    """
+    query = "SELECT hats FROM antigen_specifities WHERE allele = ?"
+    cursor = connection.execute(query, (allele,))
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        return result[0]
+    return None
+
+
 def get_user_version(connection: sqlite3.Connection) -> int:
     """
     Retrieve user_version from db
@@ -572,6 +589,16 @@ def save_mac_codes(db_connection, mac, mac_table_name):
         table_name=mac_table_name,
         dictionary=mac,
         columns=("code", "alleles"),
+    )
+
+
+def save_antigen_specifities(db_connection, hats_dict):
+    # Save the antigen specifities built with HATS algorithm to db
+    save_dict(
+        db_connection,
+        table_name="antigen_specifities",
+        dictionary=hats_dict,
+        columns=("allele", "hats"),
     )
 
 

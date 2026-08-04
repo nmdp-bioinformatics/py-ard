@@ -81,10 +81,10 @@ celerybeat-schedule
 
 # dotenv
 .env
+.env.dev
 
 # virtualenv
-.venv
-venv/
+.?venv*/
 ENV/
 
 # Spyder project settings
@@ -112,8 +112,15 @@ allure_report/
 
 # Misc
 tags
-.swp
+*.swp
 *.patch
 .direnv/
 .envrc
 .idea/
+tmp/
+temp/
+demo/
+great-docs/
+.vscode
+__marimo__
+.DS_Store

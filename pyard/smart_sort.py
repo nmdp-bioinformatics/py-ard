@@ -99,9 +99,17 @@ def smart_sort_comparator(a1, a2, ignore_suffixes=()):
     if a1 == a2:
         return 0
 
-    # Handle serological designations (no colon separator)
-    # Compare numeric parts of serology (e.g., '27' in 'B27')
+    # Handle Serology and HATS
     if ":" not in a1:
+        # HATS are mostly numerical, so compare as integers
+        if a1.isdigit() and a2.isdigit():
+            return 1 if int(a1) > int(a2) else -1
+        # For HATS with mixed alphanumeric strings, sort lexicographically
+        # e.g. Cw0304, Cw0408
+        if a1.isdigit() or a2.isdigit():
+            return a1 < a2
+        # Handle serological designations (no colon separator)
+        # Compare numeric parts of serology (e.g., '27' in 'B27')
         serology1_match = serology_splitter.match(a1)
         serology1_num = int(serology1_match.group(2))  # Extract numeric part
         serology2_match = serology_splitter.match(a2)
