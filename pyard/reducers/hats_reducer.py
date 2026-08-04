@@ -15,12 +15,31 @@ class HATSReducer(Reducer):
     database predates 3.64.0), an empty string is returned
 
     Examples:
-        - A*01:01:01:01 -> A1   (mapped)
-        - A*01:01       -> A1   (mapped)
-        - B*44:450      -> 4402 (mapped)
-        - B*44:458      -> ''   (not mapped)
+        - A*01:01:01:01 -> A1     (mapped)
+        - A*01:01       -> A1     (mapped)
+        - B*44:450      -> B4402  (mapped)
+        - B*35:570      -> Cw0408 (mapped)
+        - B*44:458      -> ''     (not mapped)
     """
 
     def reduce(self, allele: str) -> str:
         result = db.find_hats(self.ard.db_connection, allele)
-        return result if result is not None else ""
+        if result:
+            locus, _ = allele.split("*")
+            # For those that already have an assigned locus e.g. Cw0408
+            if result[0].isalpha():
+                return result
+            if locus == "C":
+                return f"Cw{result}"
+            if locus in ("DRB1", "DRB3", "DRB4", "DRB5"):
+                return f"DR{result}"
+            if locus in ("DQA1", "DQA2"):
+                return f"DQA{result}"
+            if locus in ("DQB1", "DQB2"):
+                return f"DQ{result}"
+            if locus in ("DPA1", "DPA2"):
+                return f"DPA{result}"
+            if locus in ("DPB1", "DPB2"):
+                return f"DPB{result}"
+            return f"{locus}{result}"
+        return ""
