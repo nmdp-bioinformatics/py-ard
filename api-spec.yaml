@@ -48,6 +48,9 @@ components:
           type: array
           items:
             type: string
+          example:
+            - "HLA-A*01:01"
+            - "HLA-A*01:02"
 tags:
   - name: ARD Reduction
     description: Reduce GL String to ARD
@@ -294,6 +297,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /mac-hats/{allele_code}:
+    get:
+      tags:
+        - MAC
+      operationId: api.mac_hats_expand_controller
+      summary: Expand MAC (Allele Code) based on HATS assignment
+      description: |
+        Given a MAC Code, find all alleles based on HATS assignment
+      parameters:
+        - name: allele_code
+          in: path
+          description: A valid MAC (Allele Code)
+          required: true
+          schema:
+            type: string
+            example: "HLA-A*01:AB"
+      responses:
+        200:
+          description: Alleles corresponding to MAC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mac:
+                    description: MAC
+                    type: string
+                    example: "HLA-A*01:AB"
+                  gl_string:
+                    description: GL String version of expanded MAC
+                    type: string
+                    example: "A*01:01/A*01:02/A*01:03/A*01:06/A*01:09/A*01:10"
+                  alleles:
+                    $ref: '#/components/schemas/AlleleList/properties/alleles'
+                    example:
+                      - "A*01:01"
+                      - "A*01:02"
+                      - "A*01:03"
+                      - "A*01:06"
+                      - "A*01:09"
+                      - "A*01:10"
+        400:
+          description: Invalid MAC Code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /xx/{xx_code}:
     get:
       tags:
@@ -378,6 +428,7 @@ paths:
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
                     $ref: '#/components/schemas/AlleleList/properties/alleles'
+
         400:
           description: Invalid MAC Code
           content:
