@@ -18,6 +18,7 @@ from .exceptions import InvalidMACError, InvalidTypingError
 from .handlers import (
     AlleleHandler,
     GLStringHandler,
+    HATSHandler,
     MACHandler,
     SerologyHandler,
     V2Handler,
@@ -103,6 +104,7 @@ class ARD(object):
         """Initialize all specialized handlers"""
         self.allele_reducer = AlleleHandler(self)
         self.gl_processor = GLStringHandler(self)
+        self.hats_handler = HATSHandler(self)
         self.mac_handler = MACHandler(self)
         self.serology_handler = SerologyHandler(self)
         self.v2_handler = V2Handler(self)
@@ -304,6 +306,12 @@ class ARD(object):
 
     def expand_mac(self, mac_code: str) -> str:
         return self.mac_handler.expand_mac(mac_code)
+
+    def expand_mac_to_hats_alleles(self, mac_code: str) -> str:
+        alleles_from_mac = self.expand_mac(mac_code)
+        if alleles_from_mac:
+            return self.hats_handler.expand_to_hats_alleles(alleles_from_mac)
+        return ""
 
     def lookup_mac(self, allelelist_gl: str) -> str:
         return self.mac_handler.lookup_mac(allelelist_gl)

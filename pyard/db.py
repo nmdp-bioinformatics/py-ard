@@ -446,6 +446,30 @@ def find_hats(connection: sqlite3.Connection, allele: str) -> str:
     return None
 
 
+def find_common_hats_alleles(
+    connection: sqlite3.Connection, alleles: List[str]
+) -> List[str]:
+    """
+    Find all alleles that share the same HATS assignments as the given alleles.
+
+    :param connection: db connection of type sqlite.Connection
+    :param alleles: list of alleles to look up
+    :return: list of all alleles sharing the same HATS assignments
+    """
+    placeholders = ",".join("?" * len(alleles))
+    query = f"""
+        SELECT allele FROM antigen_specifities
+        WHERE hats IN (
+            SELECT DISTINCT hats FROM antigen_specifities
+            WHERE allele IN ({placeholders})
+        )
+    """
+    cursor = connection.execute(query, alleles)
+    results = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    return results
+
+
 def get_user_version(connection: sqlite3.Connection) -> int:
     """
     Retrieve user_version from db

@@ -386,12 +386,10 @@ def _generate_antigen_specifities(db_connection, serology_mapping_df):
     """
     hats_df = serology_mapping_df.where_not_null("HATS")[["Locus*Allele", "HATS"]]
     hats_df.rename({"Locus*Allele": "Allele"})
-    hats_df["1F"] = hats_df["Allele"].apply(get_1field_allele)
     hats_df["2F"] = hats_df["Allele"].apply(get_2field_allele)
     hats_df["3F"] = hats_df["Allele"].apply(get_3field_allele)
     hats_final = (
         hats_df[["Allele", "HATS"]]
-        .union(hats_df[["1F", "HATS"]].rename({"1F": "Allele"}))
         .union(hats_df[["2F", "HATS"]].rename({"2F": "Allele"}))
         .union(hats_df[["3F", "HATS"]].rename({"3F": "Allele"}))
     )
