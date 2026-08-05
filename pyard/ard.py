@@ -308,9 +308,18 @@ class ARD(object):
         return self.mac_handler.expand_mac(mac_code)
 
     def expand_mac_to_hats_alleles(self, mac_code: str) -> str:
-        alleles_from_mac = self.expand_mac(mac_code)
+        if HLA_regex.search(mac_code):
+            hla_prefix = True
+            mac_code_no_prefix = mac_code.split("-")[1]
+            alleles_from_mac = self.expand_mac(mac_code_no_prefix)
+        else:
+            hla_prefix = False
+            alleles_from_mac = self.expand_mac(mac_code)
         if alleles_from_mac:
-            return self.hats_handler.expand_to_hats_alleles(alleles_from_mac)
+            alleles = self.hats_handler.expand_to_hats_alleles(alleles_from_mac)
+            if hla_prefix:
+                return "/".join([f"HLA-{a}" for a in alleles.split("/")])
+            return alleles
         return ""
 
     def lookup_mac(self, allelelist_gl: str) -> str:
