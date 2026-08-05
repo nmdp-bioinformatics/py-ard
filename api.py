@@ -1,5 +1,3 @@
-import connexion
-
 import pyard
 from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
@@ -80,7 +78,7 @@ def lgx_controller(allele):
         except PyArdError as e:
             return {"message": e.message}, 400
     else:
-        return {"message": f"No allele provided"}, 404
+        return {"message": "No allele provided"}, 404
 
 
 def xx_expand_controller(xx_code: str):
@@ -102,6 +100,21 @@ def mac_expand_controller(allele_code: str):
     try:
         if ard.is_mac(allele_code):
             allele_list = ard.expand_mac(allele_code)
+            return {
+                "mac": allele_code,
+                "alleles": allele_list.split("/"),
+                "gl_string": allele_list,
+            }, 200
+        else:
+            return {"message": f"{allele_code} is not a valid MAC"}, 404
+    except PyArdError as e:
+        return {"message": e.message}, 400
+
+
+def mac_hats_expand_controller(allele_code: str):
+    try:
+        if ard.is_mac(allele_code):
+            allele_list = ard.expand_mac_to_hats_alleles(allele_code)
             return {
                 "mac": allele_code,
                 "alleles": allele_list.split("/"),
