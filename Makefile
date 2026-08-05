@@ -93,6 +93,10 @@ docker-build: ## build a docker image for the service
 docker: docker-build ## build a docker image and run the service
 	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
 
+docker-build-local: ## build a local docker image for the service
+	docker build --platform=linux/amd64 -t nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64 -f Dockerfile-local .
+	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
+
 install: clean ## install the package to the active Python's site-packages
 	pip install --upgrade pip
 	pip install -r requirements.txt
