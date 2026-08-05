@@ -21,7 +21,7 @@
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
 import os
-import pathlib
+from pathlib import Path
 import sqlite3
 import sys
 from typing import Tuple, Dict, Set, List
@@ -44,11 +44,12 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     if data_dir is None:
         data_dir = get_default_db_directory()
 
-    db_filename = f"{data_dir}/pyard-{imgt_version}.sqlite3"
+    db_path_dir = Path(data_dir).expanduser()
+    db_filename = db_path_dir / f"pyard-{imgt_version}.sqlite3"
 
     if ro:
         # If in read-only mode, make sure the db file exists
-        if not pathlib.Path(db_filename).exists():
+        if not db_filename.exists():
             raise RuntimeError(f"Reference Database {db_filename}  not available.")
         # Open the database in read-only mode
         file_uri = f"file:{db_filename}?mode=ro"
@@ -58,7 +59,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
     # Check the imgt_version is a valid IPD/IMGT-HLA DB Version
     # by querying the IPD/IMGT-HLA site
     if imgt_version != "Latest":
-        if not pathlib.Path(db_filename).exists():
+        if not db_filename.exists():
             all_imgt_versions = get_imgt_db_versions()
             if str(imgt_version) not in all_imgt_versions:
                 raise ValueError(
@@ -66,11 +67,11 @@ def create_db_connection(data_dir, imgt_version, ro=False):
                 )
 
     # Create the data directory if it doesn't exist
-    if not pathlib.Path(data_dir).exists():
-        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+    if not db_path_dir.exists():
+        db_path_dir.mkdir(parents=True, exist_ok=True)
 
     # Check for permission to read/write
-    if pathlib.Path(db_filename).exists():
+    if db_filename.exists():
         # Check file is readable
         if not os.access(db_filename, os.R_OK):
             print(
@@ -80,7 +81,7 @@ def create_db_connection(data_dir, imgt_version, ro=False):
             sys.exit(1)
     else:
         # Check directory is writeable
-        if os.access(data_dir, os.W_OK):
+        if os.access(db_path_dir, os.W_OK):
             print(f"Creating {db_filename} as cache.")
         else:
             print(
