@@ -36,7 +36,7 @@ components:
         pyard_version:
           description: py-ard library version
           type: string
-          example: "1.5.0"
+          example: "2.3.1"
     AlleleList:
       type: object
       properties:
@@ -79,11 +79,16 @@ paths:
         Get IPD-IMGT/HLA DB Version and `py-ard` version used for this service
       responses:
         200:
-          description: IPD-IMGT/HLA version number
+          description: |
+            IPD-IMGT/HLA version number and py-ard version number
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/VersionInfo'
+            text/plain:
+              schema:
+                type: string
+                example: "3560/2.3.1"
         500:
           description: Unexpected server error
           content:
@@ -110,6 +115,8 @@ paths:
         | `exon`         | Reduce/Expand to 3 field level                            |
         | `U2`           | Reduce to 2 field unambiguous level                       |
         | `S`            | Reduce to Serological level                               |
+        | `1F`           | Reduce to First Field level                               |
+        | `hats`         | Reduce to Antigen Specificity using HATS strategy         |
 
       requestBody:
         content:
@@ -136,6 +143,8 @@ paths:
                     - exon
                     - U2
                     - S
+                    - 1F
+                    - hats
                   example: "lgx"
       responses:
         200:
@@ -167,7 +176,7 @@ paths:
     get:
       tags:
         - ARD Reduction
-      operationId: api.lgx_controller
+      operationId: api.ard_controller
       summary: Reduce to ARD
       description: |
         Get ARD Reduction for an Allele
@@ -203,7 +212,10 @@ paths:
                     description: py-ard library version
                     type: string
                     example: "1.2.1"
-
+            text/plain:
+              schema:
+                type: string
+                example: "DPA1*02:02"
         400:
           description: Invalid Allele
           content:
@@ -291,6 +303,10 @@ paths:
                     example: "HLA-A*01:01/HLA-A*01:02"
                   alleles:
                     $ref: '#/components/schemas/AlleleList/properties/alleles'
+            text/plain:
+              schema:
+                type: string
+                example: "HLA-A*01:01/HLA-A*01:02"
         400:
           description: Invalid MAC Code
           content:
@@ -331,13 +347,10 @@ paths:
                     example: "A*01:01/A*01:02/A*01:03/A*01:06/A*01:09/A*01:10"
                   alleles:
                     $ref: '#/components/schemas/AlleleList/properties/alleles'
-                    example:
-                      - "A*01:01"
-                      - "A*01:02"
-                      - "A*01:03"
-                      - "A*01:06"
-                      - "A*01:09"
-                      - "A*01:10"
+            text/plain:
+              schema:
+                type: string
+                example: "A*01:01/A*01:02/A*01:03/A*01:06/A*01:09/A*01:10"
         400:
           description: Invalid MAC Code
           content:
@@ -384,6 +397,11 @@ paths:
                     example:
                       - "HLA-A*43:01"
                       - "HLA-A*43:02N"
+            text/plain:
+              schema:
+                type: string
+                example: "HLA-A*43:01/HLA-A*43:02N"
+
         400:
           description: Invalid XX Code
           content:
@@ -496,7 +514,7 @@ paths:
     get:
       tags:
         - Validation
-      operationId: api.validate_controller_get
+      operationId: api.valid_controller
       summary: Validate GL String
       description: |
         Given a GL String report whether it is valid or not
@@ -516,9 +534,14 @@ paths:
                 type: object
                 properties:
                   valid:
-                    description: Is GL String valid
+                    description: GL String is valid
                     type: boolean
                     example: true
+            text/plain:
+              schema:
+                description: GL String is valid
+                type: string
+                example: "true"
         404:
           description: GL String didn't validate
           content:
@@ -538,6 +561,11 @@ paths:
                     description: Explanation of why the GL String is not valid
                     type: string
                     example: "HLA-A*01:BLAH is not a valid GL Allele"
+            text/plain:
+              schema:
+                description: GL String is not valid
+                type: string
+                example: "false"
         400:
           description: Invalid GL String Form
           content:
