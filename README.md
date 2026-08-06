@@ -289,6 +289,15 @@ ard.lookup_mac(ard.cwd_redux("B*15:01:01/B*15:01:03/B*15:04/B*15:07/B*15:26N/B*1
 # 'B*15:AH'
 ```
 
+### HATS reduction mode
+
+Reduce to Antigen Specificity using HATS strategy
+
+```python
+ard.redux("B*44:450", "hats")
+# => '4402'
+```
+
 ### Additional Methods
 
 Validate a GL String:
@@ -539,6 +548,9 @@ DRB1*08:01:01G/DRB1*08:02:01G/DRB1*08:03:02G/DRB1*08:04:01G/DRB1*08:05/ ...
 
 $ pyard -i 3290 --gl 'A1' -r lgx # For a particular version of DB
 A*01:01/A*01:02/A*01:03/A*01:06/A*01:07/A*01:08/A*01:09/A*01:10/A*01:12/ ...
+
+$ pyard -g "B*44:450" -r hats
+4402
 ```
 
 If the `-r` option is left out, `pyard` will print out the result of all reduction methods.
@@ -606,6 +618,11 @@ A*01:01/A*01:02
 $ pyard --expand-xx 'A*01:XX'
 A*01:01/A*01:02/A*01:03/...
 ```
+Expand MAC based on HATS assignment for expanded alleles
+
+```shell
+$ pyard --expand-mac-hats "A*24:ABWMU"
+````
 
 Lookup MAC code:
 
