@@ -1,6 +1,6 @@
 PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
-PYARD_VERSION := 2.3.0
+PYARD_VERSION := 2.3.1
 
 .PHONY: help clean clean-test clean-pyc clean-build docs behave lint pytest test coverage docs servedocs release dist docker-build docker install venv activate
 .DEFAULT_GOAL := help
@@ -91,6 +91,10 @@ docker-build: ## build a docker image for the service
 	docker tag nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64 nmdpbioinformatics/pyard-service:latest
 
 docker: docker-build ## build a docker image and run the service
+	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
+
+docker-build-local: ## build a local docker image for the service
+	docker build --platform=linux/amd64 -t nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64 -f Dockerfile-local .
 	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
 
 install: clean ## install the package to the active Python's site-packages

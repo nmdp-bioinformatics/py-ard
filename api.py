@@ -1,5 +1,4 @@
-import connexion
-
+from flask import request
 import pyard
 from pyard.blender import DRBXBlenderError
 from pyard.exceptions import PyArdError, InvalidAlleleError
@@ -20,24 +19,34 @@ def validate_controller(body):
         try:
             gl_string = body["gl_string"]
         except KeyError:
-            return {"message": "gl_string not provided"}, 404
+            return {"message": "gl_string not provided"}, 400
         return validate_gl(gl_string)
 
 
-def validate_controller_get(gl_string: str):
+def valid_controller(gl_string: str):
     return validate_gl(gl_string)
 
 
 def validate_gl(gl_string):
     try:
         ard.validate(gl_string)
-        return "Yes", 200
+        if request.accept_mimetypes.best == "application/json":
+            return {"valid": True}, 200, {"Content-Type": "application/json"}
+        else:
+            return "true", 200, {"Content-Type": "text/plain"}
     except InvalidAlleleError as e:
-        return {
-            "valid": False,
-            "message": f"Provided GL String is invalid: {gl_string}",
-            "cause": e.message,
-        }, 404
+        if request.accept_mimetypes.best == "application/json":
+            return (
+                {
+                    "valid": False,
+                    "message": f"Provided GL String is invalid: {gl_string}",
+                    "cause": e.message,
+                },
+                404,
+                {"Content-Type": "application/json"},
+            )
+        else:
+            return "false", 404, {"Content-Type": "text/plain"}
     except PyArdError as e:
         return {"message": e.message}, 400
 
@@ -65,33 +74,47 @@ def redux_controller(body):
     return {"message": "No input data provided"}, 404
 
 
-def lgx_controller(allele):
+def ard_controller(allele):
     # Perform redux in `lgx` mode
     if allele:
         try:
             redux_string = ard.redux(allele, "lgx")
-            ipd_version = ard.get_db_version()
-            return {
-                "ipd_version": ipd_version,
-                "pyard_version": pyard.__version__,
-                "allele": allele,
-                "ard": redux_string,
-            }, 200
+            if request.accept_mimetypes.best == "application/json":
+                ipd_version = ard.get_db_version()
+                return (
+                    {
+                        "ipd_version": ipd_version,
+                        "pyard_version": pyard.__version__,
+                        "allele": allele,
+                        "ard": redux_string,
+                    },
+                    200,
+                    {"Content-Type": "application/json"},
+                )
+            else:
+                return redux_string, 200, {"Content-Type": "text/plain"}
         except PyArdError as e:
             return {"message": e.message}, 400
     else:
-        return {"message": f"No allele provided"}, 404
+        return {"message": "No allele provided"}, 404
 
 
 def xx_expand_controller(xx_code: str):
     try:
         if ard.is_XX(xx_code):
             allele_list = ard.expand_xx(xx_code)
-            return {
-                "xx_code": xx_code,
-                "alleles": allele_list.split("/"),
-                "gl_string": allele_list,
-            }, 200
+            if request.accept_mimetypes.best == "application/json":
+                return (
+                    {
+                        "xx_code": xx_code,
+                        "alleles": allele_list.split("/"),
+                        "gl_string": allele_list,
+                    },
+                    200,
+                    {"Content-Type": "application/json"},
+                )
+            else:
+                return (allele_list, 200, {"Content-Type": "text/plain"})
         else:
             return {"message": f"{xx_code} is not a valid XX Code"}, 404
     except PyArdError as e:
@@ -102,11 +125,40 @@ def mac_expand_controller(allele_code: str):
     try:
         if ard.is_mac(allele_code):
             allele_list = ard.expand_mac(allele_code)
-            return {
-                "mac": allele_code,
-                "alleles": allele_list.split("/"),
-                "gl_string": allele_list,
-            }, 200
+            if request.accept_mimetypes.best == "application/json":
+                return (
+                    {
+                        "mac": allele_code,
+                        "alleles": allele_list.split("/"),
+                        "gl_string": allele_list,
+                    },
+                    200,
+                    {"Content-Type": "application/json"},
+                )
+            else:
+                return (allele_list, 200, {"Content-Type": "text/plain"})
+        else:
+            return {"message": f"{allele_code} is not a valid MAC"}, 404
+    except PyArdError as e:
+        return {"message": e.message}, 400
+
+
+def mac_hats_expand_controller(allele_code: str):
+    try:
+        if ard.is_mac(allele_code):
+            allele_list = ard.expand_mac_to_hats_alleles(allele_code)
+            if request.accept_mimetypes.best == "application/json":
+                return (
+                    {
+                        "mac": allele_code,
+                        "alleles": allele_list.split("/"),
+                        "gl_string": allele_list,
+                    },
+                    200,
+                    {"Content-Type": "application/json"},
+                )
+            else:
+                return (allele_list, 200, {"Content-Type": "text/plain"})
         else:
             return {"message": f"{allele_code} is not a valid MAC"}, 404
     except PyArdError as e:
@@ -146,10 +198,17 @@ def drbx_blender_controller(body):
 
 def version_controller():
     ipd_version = ard.get_db_version()
-    return {
-        "ipd_version": ipd_version,
-        "pyard_version": pyard.__version__,
-    }, 200
+    if request.accept_mimetypes.best == "application/json":
+        return (
+            {
+                "ipd_version": ipd_version,
+                "pyard_version": pyard.__version__,
+            },
+            200,
+            {"Content-Type": "application/json"},
+        )
+    else:
+        return f"{ipd_version}/{pyard.__version__}", 200, {"Content-Type": "text/plain"}
 
 
 def splits_controller(allele: str):
@@ -176,7 +235,7 @@ def cwd_redux_controller(body):
         if "/" in cwd:
             try:
                 cwd_mac = ard.lookup_mac(cwd)
-            except pyard.exceptions.InvalidMACError as e:
+            except pyard.exceptions.InvalidMACError:
                 cwd_mac = ""
         else:
             cwd_mac = ""
