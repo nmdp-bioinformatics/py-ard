@@ -1,5 +1,17 @@
+<a id="2.3.1"></a>
+# [MAC to 🎩🎩🎩 HATS (2.3.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.3.1) - 2026-08-06
+
+## What's Changed
+* Expand MAC based on common HATS assignments by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#397](https://github.com/nmdp-bioinformatics/py-ard/pull/397)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.0...2.3.1
+
+[Changes][2.3.1]
+
+
 <a id="2.3.0"></a>
-# [HATS and 1F Redux modes (2.3.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.3.0) - 2026-08-04
+# [🎩🎩🎩 HATS and 1F Redux modes (2.3.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.3.0) - 2026-08-04
 
 ## What's Changed
 * G group validation consistency in strict/non-strict mode by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#388](https://github.com/nmdp-bioinformatics/py-ard/pull/388)
@@ -783,6 +795,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.3.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.1...2.3.0
 [2.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.0.0...2.1.0
