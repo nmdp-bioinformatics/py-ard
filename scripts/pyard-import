@@ -47,7 +47,7 @@ def get_v2_v3_mapping(v2_v3_mapping):
 
         path = pathlib.Path(v2_v3_mapping)
         if not path.exists() or not path.is_file():
-            raise RuntimeError(f"{data_dir} is not a valid file")
+            raise RuntimeError(f"{path} is not a valid file")
         df = pd.read_csv(path, names=["v2", "v3"])
         return df.set_index("v2")["v3"].to_dict()
     return None
