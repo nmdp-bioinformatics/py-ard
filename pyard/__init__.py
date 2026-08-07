@@ -20,6 +20,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
 
 # exports for `pyard`
 from .blender import blender as dr_blender
@@ -32,19 +33,32 @@ __version__ = "2.3.1"
 
 
 def init(
-    imgt_version: str = "Latest",
+    imgt_version: str = None,
     data_dir: str = None,
-    load_mac: bool = True,
-    cache_size: int = DEFAULT_CACHE_SIZE,
+    load_mac: bool = None,
+    cache_size: int = None,
     config: dict = None,
 ):
     from .ard import ARD
+    from .rc import load_rc
 
-    ard = ARD(
-        imgt_version=imgt_version,
-        data_dir=data_dir,
-        load_mac=load_mac,
-        max_cache_size=cache_size,
-        config=config,
-    )
-    return ard
+    if os.getenv("PYARD_RC") != "no":
+        rc = load_rc()
+    else:
+        rc = {}
+    resolved = {
+        "imgt_version": (
+            imgt_version
+            if imgt_version is not None
+            else rc.get("imgt_version", "Latest")
+        ),
+        "data_dir": data_dir if data_dir is not None else rc.get("data_dir"),
+        "load_mac": load_mac if load_mac is not None else rc.get("load_mac", True),
+        "max_cache_size": (
+            cache_size
+            if cache_size is not None
+            else rc.get("cache_size", DEFAULT_CACHE_SIZE)
+        ),
+        "config": config if config is not None else rc.get("config"),
+    }
+    return ARD(**resolved)
