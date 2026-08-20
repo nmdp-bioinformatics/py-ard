@@ -1,3 +1,15 @@
+<a id="2.4.0"></a>
+# [`.pyardrc` for config (2.4.0)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.0) - 2026-08-20
+
+## What's Changed
+* Supports `.pyardrc` config file by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#399](https://github.com/nmdp-bioinformatics/py-ard/pull/399)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.1...2.4.0
+
+[Changes][2.4.0]
+
+
 <a id="2.3.1"></a>
 # [MAC to 🎩🎩🎩 HATS (2.3.1)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.3.1) - 2026-08-06
 
@@ -795,6 +807,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.1...2.3.0
 [2.1.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.1.0...2.1.1
