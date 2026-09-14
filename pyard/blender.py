@@ -50,7 +50,7 @@ def blender(drb1, drb3="", drb4="", drb5=""):
         drb1_allele_2 = drb1_2.split("*")[1]
         drb1_fam_1 = drb1_allele_1.split(":")[0]  # First field (family)
         drb1_fam_2 = drb1_allele_2.split(":")[0]  # First field (family)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return ""
     # Map DRB1 families to expected DRBX genes (3, 4, 5, or 0 for none)
     x1 = expdrbx(drb1_fam_1)

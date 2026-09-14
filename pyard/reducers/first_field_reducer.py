@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from .base_reducer import Reducer
 from ..misc import get_1field_allele
+from .base_reducer import Reducer
 
 
 class FirstFieldReducer(Reducer):

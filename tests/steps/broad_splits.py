@@ -19,7 +19,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from behave import given, when, then, step
+from behave import given, step, then, when
 from hamcrest import assert_that, is_
 
 

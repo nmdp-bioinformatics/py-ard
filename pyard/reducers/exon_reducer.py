@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 HLA Allele Reduction Strategy for Exon-Level (3-Field) Reduction.
 
@@ -7,8 +6,8 @@ Exon reduction reduces alleles to the 3-field level, which typically
 represents the exon-level resolution including intron variations.
 """
 
-from .base_reducer import Reducer
 from ..constants import expression_chars
+from .base_reducer import Reducer
 
 
 class ExonReducer(Reducer):

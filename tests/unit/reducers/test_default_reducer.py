@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import Mock
-from pyard.reducers.default_reducer import DefaultReducer
+
 from pyard.exceptions import InvalidAlleleError
+from pyard.reducers.default_reducer import DefaultReducer
 
 
 @pytest.fixture

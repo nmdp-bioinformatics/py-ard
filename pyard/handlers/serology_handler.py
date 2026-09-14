@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import functools
-from typing import Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from .. import db
 
@@ -18,7 +19,7 @@ class SerologyHandler:
     - Handle broad/split antigen relationships
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the SerologyHandler with an ARD instance
 
         Args:
@@ -26,7 +27,7 @@ class SerologyHandler:
         """
         self.ard = ard_instance
 
-    @functools.lru_cache(maxsize=1_000)
+    @functools.lru_cache(maxsize=1_000)  # noqa: B019
     def is_serology(self, allele: str) -> bool:
         """Check if allele is valid serology
 

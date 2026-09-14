@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -20,6 +19,8 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+from __future__ import annotations
+
 import re
 
 from pyard.constants import HLA_regex
@@ -115,7 +116,7 @@ class SerologyMapping:
     # Based on official WHO nomenclature committee recognized serology
     # Collected from: https://hla.alleles.org/antigens/recognised_serology.html
     #
-    valid_serology_map = {
+    valid_serology_map: dict[str, list[str]] = {  # noqa: RUF012
         "A": [
             "A1",
             "A2",
@@ -314,7 +315,7 @@ class SerologyMapping:
         for broad in mapping:
             if allele_name in mapping[broad]:
                 return self._get_mapping(broad, mapping, prefix)
-        return tuple()  # No relationship found
+        return ()  # No relationship found
 
     def find_associated_antigen(self, serology):
         """Find the associated antigen for a given serology
@@ -365,7 +366,7 @@ class SerologyMapping:
             XX code string (e.g., 'A*01:XX', 'B*27:XX')
         """
         # Check for special exception mappings first
-        if serology in serology_xx_exception_mapping.keys():
+        if serology in serology_xx_exception_mapping:
             return serology_xx_exception_mapping[serology]
 
         # Use the associated serology for XX version (handles equivalencies)
@@ -406,7 +407,7 @@ class SerologyMapping:
         """
         if prefix:
             # Add HLA- prefix to both broad and all splits
-            return "HLA-" + broad, list(map(lambda x: "HLA-" + x, mapping[broad]))
+            return "HLA-" + broad, ["HLA-" + x for x in mapping[broad]]
         else:
             # Return without prefix
             return broad, mapping[broad]

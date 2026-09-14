@@ -1,6 +1,8 @@
-import pytest
 import csv
 import io
+
+import pytest
+
 from pyard.simple_table import Table
 
 
@@ -100,6 +102,6 @@ def test_invalid_query():
     columns = ["name", "age"]
 
     table = Table(reader, columns)
-    with pytest.raises(Exception):
+    with pytest.raises(Exception):  # noqa: B017
         table.query("SELECT * FROM non_existent_table")
     table.close()

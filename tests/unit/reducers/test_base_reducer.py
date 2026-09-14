@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import Mock
+
 from pyard.reducers.base_reducer import Reducer
 
 

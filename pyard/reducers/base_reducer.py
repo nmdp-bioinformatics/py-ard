@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Abstract Base Class for HLA Allele Reduction Strategies.
 
@@ -7,8 +6,9 @@ for all HLA allele reduction strategies in py-ard. It implements the Strategy
 design pattern to allow interchangeable reduction algorithms.
 """
 
-from abc import ABC, abstractmethod
+from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -53,7 +53,7 @@ class Reducer(ABC):
         >>> result = reducer.reduce("A*01:01:01:01")
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """
         Initialize the reducer with an ARD instance.
 
@@ -111,4 +111,3 @@ class Reducer(ABC):
             Concrete implementations should handle edge cases appropriately
             and may use the ARD instance's methods and data for processing.
         """
-        pass

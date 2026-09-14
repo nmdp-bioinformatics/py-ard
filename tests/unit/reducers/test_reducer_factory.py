@@ -1,17 +1,17 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import Mock
-from pyard.reducers.reducer_factory import StrategyFactory
-from pyard.reducers.g_reducer import GGroupReducer
-from pyard.reducers.p_reducer import PGroupReducer
-from pyard.reducers.lg_reducer import LGReducer, LGXReducer
-from pyard.reducers.w_reducer import WReducer
-from pyard.reducers.exon_reducer import ExonReducer
-from pyard.reducers.u2_reducer import U2Reducer
-from pyard.reducers.s_reducer import SReducer
-from pyard.reducers.first_field_reducer import FirstFieldReducer
+
 from pyard.reducers.default_reducer import DefaultReducer
+from pyard.reducers.exon_reducer import ExonReducer
+from pyard.reducers.first_field_reducer import FirstFieldReducer
+from pyard.reducers.g_reducer import GGroupReducer
+from pyard.reducers.lg_reducer import LGReducer, LGXReducer
+from pyard.reducers.p_reducer import PGroupReducer
+from pyard.reducers.reducer_factory import StrategyFactory
+from pyard.reducers.s_reducer import SReducer
+from pyard.reducers.u2_reducer import U2Reducer
+from pyard.reducers.w_reducer import WReducer
 
 
 @pytest.fixture

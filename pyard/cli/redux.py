@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -25,7 +24,7 @@ import sys
 
 import pyard.misc
 from pyard.constants import VALID_REDUCTION_MODES
-from pyard.exceptions import InvalidAlleleError, InvalidTypingError, InvalidMACError
+from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
 from pyard.misc import get_data_dir, get_imgt_version
 
 

@@ -35,7 +35,7 @@ import importlib.util
 import sys
 import unittest
 
-from pyard.cli import redux, import_db, status
+from pyard.cli import import_db, redux, status
 
 HAS_PANDAS = importlib.util.find_spec("pandas") is not None
 

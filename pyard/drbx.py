@@ -19,10 +19,9 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from typing import Tuple, List
 
 
-def map_drbx(drb_alleles: List, locus_in_allele_name: bool) -> Tuple:
+def map_drbx(drb_alleles: list, locus_in_allele_name: bool) -> tuple:
     """
     Generates a pair of DRBX Typings based on DRB3, DRB4 and DRB5 typings.
     Expects Type1 and Type2 DRB3, DRB4 and DRB5 typings in that order

@@ -1,21 +1,20 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import Mock
 
 from pyard import ARDConfig
 from pyard.reducers import (
-    Reducer,
+    DefaultReducer,
+    ExonReducer,
     GGroupReducer,
-    PGroupReducer,
     LGReducer,
     LGXReducer,
-    WReducer,
-    ExonReducer,
-    U2Reducer,
+    PGroupReducer,
+    Reducer,
     SReducer,
-    DefaultReducer,
     StrategyFactory,
+    U2Reducer,
+    WReducer,
 )
 
 

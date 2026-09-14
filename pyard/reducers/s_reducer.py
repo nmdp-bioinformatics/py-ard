@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 HLA Allele Reduction Strategy for Serology Groups.
 
@@ -9,9 +8,9 @@ serological equivalents, which were historically used before DNA-based typing.
 
 import functools
 
-from .base_reducer import Reducer
 from .. import db
 from ..misc import is_2_field_allele
+from .base_reducer import Reducer
 
 
 class SReducer(Reducer):

@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import patch
 from urllib.error import URLError
+
+import pytest
+
 from pyard.loader.serology import load_serology_broad_split_mapping
 from pyard.simple_table import Table
 
@@ -59,7 +61,7 @@ B;14;64/65;64/65
     with patch("pyard.loader.serology.urlopen") as mock_urlopen:
         mock_urlopen.return_value = mock_data.encode().split(b"\n")
 
-        splits_table, associated_table = load_serology_broad_split_mapping("3290")
+        splits_table, _associated_table = load_serology_broad_split_mapping("3290")
 
         # Only B14 should have splits
         assert len(splits_table["broad"]) == 1
@@ -67,6 +69,6 @@ B;14;64/65;64/65
 
 
 def test_load_serology_broad_split_mapping_url_error():
-    with patch("pyard.loader.serology.urlopen", side_effect=URLError("Network error")):
+    with patch("pyard.loader.serology.urlopen", side_effect=URLError("Network error")):  # noqa: SIM117
         with pytest.raises(SystemExit):
             load_serology_broad_split_mapping("3290")

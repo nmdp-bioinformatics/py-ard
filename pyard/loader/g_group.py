@@ -3,7 +3,7 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 from ..loader import IMGT_HLA_URL
-from ..misc import get_G_name, get_2field_allele, get_3field_allele
+from ..misc import get_2field_allele, get_3field_allele, get_G_name
 from ..simple_table import Table
 
 
