@@ -72,6 +72,6 @@ def test_load_allele_list_latest():
 def test_load_allele_list_url_error():
     with patch(  # noqa: SIM117
         "pyard.loader.allele_list.urlopen", side_effect=URLError("Network error")
-    ):
+    ):  # noqa: SIM117
         with pytest.raises(SystemExit):
             load_allele_list("3290")
