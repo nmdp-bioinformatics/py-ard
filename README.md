@@ -84,15 +84,17 @@ git clone https://github.com/nmdp-bioinformatics/py-ard.git
 cd py-ard
 ```
 
-Create and activate virtual environment. Install the py-ard dependencies.
+`py-ard` uses [uv](https://docs.astral.sh/uv/) to manage the project environment
+and dependencies. Create the environment and install all dependency groups and
+extras with:
 
 ```shell
-make venv
-
-source venv/bin/activate
-
 make install
 ```
+
+which runs `uv sync --all-extras --group test --group dev` and sets up
+pre-commit. Run commands inside the environment with `uv run`, e.g.
+`uv run pytest`.
 
 See [Our Contribution Guide](CONTRIBUTING.rst) for open source contribution to `py-ard`.
 

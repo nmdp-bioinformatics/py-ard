@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #    py-ard
@@ -41,7 +40,7 @@ def find_similar_alleles(ard, prefix):
         sys.exit(1)
 
 
-def lookup_mac_codes():
+def lookup_mac_codes(ard, args):
     try:
         mac = ard.lookup_mac(args.lookup_mac)
         print(mac)
@@ -50,7 +49,7 @@ def lookup_mac_codes():
     sys.exit(0)
 
 
-def expand_mac_code():
+def expand_mac_code(ard, args):
     try:
         allele_list = ard.expand_mac(args.expand_mac)
         print(allele_list)
@@ -59,7 +58,7 @@ def expand_mac_code():
     sys.exit(0)
 
 
-def expand_code():
+def expand_code(ard, args):
     code = args.expand
     if ard.is_XX(code):
         expanded_alleles = ard.expand_xx(code)
@@ -76,27 +75,27 @@ def expand_code():
     sys.exit(0)
 
 
-def expand_xx_code():
+def expand_xx_code(ard, args):
     expanded_alleles = ard.expand_xx(args.expand_xx)
     print(expanded_alleles)
     sys.exit(0)
 
 
-def find_broad_splits(ard):
+def find_broad_splits(ard, args):
     mapping = ard.find_broad_splits(args.splits)
     if mapping:
         print(f"{mapping[0]} = {'/'.join(mapping[1])}")
     sys.exit(0)
 
 
-def show_version():
+def show_version(ard):
     version = ard.get_db_version()
     print(f"IPD-IMGT/HLA version:", version)
     print(f"py-ard version:", pyard.__version__)
     sys.exit(0)
 
 
-def perform_cwd_redux():
+def perform_cwd_redux(ard, args):
     if args.validate:
         ard.validate(args.cwd)
     cwd_redux = ard.cwd_redux(args.cwd)
@@ -104,7 +103,7 @@ def perform_cwd_redux():
     sys.exit(0)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="""
         py-ard tool to redux GL String
@@ -193,11 +192,11 @@ if __name__ == "__main__":
 
     # Handle --version option
     if args.version:
-        show_version()
+        show_version(ard)
 
     # Handle --splits option
     if args.splits:
-        find_broad_splits(ard)
+        find_broad_splits(ard, args)
 
     # Handle --expand-mac-hats option
     if args.expand_mac_hats:
@@ -206,19 +205,19 @@ if __name__ == "__main__":
 
     # Handle --expand-mac option
     if args.expand_mac:
-        expand_mac_code()
+        expand_mac_code(ard, args)
 
     # Handle --lookup-mac option
     if args.lookup_mac:
-        lookup_mac_codes()
+        lookup_mac_codes(ard, args)
 
     # Handle --expand option
     if args.expand:
-        expand_code()
+        expand_code(ard, args)
 
     # Handle --expand-xx option
     if args.expand_xx:
-        expand_xx_code()
+        expand_xx_code(ard, args)
 
     # Handle --similar option
     if args.similar_allele:
@@ -226,7 +225,7 @@ if __name__ == "__main__":
 
     try:
         if args.cwd:
-            perform_cwd_redux()
+            perform_cwd_redux(ard, args)
 
         if args.validate and args.gl_string:
             ard.validate(args.gl_string)
@@ -252,3 +251,7 @@ if __name__ == "__main__":
     else:
         # Remove ard and close db connection
         del ard
+
+
+if __name__ == "__main__":
+    main()

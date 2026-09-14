@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #    py-ard
@@ -53,7 +52,7 @@ def get_v2_v3_mapping(v2_v3_mapping):
     return None
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="""
         py-ard tool to generate reference SQLite database.
@@ -160,3 +159,7 @@ if __name__ == "__main__":
         db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, refresh_mac=True)
         print(f"Updated MACs for {imgt_version} IPD/IMGT-HLA database.")
+
+
+if __name__ == "__main__":
+    main()

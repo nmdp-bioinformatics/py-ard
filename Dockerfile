@@ -6,14 +6,8 @@ WORKDIR /app
 
 ARG PY_ARD_VERSION=2.4.0
 
-COPY requirements.txt /app
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-COPY requirements-deploy.txt /app
-RUN pip install --no-cache-dir -r requirements-deploy.txt
-
-RUN pip install --no-cache-dir py-ard==$PY_ARD_VERSION
+    pip install --no-cache-dir "py-ard[deploy]==$PY_ARD_VERSION"
 
 COPY app.py /app/
 COPY api.py /app/

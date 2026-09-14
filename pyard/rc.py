@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
+from typing import Optional
 
 RC_FILENAME = ".pyardrc"
 
@@ -10,7 +11,7 @@ _RC_SEARCH_PATHS = [
 ]
 
 
-def _find_rc_file() -> Path | None:
+def _find_rc_file() -> Optional[Path]:
     for directory in _RC_SEARCH_PATHS:
         rc = directory / RC_FILENAME
         if rc.exists():

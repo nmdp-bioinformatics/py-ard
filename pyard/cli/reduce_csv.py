@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #    py-ard
@@ -41,6 +40,14 @@ from pyard.db import similar_alleles
 import pyard.drbx as drbx
 from pyard.exceptions import PyArdError, InvalidTypingError, InvalidAlleleError
 from pyard.misc import get_data_dir, get_imgt_version, download_to_file
+
+# Module-level state shared with the reduction helper functions below.
+# These are initialized in main() before the helpers are invoked.
+ard = None
+ard_config = None
+verbose = False
+failed_to_reduce_alleles = []
+white_space_regex = re.compile(r"\s+")
 
 
 def is_serology(allele: str) -> bool:
@@ -336,7 +343,9 @@ def reduce_glstring_columns(df, ard_config, glstring_columns):
             df[column] = df[column].apply(reduce_glstring)
 
 
-if __name__ == "__main__":
+def main():
+    global ard, ard_config, verbose, failed_to_reduce_alleles, white_space_regex
+
     # config is specified with a -c parameter
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", help="JSON Configuration file")
@@ -513,3 +522,7 @@ if __name__ == "__main__":
             )
     # Done
     print(f"Saved result to file:{out_file_name}")
+
+
+if __name__ == "__main__":
+    main()

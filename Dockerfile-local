@@ -2,16 +2,17 @@ FROM python:3.14-slim-trixie
 
 LABEL MAINTAINER="Pradeep Bashyal"
 
+# Install uv (used to build/install the local project)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
-COPY requirements.txt /app
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-COPY requirements-deploy.txt /app
-RUN pip install --no-cache-dir -r requirements-deploy.txt
-
+# Copy project metadata and lockfile first for better layer caching
+COPY pyproject.toml uv.lock README.md ./
 COPY pyard /app/pyard
+
+# Install the local py-ard project with the deploy extra into the system env
+RUN uv pip install --system --no-cache ".[deploy]"
 
 COPY app.py /app/
 COPY api.py /app/

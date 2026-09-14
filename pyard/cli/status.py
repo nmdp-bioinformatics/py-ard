@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #    py-ard
@@ -48,7 +47,7 @@ def get_file_size(file_name: str) -> float:
     return os.path.getsize(file_name) / 1024 / 1024
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="""
         py-ard tool to provide a status report for reference SQLite databases.
         """)
@@ -111,3 +110,7 @@ if __name__ == "__main__":
                     print(f"|{table:30}| --MISSING--|")
             print("-" * LONG_DASH_LINE_LENGTH)
             db_connection.close()
+
+
+if __name__ == "__main__":
+    main()
