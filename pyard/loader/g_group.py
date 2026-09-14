@@ -41,7 +41,7 @@ def load_g_group(imgt_version):
             if line:
                 fields = line.split(";")
                 if len(fields) >= 3 and fields[1] and fields[2]:
-                    locus, a_list, g = fields[0], fields[1], fields[2]
+                    locus, a_list, _g = fields[0], fields[1], fields[2]
                     # Ignore the G group (g) from the file.
                     # We need to manually get the G group name from the allele list
                     # For cases:

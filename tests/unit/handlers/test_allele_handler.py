@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, MagicMock
 
 from pyard import ARDConfig
 from pyard.handlers.allele_handler import AlleleHandler

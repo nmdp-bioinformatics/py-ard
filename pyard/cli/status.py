@@ -48,9 +48,11 @@ def get_file_size(file_name: str) -> float:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(
+        description="""
         py-ard tool to provide a status report for reference SQLite databases.
-        """)
+        """
+    )
     parser.add_argument(
         "-d",
         "--data-dir",

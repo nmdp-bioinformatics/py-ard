@@ -19,7 +19,7 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from behave import *
+from behave import given, when, then, step
 from hamcrest import assert_that, is_
 
 from pyard.drbx import map_drbx

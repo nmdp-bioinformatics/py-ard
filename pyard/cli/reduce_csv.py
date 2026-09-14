@@ -413,9 +413,10 @@ def main():
     white_space_regex = re.compile(r"\s+")
 
     if ard_config.get("output_file_format") == "xlsx":
-        try:
-            import openpyxl
-        except ImportError:
+        from importlib import util
+
+        excel_support_available = util.find_spec("openpyxl")
+        if not excel_support_available:
             print(
                 "For Excel output, openpyxl library needs to be installed. "
                 "Install with:"
@@ -463,7 +464,10 @@ def main():
             keep_default_na=False,
         )
     except FileNotFoundError as e:
-        print(f"File not found {ard_config.get('in_csv_filename')}", file=sys.stderr)
+        print(
+            f"File not found {ard_config.get('in_csv_filename')}. Error: {e}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     failed_to_reduce_alleles = []

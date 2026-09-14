@@ -1,4 +1,4 @@
-from behave import *
+from behave import given, when, then
 from hamcrest import assert_that, is_
 
 from pyard.exceptions import InvalidAlleleError

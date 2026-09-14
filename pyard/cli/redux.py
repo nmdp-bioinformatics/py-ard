@@ -90,8 +90,8 @@ def find_broad_splits(ard, args):
 
 def show_version(ard):
     version = ard.get_db_version()
-    print(f"IPD-IMGT/HLA version:", version)
-    print(f"py-ard version:", pyard.__version__)
+    print("IPD-IMGT/HLA version:", version)
+    print("py-ard version:", pyard.__version__)
     sys.exit(0)
 
 

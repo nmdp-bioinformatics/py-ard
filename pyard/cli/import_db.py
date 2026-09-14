@@ -127,7 +127,7 @@ def main():
     print(f"Importing IPD/IMGT-HLA database version: {imgt_version}")
     if args.skip_mac:
         load_mac = False
-        print(f"Skipping MAC tables creation")
+        print("Skipping MAC tables creation")
     else:
         load_mac = True
 
@@ -155,7 +155,7 @@ def main():
         )
 
     if args.refresh_mac:
-        print(f"Updating MACs")
+        print("Updating MACs")
         db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, refresh_mac=True)
         print(f"Updated MACs for {imgt_version} IPD/IMGT-HLA database.")

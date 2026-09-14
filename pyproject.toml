@@ -26,6 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -67,6 +68,7 @@ dev = [
     "coverage==7.13.4; python_version >= '3.10'",
     "pre-commit==4.5.1; python_version >= '3.10'",
     "bump-my-version; python_version >= '3.10'",
+    "ruff>=0.16.7; python_version >= '3.10'",
 ]
 
 [tool.bumpversion]
@@ -113,3 +115,7 @@ include = [
     "/CONTRIBUTING.rst",
     "/HISTORY.rst",
 ]
+
+[tool.ruff]
+lint.ignore = ["F811"]
+exclude = [ "venv", ".venv", ".git", "__pycache__", "build", "dist", "docs", ]
