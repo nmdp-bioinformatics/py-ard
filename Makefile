@@ -1,6 +1,6 @@
 PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
-PYARD_VERSION := 2.4.0
+PYARD_VERSION := 2.4.1
 
 .PHONY: help clean clean-test clean-pyc clean-build docs behave lint pytest test coverage docs servedocs release dist docker-build docker install
 .DEFAULT_GOAL := help
