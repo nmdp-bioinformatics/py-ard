@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import csv
 import itertools
 import sqlite3
 from collections import defaultdict
-from typing import List
 
 
 class Table:
@@ -71,7 +72,7 @@ class Table:
         rows = cursor.fetchall()
         return PrintableTable(self.columns, rows)
 
-    def group_by(self, group_by_column: str, return_columns: List[str] = None):
+    def group_by(self, group_by_column: str, return_columns: list[str] | None = None):
         if group_by_column not in self.columns:
             raise ValueError(f"Column '{group_by_column}' not found in table")
         if return_columns is None:
@@ -132,7 +133,7 @@ class Table:
         )
         return Table(cursor.fetchall(), columns, f"{self._name}_filtered")
 
-    def to_dict(self, key_column: str = None, value_column: str = None):
+    def to_dict(self, key_column: str | None = None, value_column: str | None = None):
         if not key_column and not value_column:
             key_column, value_column = self.columns
         elif key_column not in self.columns or value_column not in self.columns:

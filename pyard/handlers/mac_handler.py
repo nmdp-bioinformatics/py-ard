@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import functools
 import sqlite3
 from collections import Counter
-from typing import Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from .. import db
-from ..constants import HLA_regex, DEFAULT_CACHE_SIZE
+from ..constants import DEFAULT_CACHE_SIZE, HLA_regex
 from ..exceptions import InvalidMACError
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ class MACHandler:
     - Find MAC codes for given allele lists
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the MACHandler with an ARD instance
 
         Args:
@@ -31,7 +31,7 @@ class MACHandler:
         """
         self.ard = ard_instance
 
-    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)  # noqa: B019
     def is_mac(self, allele: str) -> bool:
         """Check if allele is a valid MAC code
 
@@ -57,9 +57,9 @@ class MACHandler:
                         alleles = db.mac_code_to_alleles(self.ard.db_connection, code)
                         if alleles:
                             # Check if MAC expands to full allele names (contains ':')
-                            if any(map(lambda a: ":" in a, alleles)):
+                            if any(":" in a for a in alleles):
                                 # Validate that the antigen group matches
-                                antigen_groups = map(lambda a: a.split(":")[0], alleles)
+                                antigen_groups = (a.split(":")[0] for a in alleles)
                                 antigen_counts = Counter(antigen_groups)
                                 valid_antigen = antigen_counts.most_common(1).pop()[0]
                                 provided_antigen = locus_antigen.split("*").pop()
@@ -166,7 +166,7 @@ class MACHandler:
         alleles = db.mac_code_to_alleles(self.ard.db_connection, code)
 
         # Check if MAC expands to full allele names (contains ':')
-        is_allelic_expansion = any([":" in allele for allele in alleles])
+        is_allelic_expansion = any(":" in allele for allele in alleles)
         if is_allelic_expansion:
             # Full allele format: prepend locus only
             locus = locus_antigen.split("*")[0]

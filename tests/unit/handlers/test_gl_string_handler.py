@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import pytest
 from unittest.mock import Mock
 
-from pyard.handlers.gl_string_processor import GLStringHandler
+import pytest
+
 from pyard.exceptions import InvalidAlleleError
+from pyard.handlers.gl_string_processor import GLStringHandler
 
 
 class TestGLStringHandler:

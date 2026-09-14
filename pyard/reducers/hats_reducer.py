@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from .base_reducer import Reducer
 from .. import db
+from .base_reducer import Reducer
 
 
 class HATSReducer(Reducer):

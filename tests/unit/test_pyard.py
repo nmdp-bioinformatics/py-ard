@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -21,12 +19,11 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-
-
 import json
 import os
 
 import pytest
+
 import pyard
 from pyard.constants import DEFAULT_CACHE_SIZE
 from pyard.exceptions import InvalidAlleleError

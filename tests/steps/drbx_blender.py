@@ -19,8 +19,8 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from behave import given, when, then, step
-from hamcrest import assert_that, is_, calling, raises
+from behave import given, step, then, when
+from hamcrest import assert_that, calling, is_, raises
 
 import pyard
 from pyard.blender import DRBXBlenderError

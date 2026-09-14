@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -28,28 +27,29 @@ import pyard.loader
 import pyard.loader.cwd
 import pyard.loader.mac_codes
 import pyard.loader.serology
+
 from . import db
 from .constants import expression_chars
 from .loader.allele_list import load_allele_list
 from .loader.g_group import load_g_group
 from .loader.p_group import load_p_group
-from .loader.serology import load_serology_mappings, load_serology_broad_split_mapping
+from .loader.serology import load_serology_broad_split_mapping, load_serology_mappings
 from .loader.version import load_latest_version
 from .mappings import (
-    ars_mapping_tables,
-    ARSMapping,
-    code_mapping_tables,
     AlleleGroups,
+    ARSMapping,
     CodeMappings,
     allele_tables,
+    ars_mapping_tables,
+    code_mapping_tables,
 )
 from .misc import (
+    get_1field_allele,
     get_2field_allele,
     get_3field_allele,
     number_of_fields,
-    get_1field_allele,
 )
-from .serology import broad_splits_dna_mapping, SerologyMapping
+from .serology import SerologyMapping, broad_splits_dna_mapping
 from .simple_table import Table
 from .smart_sort import smart_sort_comparator
 
@@ -87,15 +87,15 @@ def expression_reduce(exp_alleles_table):
 
     """
     allele_groups = exp_alleles_table.group_by("2d")
-    valid_2d_exp_alleles = dict()
+    valid_2d_exp_alleles = {}
     for allele_2d, allele_group in allele_groups.items():
         # Get the expression characters for the current allele_2d
-        expression_chars = {allele["Exp"][-1] for allele in allele_group}
+        all_exp_chars = {allele["Exp"][-1] for allele in allele_group}
 
         # Check if all expression characters are the same
-        if len(expression_chars) == 1:
+        if len(all_exp_chars) == 1:
             # If all expression characters are the same, return the 2d allele with the expression character
-            valid_2d_exp_alleles[allele_2d] = allele_2d + expression_chars.pop()
+            valid_2d_exp_alleles[allele_2d] = allele_2d + all_exp_chars.pop()
 
     return valid_2d_exp_alleles
 
@@ -174,7 +174,7 @@ def generate_ard_mapping(db_connection: sqlite3.Connection, imgt_version) -> ARS
     # DPA1*02:02/DPA1*02:07 ==> DPA1*02:02
     #
     lowest_numbered_dup_lgx = {
-        k: sorted(v.split("/"), key=functools.cmp_to_key(smart_sort_comparator))[0]
+        k: min(v.split("/"), key=functools.cmp_to_key(smart_sort_comparator))
         for k, v in dup_lgx.items()
     }
     # Update the lgx_group with the allele with the lowest number
@@ -301,10 +301,10 @@ def generate_short_nulls(db_connection, who_group):
     # scan WHO alleles for those with expression characters and make shortnull mappings
     # DRB4*01:03N | DRB4*01:03:01:02N/DRB4*01:03:01:13N
     # DRB5*01:08N | DRB5*01:08:01N/DRB5*01:08:02N
-    shortnulls = dict()
+    shortnulls = {}
     for who in who_group:
         # e.g. DRB4*01:03
-        expression_alleles = dict()
+        expression_alleles = {}
         if who[-1] not in expression_chars and who[-1] not in ["G", "P"] and ":" in who:
             for an_allele in who_group[who]:
                 # if an allele in a who_group has an expression character but the group allele doesnt,
@@ -318,11 +318,11 @@ def generate_short_nulls(db_connection, who_group):
                     expression_alleles[a_shortnull].append(an_allele)
             # only create a shortnull if there is one expression character in this who_group
             # there is nothing to be done for who_groups that have both Q and L for example
-            for a_shortnull in expression_alleles:
+            for a_shortnull, value in expression_alleles.items():
                 # e.g. DRB4*01:03N
                 shortnulls[a_shortnull] = "/".join(
                     sorted(
-                        expression_alleles[a_shortnull],
+                        value,
                         key=functools.cmp_to_key(smart_sort_comparator),
                     )
                 )
@@ -441,7 +441,7 @@ def generate_serology_mapping(
         sero_lgx_mapping = sero_mapping_combined.agg("Sero", "lgx", set)
         sero_mapping = {
             k: (sero_allele_mapping[k], sero_lgx_mapping[k])
-            for k in sero_allele_mapping.keys()
+            for k in sero_allele_mapping
         }
 
         # map alleles for split serology to their corresponding broad

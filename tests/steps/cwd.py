@@ -1,5 +1,5 @@
-from behave import given, when, then, step
-from hamcrest import is_, assert_that
+from behave import given, step, then, when
+from hamcrest import assert_that, is_
 
 
 @given('the MAC Code we want to find CWD of is "{mac_code}"')

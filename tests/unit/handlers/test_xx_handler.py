@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import Mock
 
 from pyard.handlers.xx_handler import XXHandler
 

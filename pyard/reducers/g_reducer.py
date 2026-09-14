@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 HLA Allele Reduction Strategy for G Groups.
 

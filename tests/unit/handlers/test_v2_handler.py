@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
+from unittest.mock import Mock, patch
 
 import pytest
-from unittest.mock import Mock, patch
 
 from pyard import ARDConfig
 from pyard.handlers.v2_handler import V2Handler

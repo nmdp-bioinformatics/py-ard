@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -36,10 +35,10 @@ from urllib.error import HTTPError
 import pandas as pd
 
 import pyard
+from pyard import drbx
 from pyard.db import similar_alleles
-import pyard.drbx as drbx
-from pyard.exceptions import PyArdError, InvalidTypingError, InvalidAlleleError
-from pyard.misc import get_data_dir, get_imgt_version, download_to_file
+from pyard.exceptions import InvalidAlleleError, InvalidTypingError, PyArdError
+from pyard.misc import download_to_file, get_data_dir, get_imgt_version
 
 # Module-level state shared with the reduction helper functions below.
 # These are initialized in main() before the helpers are invoked.
@@ -82,27 +81,22 @@ def should_be_reduced(allele, locus_allele):
     if is_serology(allele):
         return ard_config["reduce_serology"]
 
-    if ard_config["reduce_v2"]:
-        if ard.is_v2(locus_allele):
-            return True
+    if ard_config["reduce_v2"] and ard.is_v2(locus_allele):
+        return True
 
-    if ard_config["reduce_2field"]:
-        if is_2field(locus_allele):
-            return True
+    if ard_config["reduce_2field"] and is_2field(locus_allele):
+        return True
 
-    if ard_config["reduce_3field"]:
-        if is_3field(locus_allele):
-            return True
+    if ard_config["reduce_3field"] and is_3field(locus_allele):
+        return True
 
-    if ard_config["reduce_P"]:
-        if is_P(allele):
-            return True
+    if ard_config["reduce_P"] and is_P(allele):
+        return True
 
-    if ard_config["reduce_XX"]:
-        if ard.is_XX(locus_allele):
-            return True
+    if ard_config["reduce_XX"] and ard.is_XX(locus_allele):
+        return True
 
-    if ard_config["reduce_MAC"]:
+    if ard_config["reduce_MAC"]:  # noqa: SIM102
         if ard.is_mac(locus_allele) and not ard.is_XX(locus_allele):
             return True
 
@@ -110,16 +104,14 @@ def should_be_reduced(allele, locus_allele):
 
 
 def remove_locus_name(reduced_allele):
-    return "/".join(map(lambda a: a.split("*")[1], reduced_allele.split("/")))
+    return "/".join(a.split("*")[1] for a in reduced_allele.split("/"))
 
 
 def redux(allele, locus, column_name):
     # Does the allele name have the locus in it ?
     if allele == "":
         return allele
-    if "*" in allele:
-        locus_allele = allele
-    elif ard_config.get("locus_in_allele_name"):
+    if "*" in allele or ard_config.get("locus_in_allele_name"):
         locus_allele = allele
     else:
         if allele.startswith(locus):
@@ -224,10 +216,10 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
     # New columns DRBX_1 and DRBX_2 are created
     if ard_config.get("map_drb345_to_drbx"):
         drbx_loci = ["DRB3", "DRB4", "DRB5"]
-        for subject in ard_config["locus_column_mapping"].keys():
+        for subject in ard_config["locus_column_mapping"]:
             subject_loci = ard_config["locus_column_mapping"][subject]
             subject_drbs = []
-            for locus in ard_config["locus_column_mapping"][subject].keys():
+            for locus in ard_config["locus_column_mapping"][subject]:
                 if locus.upper() in drbx_loci:
                     subject_drbs.extend(subject_loci[locus])
 

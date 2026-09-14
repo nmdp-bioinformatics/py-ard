@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -26,7 +25,7 @@ import re
 
 import pyard
 import pyard.mappings
-from pyard import db, data_repository
+from pyard import data_repository, db
 from pyard.misc import get_data_dir
 
 LONG_DASH_LINE_LENGTH = 45

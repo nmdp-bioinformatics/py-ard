@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .allele_handler import AlleleHandler
 from .gl_string_processor import GLStringHandler
 from .hats_handler import HATSHandler
@@ -15,7 +13,7 @@ __all__ = [
     "HATSHandler",
     "MACHandler",
     "SerologyHandler",
+    "ShortNullHandler",
     "V2Handler",
     "XXHandler",
-    "ShortNullHandler",
 ]

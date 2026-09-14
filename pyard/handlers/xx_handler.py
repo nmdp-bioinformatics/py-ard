@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -17,7 +17,7 @@ class XXHandler:
     This class provides functionality to identify and validate XX codes.
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the XXHandler with an ARD instance
 
         Args:
@@ -25,7 +25,9 @@ class XXHandler:
         """
         self.ard = ard_instance
 
-    def is_xx(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
+    def is_xx(
+        self, glstring: str, loc_antigen: str | None = None, code: str | None = None
+    ) -> bool:
         """Check if string is a valid XX code
 
         XX codes have the format 'LOCUS*ANTIGEN:XX' where XX is the literal

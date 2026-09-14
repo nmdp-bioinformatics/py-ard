@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import functools
 import sys
-from typing import Union, List
 
 from . import data_repository as dr
-from . import db
-from . import smart_sort
+from . import db, smart_sort
+from .config import ARDConfig
 from .constants import (
-    HLA_regex,
     DEFAULT_CACHE_SIZE,
     G_GROUP_LOCI,
     VALID_REDUCTION_TYPE,
+    HLA_regex,
     expression_chars,
 )
 from .exceptions import InvalidMACError, InvalidTypingError
@@ -21,16 +20,15 @@ from .handlers import (
     HATSHandler,
     MACHandler,
     SerologyHandler,
+    ShortNullHandler,
     V2Handler,
     XXHandler,
-    ShortNullHandler,
 )
 from .misc import get_2field_allele, is_2_field_allele
 from .serology import SerologyMapping
-from .config import ARDConfig
 
 
-class ARD(object):
+class ARD:
     """
     ARD reduction for HLA - Refactored with specialized handlers
     """
@@ -38,10 +36,10 @@ class ARD(object):
     def __init__(
         self,
         imgt_version: str = "Latest",
-        data_dir: str = None,
+        data_dir: str | None = None,
         load_mac: bool = True,
         max_cache_size: int = DEFAULT_CACHE_SIZE,
-        config: dict = None,
+        config: dict | None = None,
     ):
         self._data_dir = data_dir
         self.config = ARDConfig.from_dict(config)
@@ -130,7 +128,7 @@ class ARD(object):
     @staticmethod
     def _freeze_reference_data():
         """Freeze reference data for Python >= 3.9"""
-        if sys.version_info.major == 3 and sys.version_info.minor >= 9:
+        if sys.version_info >= (3, 9):
             import gc
 
             gc.freeze()
@@ -140,7 +138,7 @@ class ARD(object):
         if hasattr(self, "db_connection") and self.db_connection:
             self.db_connection.close()
 
-    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)  # noqa: B019
     def _redux_allele(
         self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
     ) -> str:
@@ -191,9 +189,8 @@ class ARD(object):
         if "*" in allele:
             locus, fields = allele.split("*")
             # Handle ignored allele suffixes
-            if self.config.ignore_allele_with_suffixes:
-                if fields in self.config.ignore_allele_with_suffixes:
-                    return allele
+            if fields in self.config.ignore_allele_with_suffixes:
+                return allele
             if locus not in G_GROUP_LOCI:
                 return allele
 
@@ -253,7 +250,7 @@ class ARD(object):
         redux_allele = self._redux_allele(allele, redux_type)
         return redux_allele
 
-    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)
+    @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)  # noqa: B019
     def redux(self, glstring: str, redux_type: VALID_REDUCTION_TYPE = "lgx") -> str:
         """Main redux method using specialized handlers"""
 
@@ -295,7 +292,9 @@ class ARD(object):
     def is_v2(self, allele: str) -> bool:
         return self.v2_handler.is_v2(allele)
 
-    def is_XX(self, glstring: str, loc_antigen: str = None, code: str = None) -> bool:
+    def is_XX(
+        self, glstring: str, loc_antigen: str | None = None, code: str | None = None
+    ) -> bool:
         return self.xx_handler.is_xx(glstring, loc_antigen, code)
 
     def is_shortnull(self, allele: str) -> bool:
@@ -413,7 +412,7 @@ class ARD(object):
                 return False
 
             if self.config.ignore_allele_with_suffixes:
-                locus, fields = allele.split("*")
+                _locus, fields = allele.split("*")
                 if fields in self.config.ignore_allele_with_suffixes:
                     return True
 
@@ -460,7 +459,7 @@ class ARD(object):
     def get_db_version(self) -> str:
         return dr.get_db_version(self.db_connection)
 
-    def similar_alleles(self, prefix: str) -> Union[List, None]:
+    def similar_alleles(self, prefix: str) -> list | None:
         """Find similar alleles using existing logic"""
         if "*" not in prefix:
             return None

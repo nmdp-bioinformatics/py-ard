@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Default HLA Allele Reduction Strategy with Validation.
 
@@ -7,8 +6,8 @@ for other reducers and provides stringent validation of HLA alleles, particularl
 those with P and G group suffixes.
 """
 
-from .base_reducer import Reducer
 from ..exceptions import InvalidAlleleError
+from .base_reducer import Reducer
 
 
 class DefaultReducer(Reducer):
@@ -85,7 +84,7 @@ class DefaultReducer(Reducer):
             # If P suffix but not in official mappings, fall through to general validation
 
         # Step 2: Stringent validation for G group suffixes
-        elif allele.endswith("G"):
+        elif allele.endswith("G"):  # noqa: SIM102
             # Verify that this G group designation exists in official G group mappings
             # This prevents acceptance of arbitrary G suffixes
             if allele in self.ard.ars_mappings.g_group.values():
