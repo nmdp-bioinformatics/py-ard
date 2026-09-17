@@ -1,8 +1,8 @@
 PROJECT_NAME := $(shell basename `pwd`)
 PACKAGE_NAME := pyard
-PYARD_VERSION := 2.4.0
+PYARD_VERSION := 2.4.1
 
-.PHONY: help clean clean-test clean-pyc clean-build docs behave lint pytest test coverage docs servedocs release dist docker-build docker install venv activate
+.PHONY: help clean clean-test clean-pyc clean-build docs behave lint pytest test coverage docs servedocs release dist docker-build docker install
 .DEFAULT_GOAL := help
 
 define PRINT_HELP_PYSCRIPT
@@ -42,28 +42,25 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr allure_report
 
 lint: ## check style with flake8 and pre-commit
-	# stop the build if there are Python syntax errors or undefined names
-	flake8 $(PACKAGE_NAME) tests --count --select=E9,F63,F7,F82 --show-source --statistics
-	# exit-zero treats all errors as warnings
-	flake8 $(PACKAGE_NAME) --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-	pre-commit run --all-files
+	uv tool run ruff check
+	uv run pre-commit run --all-files
 	npx @redocly/cli lint api-spec.yaml
 
 behave: clean-test ## run the behave tests, generate and serve report
-	- behave -f allure_behave.formatter:AllureFormatter -o allure_report
-	allure serve allure_report
+	- uv run behave -f allure_behave.formatter:AllureFormatter -o allure_report
+	uv run allure serve allure_report
 
 pytest: clean-test ## run tests quickly with the default Python
-	PYTHONPATH=. pytest
+	uv run pytest
 
 test: clean-test ## run all(BDD and unit) tests
-	PYTHONPATH=. pytest
-	behave
+	uv run pytest
+	uv run behave
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source pyard -m pytest
-	coverage report -m
-	coverage html
+	uv run coverage run --source pyard -m pytest
+	uv run coverage report -m
+	uv run coverage html
 	@python -m webbrowser htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
@@ -77,13 +74,11 @@ docs: ## generate Sphinx HTML documentation, including API docs
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
-release: clean ## package and upload a release
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+release: dist ## package and upload a release
+	uv publish
 
 dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
+	uv build
 	ls -l dist
 
 docker-build: ## build a docker image for the service
@@ -97,23 +92,9 @@ docker-build-local: ## build a local docker image for the service
 	docker build --platform=linux/amd64 -t nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64 -f Dockerfile-local .
 	docker run --platform=linux/amd64 --rm --name pyard-service -p 8080:8080 nmdpbioinformatics/pyard-service:$(PYARD_VERSION).linux-amd64
 
-install: clean ## install the package to the active Python's site-packages
-	pip install --upgrade pip
-	pip install -r requirements.txt
-	pip install -r requirements-script.txt
-	pip install -r requirements-tests.txt
-	pip install -r requirements-dev.txt
-	pip install -r requirements-deploy.txt
-	pip install -e .
-	pre-commit install
-
-venv: ## creates a Python3 virtualenv environment in venv
-	python3 -m venv venv --prompt $(PROJECT_NAME)-venv
+install: clean ## create the uv-managed environment with all groups and extras
+	uv sync --all-extras --group test --group dev
+	uv run pre-commit install
 	@echo "====================================================================="
-	@echo "To activate the new virtual environment, execute the following from your shell"
-	@echo "source venv/bin/activate"
-
-activate: ## activate a virtual environment. Run `make venv` before activating.
-	@echo "====================================================================="
-	@echo "To activate the new virtual environment, execute the following from your shell"
-	@echo "source venv/bin/activate"
+	@echo "Environment ready in .venv"
+	@echo "Run commands with 'uv run <command>' (e.g. 'uv run pytest')"

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -27,7 +25,7 @@ import re
 
 import pyard
 import pyard.mappings
-from pyard import db, data_repository
+from pyard import data_repository, db
 from pyard.misc import get_data_dir
 
 LONG_DASH_LINE_LENGTH = 45
@@ -48,10 +46,12 @@ def get_file_size(file_name: str) -> float:
     return os.path.getsize(file_name) / 1024 / 1024
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="""
+def main():
+    parser = argparse.ArgumentParser(
+        description="""
         py-ard tool to provide a status report for reference SQLite databases.
-        """)
+        """
+    )
     parser.add_argument(
         "-d",
         "--data-dir",
@@ -111,3 +111,7 @@ if __name__ == "__main__":
                     print(f"|{table:30}| --MISSING--|")
             print("-" * LONG_DASH_LINE_LENGTH)
             db_connection.close()
+
+
+if __name__ == "__main__":
+    main()

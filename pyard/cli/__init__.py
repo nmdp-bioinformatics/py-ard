@@ -19,21 +19,4 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
-from behave import then, when
-from hamcrest import assert_that, is_
-
-
-@when("checking if the allele is valid in strict mode")
-def step_impl(context):
-    context.is_valid_allele = context.ard.is_valid_allele(context.allele)
-
-
-@when("checking if the allele is valid in non-strict mode")
-def step_impl(context):
-    context.is_valid_allele = context.ard_non_strict.is_valid_allele(context.allele)
-
-
-@then("the allele validity is {validity}")
-def step_impl(context, validity):
-    expected = validity == "Valid"
-    assert_that(context.is_valid_allele, is_(expected))
+"""Command-line entry points for py-ard tools."""

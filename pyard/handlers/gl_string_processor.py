@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import functools
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from ..constants import VALID_REDUCTION_TYPE
 from ..misc import validate_reduction_type
@@ -19,7 +19,7 @@ class GLStringHandler:
     applying reductions to individual components.
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the GLStringHandler with an ARD instance
 
         Args:
@@ -87,7 +87,7 @@ class GLStringHandler:
         # Single allele - return as-is for further processing
         return glstring
 
-    def _sorted_unique_gl(self, gls: List[str], delim: str) -> str:
+    def _sorted_unique_gl(self, gls: list[str], delim: str) -> str:
         """Make a list of sorted unique GL Strings separated by delim
 
         Creates a sorted, deduplicated list of GL string components.

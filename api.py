@@ -1,10 +1,11 @@
 from flask import request
+
 import pyard
 from pyard.blender import DRBXBlenderError
-from pyard.exceptions import PyArdError, InvalidAlleleError
+from pyard.exceptions import InvalidAlleleError, PyArdError
 
 # Globally accessible for all endpoints
-global ard
+global ard  # noqa: PLW0604
 
 
 def init_pyard():
@@ -21,6 +22,7 @@ def validate_controller(body):
         except KeyError:
             return {"message": "gl_string not provided"}, 400
         return validate_gl(gl_string)
+    return None
 
 
 def valid_controller(gl_string: str):
@@ -114,7 +116,7 @@ def xx_expand_controller(xx_code: str):
                     {"Content-Type": "application/json"},
                 )
             else:
-                return (allele_list, 200, {"Content-Type": "text/plain"})
+                return allele_list, 200, {"Content-Type": "text/plain"}
         else:
             return {"message": f"{xx_code} is not a valid XX Code"}, 404
     except PyArdError as e:
@@ -136,7 +138,7 @@ def mac_expand_controller(allele_code: str):
                     {"Content-Type": "application/json"},
                 )
             else:
-                return (allele_list, 200, {"Content-Type": "text/plain"})
+                return allele_list, 200, {"Content-Type": "text/plain"}
         else:
             return {"message": f"{allele_code} is not a valid MAC"}, 404
     except PyArdError as e:
@@ -158,7 +160,7 @@ def mac_hats_expand_controller(allele_code: str):
                     {"Content-Type": "application/json"},
                 )
             else:
-                return (allele_list, 200, {"Content-Type": "text/plain"})
+                return allele_list, 200, {"Content-Type": "text/plain"}
         else:
             return {"message": f"{allele_code} is not a valid MAC"}, 404
     except PyArdError as e:
@@ -194,6 +196,7 @@ def drbx_blender_controller(body):
             return {"DRBX_blend": blended_drbx}
         except DRBXBlenderError as e:
             return {"found": e.found, "expected": e.expected}
+    return None
 
 
 def version_controller():

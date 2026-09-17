@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -16,7 +16,7 @@ class ShortNullHandler:
     - Distinguish null alleles from other allele types
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the ShortNullHandler with an ARD instance
 
         Args:

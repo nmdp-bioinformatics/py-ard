@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 HLA Allele Reduction Strategy for Unambiguous 2-Field Reduction.
 
@@ -7,8 +6,8 @@ U2 reduction attempts to reduce alleles to 2-field level only when it results in
 an unambiguous representation, otherwise falls back to LGX reduction.
 """
 
-from .base_reducer import Reducer
 from ..misc import get_n_field_allele
+from .base_reducer import Reducer
 
 
 class U2Reducer(Reducer):

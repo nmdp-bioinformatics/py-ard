@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import pytest
 from unittest.mock import Mock
 
+import pytest
+
 from pyard import ARDConfig
-from pyard.reducers.lg_reducer import LGXReducer, LGReducer
+from pyard.reducers.lg_reducer import LGReducer, LGXReducer
 
 
 @pytest.fixture

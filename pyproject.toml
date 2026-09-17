@@ -1,0 +1,121 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "py-ard"
+description = "ARD reduction for HLA with Python"
+readme = "README.md"
+authors = [{ name = "CIBMTR", email = "cibmtr-pypi@nmdp.org" }]
+license = "LGPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.8"
+keywords = ["pyard"]
+dynamic = ["version"]
+dependencies = [
+    "toml==0.10.2",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/nmdp-bioinformatics/py-ard"
+Repository = "https://github.com/nmdp-bioinformatics/py-ard"
+
+[project.optional-dependencies]
+script = ["pandas>=2.0"]
+# The deploy stack only runs in the service Docker images (Python 3.14) and
+# pins versions (e.g. gunicorn 25.x) that require Python >= 3.10. The markers
+# keep the library itself installable on Python 3.8/3.9 where these extras are
+# simply not applied.
+deploy = [
+    "connexion[flask,swagger-ui,uvicorn]==3.3.0; python_version >= '3.10'",
+    "flask>=3.1.0; python_version >= '3.10'",
+    "uvicorn>=0.45.0; python_version >= '3.10'",
+    "gunicorn==25.3.0; python_version >= '3.10'",
+]
+
+[project.scripts]
+pyard = "pyard.cli.redux:main"
+pyard-import = "pyard.cli.import_db:main"
+pyard-status = "pyard.cli.status:main"
+pyard-reduce-csv = "pyard.cli.reduce_csv:main"
+
+# Development and test tooling is only used during local development and CI,
+# which run on Python 3.10+. The markers keep the project resolvable on 3.8/3.9
+# (where the published library must install) by dropping these dev-only tools
+# on those interpreters.
+[dependency-groups]
+test = [
+    "behave==1.3.3; python_version >= '3.10'",
+    "PyHamcrest==2.1.0; python_version >= '3.10'",
+    "pytest==9.0.3; python_version >= '3.10'",
+]
+dev = [
+    "allure-behave==2.15.3; python_version >= '3.10'",
+    "flake8==7.3.0; python_version >= '3.10'",
+    "coverage==7.13.4; python_version >= '3.10'",
+    "pre-commit==4.5.1; python_version >= '3.10'",
+    "bump-my-version; python_version >= '3.10'",
+    "ruff>=0.16.7; python_version >= '3.10'",
+]
+
+[tool.bumpversion]
+current_version = "2.4.1"
+commit = true
+tag = true
+
+[[tool.bumpversion.files]]
+filename = "pyard/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "api-spec.yaml"
+search = 'version: "{current_version}"'
+replace = 'version: "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "Dockerfile"
+search = "PY_ARD_VERSION={current_version}"
+replace = "PY_ARD_VERSION={new_version}"
+
+[[tool.bumpversion.files]]
+filename = "Makefile"
+search = "PYARD_VERSION := {current_version}"
+replace = "PYARD_VERSION := {new_version}"
+
+[tool.hatch.version]
+path = "pyard/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyard"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"pyard/dna_relshp.csv" = "pyard/dna_relshp.csv"
+"pyard/loader/CWD2.csv" = "pyard/loader/CWD2.csv"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pyard",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/CONTRIBUTING.rst",
+    "/HISTORY.rst",
+]
+
+[tool.ruff]
+lint.ignore = ["F811"]
+exclude = [ "venv", ".venv", ".git", "__pycache__", "build", "dist", "docs", ]

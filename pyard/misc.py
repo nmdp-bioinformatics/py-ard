@@ -19,12 +19,13 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+from __future__ import annotations
+
 import getpass
 import pathlib
 import tempfile
-from typing import List
 
-from pyard.constants import VALID_REDUCTION_MODES, expression_chars, P_and_G_chars
+from pyard.constants import VALID_REDUCTION_MODES, P_and_G_chars, expression_chars
 
 
 def get_n_field_allele(allele: str, n: int, preserve_expression=False) -> str:
@@ -148,7 +149,7 @@ def get_G_name(a: str) -> str:
         a = a[:-1]
     # For 2-field alleles, add '01' as third field before 'G' suffix
     if len(a.split(":")) == 2:
-        return ":".join([a, "01"]) + "G"
+        return f"{a}:01G"
     else:
         # For 3+ field alleles, use first 3 fields with 'G' suffix
         return ":".join(a.split(":")[0:3]) + "G"
@@ -177,7 +178,7 @@ def get_P_name(a: str) -> str:
     return ":".join(a.split(":")[0:2]) + "P"
 
 
-def get_imgt_db_versions() -> List[str]:
+def get_imgt_db_versions() -> list[str] | None:
     """Fetch available IPD-IMGT/HLA database versions from GitHub
 
     Queries the IPD/IMGT-HLA repository to get all available branch names,
@@ -189,8 +190,8 @@ def get_imgt_db_versions() -> List[str]:
     Raises:
         Network errors if GitHub API is unreachable
     """
-    import urllib.request
     import json
+    import urllib.request
 
     # Query GitHub API for IMGTIPD/IMGT-HLA repository branches
     req = urllib.request.Request(
@@ -200,8 +201,9 @@ def get_imgt_db_versions() -> List[str]:
     if res.status == 200:
         json_body = json.loads(res.read())
         # Extract branch names as version identifiers
-        versions = list(map(lambda x: x["name"], json_body))
+        versions = [x["name"] for x in json_body]
         return versions
+    return None
 
 
 def download_to_file(url: str, local_filename: str):

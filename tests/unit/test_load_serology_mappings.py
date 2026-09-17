@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import patch
 from urllib.error import URLError
+
+import pytest
+
 from pyard.loader.serology import load_serology_mappings
 from pyard.simple_table import Table
 
@@ -100,6 +102,6 @@ B*;07:02:01;B7;B7;;
 
 
 def test_load_serology_mappings_url_error():
-    with patch("pyard.loader.serology.urlopen", side_effect=URLError("Network error")):
+    with patch("pyard.loader.serology.urlopen", side_effect=URLError("Network error")):  # noqa: SIM117
         with pytest.raises(SystemExit):
             load_serology_mappings("3290")

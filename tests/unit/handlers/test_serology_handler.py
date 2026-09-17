@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import pytest
 from unittest.mock import Mock, patch
 
-from pyard.handlers.serology_handler import SerologyHandler
+import pytest
+
 from pyard.exceptions import InvalidAlleleError
+from pyard.handlers.serology_handler import SerologyHandler
 
 
 class TestSerologyHandler:
@@ -122,7 +121,7 @@ class TestSerologyHandler:
 
     def test_find_xx_from_serology_invalid(self, serology_handler):
         """Test find_xx_from_serology with invalid serology"""
-        with patch.object(serology_handler, "is_serology", return_value=False):
+        with patch.object(serology_handler, "is_serology", return_value=False):  # noqa: SIM117
             with pytest.raises(InvalidAlleleError):
                 serology_handler.find_xx_from_serology("INVALID")
 

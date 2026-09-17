@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
-from typing import Dict
+from typing import TYPE_CHECKING
 
+from ..constants import VALID_REDUCTION_TYPE
 from .base_reducer import Reducer
 from .default_reducer import DefaultReducer
 from .exon_reducer import ExonReducer
@@ -13,9 +14,6 @@ from .p_reducer import PGroupReducer
 from .s_reducer import SReducer
 from .u2_reducer import U2Reducer
 from .w_reducer import WReducer
-from ..constants import VALID_REDUCTION_TYPE
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..ard import ARD
@@ -24,9 +22,9 @@ if TYPE_CHECKING:
 class StrategyFactory:
     """Factory for creating reduction strategies"""
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         self.ard = ard_instance
-        self._strategies: Dict[str, Reducer] = {}
+        self._strategies: dict[str, Reducer] = {}
         self._initialize_strategies()
 
     def _initialize_strategies(self):

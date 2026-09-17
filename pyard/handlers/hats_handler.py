@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import functools
 from typing import TYPE_CHECKING
-
 
 from .. import db
 from ..misc import is_2_field_allele
@@ -12,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class HATSHandler:
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         self.ard = ard_instance
 
     def expand_to_hats_alleles(self, alleles_gl: str) -> str:

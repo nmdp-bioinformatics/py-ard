@@ -64,12 +64,13 @@ Ready to contribute? Here's how to set up `py-ard` for local development.
 
     $ git clone git@github.com:your_name_here/py-ard.git
 
-3. Install your local copy into a venv. This is how you set up your fork for local development::
+3. Install your local copy using `uv <https://docs.astral.sh/uv/>`_. This is how you set up your fork for local development::
 
     $ cd py-ard
-    $ make venv
-    $ source venv/bin/activate
     $ make install
+
+   This runs ``uv sync --all-extras --group test --group dev`` and sets up pre-commit.
+   Run project commands with ``uv run`` (e.g. ``uv run pytest``).
 
 4. Create a branch for local development::
 
@@ -86,11 +87,11 @@ Ready to contribute? Here's how to set up `py-ard` for local development.
 
    To run behavior-driven development (BDD) tests locally via the behave framework, run::
 
-    $ behave
+    $ uv run behave
 
    Run unit-tests::
 
-    $ python -m unittest tests.test_pyard
+    $ uv run pytest
 
 6. Commit your changes and push your branch to GitHub::
 

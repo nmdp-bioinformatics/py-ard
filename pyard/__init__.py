@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -20,6 +19,8 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+from __future__ import annotations
+
 import os
 
 # exports for `pyard`
@@ -28,16 +29,24 @@ from .config import ARDConfig
 from .constants import DEFAULT_CACHE_SIZE
 from .misc import get_imgt_db_versions as db_versions
 
+__all__ = [
+    "DEFAULT_CACHE_SIZE",
+    "ARDConfig",
+    "db_versions",
+    "dr_blender",
+    "init",
+]
+
 __author__ = """NMDP Bioinformatics"""
-__version__ = "2.4.0"
+__version__ = "2.4.1"
 
 
 def init(
-    imgt_version: str = None,
-    data_dir: str = None,
-    load_mac: bool = None,
-    cache_size: int = None,
-    config: dict = None,
+    imgt_version: str | None = None,
+    data_dir: str | None = None,
+    load_mac: bool | None = None,
+    cache_size: int | None = None,
+    config: dict | None = None,
 ):
     from .ard import ARD
     from .rc import load_rc

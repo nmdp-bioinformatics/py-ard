@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING
@@ -20,7 +20,7 @@ class V2Handler:
     - Use heuristics when direct mappings are unavailable
     """
 
-    def __init__(self, ard_instance: "ARD"):
+    def __init__(self, ard_instance: ARD):
         """Initialize the V2Handler with an ARD instance
 
         Args:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -20,14 +19,15 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+from __future__ import annotations
+
 import os
-from pathlib import Path
 import sqlite3
 import sys
-from typing import Tuple, Dict, Set, List
+from pathlib import Path
 
-from .mappings import ARSMapping, CodeMappings, AlleleGroups
-from .misc import get_imgt_db_versions, get_default_db_directory
+from .mappings import AlleleGroups, ARSMapping, CodeMappings
+from .misc import get_default_db_directory, get_imgt_db_versions
 
 
 def create_db_connection(data_dir, imgt_version, ro=False):
@@ -58,13 +58,12 @@ def create_db_connection(data_dir, imgt_version, ro=False):
 
     # Check the imgt_version is a valid IPD/IMGT-HLA DB Version
     # by querying the IPD/IMGT-HLA site
-    if imgt_version != "Latest":
-        if not db_filename.exists():
-            all_imgt_versions = get_imgt_db_versions()
-            if str(imgt_version) not in all_imgt_versions:
-                raise ValueError(
-                    f"{imgt_version} is not a valid IPD/IMGT-HLA database version."
-                )
+    if imgt_version != "Latest" and not db_filename.exists():
+        all_imgt_versions = get_imgt_db_versions()
+        if str(imgt_version) not in all_imgt_versions:
+            raise ValueError(
+                f"{imgt_version} is not a valid IPD/IMGT-HLA database version."
+            )
 
     # Create the data directory if it doesn't exist
     if not db_path_dir.exists():
@@ -110,7 +109,7 @@ def table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
     return result[0] > 0
 
 
-def tables_exist(connection: sqlite3.Connection, table_names: List[str]):
+def tables_exist(connection: sqlite3.Connection, table_names: list[str]):
     """
     Do all the given tables exist in the database ?
 
@@ -118,7 +117,7 @@ def tables_exist(connection: sqlite3.Connection, table_names: List[str]):
     :param table_names: names of tables in the sqlite db
     :return: bool indicating whether all table_names exists
     """
-    return all([table_exists(connection, table_name) for table_name in table_names])
+    return all(table_exists(connection, table_name) for table_name in table_names)
 
 
 def count_rows(connection: sqlite3.Connection, table_name: str) -> int:
@@ -136,7 +135,7 @@ def count_rows(connection: sqlite3.Connection, table_name: str) -> int:
     return result[0]
 
 
-def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
+def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> list[str]:
     """
     Look up the MAC code in the database and return corresponding list
     of alleles.
@@ -157,7 +156,7 @@ def mac_code_to_alleles(connection: sqlite3.Connection, code: str) -> List[str]:
 
 def alleles_to_mac_code(
     connection: sqlite3.Connection, code_expansion: str
-) -> List[str]:
+) -> list[str]:
     """
     Look up the MAC code in the database and based on list of allele expansion
     :param connection: db connection of type sqlite.Connection
@@ -173,7 +172,7 @@ def alleles_to_mac_code(
     return None
 
 
-def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> List[str]:
+def serology_to_alleles(connection: sqlite3.Connection, serology: str) -> list[str]:
     """
     Look up Serology in the database and return corresponding list of alleles.
 
@@ -209,7 +208,7 @@ def is_valid_serology(connection: sqlite3.Connection, serology: str) -> bool:
     return False
 
 
-def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
+def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str | None:
     """
     Look up V3 version of the allele in the database.
 
@@ -229,8 +228,8 @@ def v2_to_v3_allele(connection: sqlite3.Connection, v2_allele: str) -> str:
 def save_dict(
     connection: sqlite3.Connection,
     table_name: str,
-    dictionary: Dict[str, str],
-    columns: Tuple[str, str],
+    dictionary: dict[str, str],
+    columns: tuple[str, str],
 ) -> bool:
     """
     Save the dictionary as a table with column names from columns Tuple.
@@ -266,7 +265,7 @@ def save_dict(
 
 
 def save_set(
-    connection: sqlite3.Connection, table_name: str, rows: Set, column: str
+    connection: sqlite3.Connection, table_name: str, rows: set, column: str
 ) -> bool:
     """
     Save the set rows to the table table_name in the column
@@ -305,7 +304,7 @@ def save_set(
     return True
 
 
-def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Set:
+def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> set:
     """
     Retrieve the first column of the table as a set
 
@@ -317,12 +316,12 @@ def load_set(connection: sqlite3.Connection, table_name: str, column: str) -> Se
     cursor = connection.cursor()
     select_all_query = f"SELECT {column} FROM {table_name}"
     cursor.execute(select_all_query)
-    table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
+    table_as_set = {t[0] for t in cursor.fetchall()}
     cursor.close()
     return table_as_set
 
 
-def load_cwd(connection: sqlite3.Connection, locus: str) -> Set:
+def load_cwd(connection: sqlite3.Connection, locus: str) -> set:
     """
     Retrieve the CWD Version 2 alleles for a locus as a set
 
@@ -333,14 +332,14 @@ def load_cwd(connection: sqlite3.Connection, locus: str) -> Set:
     cursor = connection.cursor()
     select_all_query = f"SELECT allele FROM cwd2 where locus='{locus}'"
     cursor.execute(select_all_query)
-    table_as_set = set(map(lambda t: t[0], cursor.fetchall()))
+    table_as_set = {t[0] for t in cursor.fetchall()}
     cursor.close()
     return table_as_set
 
 
 def load_dict(
-    connection: sqlite3.Connection, table_name: str, columns: Tuple[str, str]
-) -> Dict[str, str]:
+    connection: sqlite3.Connection, table_name: str, columns: tuple[str, str]
+) -> dict[str, str]:
     """
     Retrieve the values in columns as a name, value pair and create a dict.
 
@@ -357,7 +356,7 @@ def load_dict(
     return table_as_dict
 
 
-def similar_alleles(connection: sqlite3.Connection, allele_prefix: str) -> Set[str]:
+def similar_alleles(connection: sqlite3.Connection, allele_prefix: str) -> set[str]:
     """
     Find similar alleles starting with the provided prefix.
 
@@ -371,11 +370,11 @@ def similar_alleles(connection: sqlite3.Connection, allele_prefix: str) -> Set[s
     # fetchall() returns a list of tuples of results
     # e.g. [('C*04:09N',)]
     # Get out the first value of the tuple from the result list
-    alleles = set(map(lambda t: t[0], result))
+    alleles = {t[0] for t in result}
     return alleles
 
 
-def similar_mac(connection: sqlite3.Connection, mac_prefix: str) -> Set[str]:
+def similar_mac(connection: sqlite3.Connection, mac_prefix: str) -> set[str]:
     """
     Find similar MAC codes starting with the provided prefix.
 
@@ -389,13 +388,13 @@ def similar_mac(connection: sqlite3.Connection, mac_prefix: str) -> Set[str]:
     # fetchall() returns a list of tuples of results
     # e.g. [('DJZUP',)]
     # Get out the first value of the tuple from the result list
-    codes = set(map(lambda t: t[0], result))
+    codes = {t[0] for t in result}
     return codes
 
 
 def find_serology_for_allele(
     connection: sqlite3.Connection, allele_name: str, column: str = "allele_list"
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Find similar alleles starting with the provided allele_name.
 
@@ -413,7 +412,7 @@ def find_serology_for_allele(
     return serology_mapping
 
 
-def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
+def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str | None:
     """
     Find the corresponding XX allele for the given serology
 
@@ -429,7 +428,7 @@ def find_xx_for_serology(connection: sqlite3.Connection, serology: str) -> str:
     return None
 
 
-def find_hats(connection: sqlite3.Connection, allele: str) -> str:
+def find_hats(connection: sqlite3.Connection, allele: str) -> str | None:
     """
     Find the corresponding HATS (HLA Antigen Typing Specificity) for the given allele.
 
@@ -447,8 +446,8 @@ def find_hats(connection: sqlite3.Connection, allele: str) -> str:
 
 
 def find_common_hats_alleles(
-    connection: sqlite3.Connection, alleles: List[str]
-) -> List[str]:
+    connection: sqlite3.Connection, alleles: list[str]
+) -> list[str]:
     """
     Find all alleles that share the same HATS assignments as the given alleles.
 

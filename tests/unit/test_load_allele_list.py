@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import patch
 from urllib.error import URLError
+
+import pytest
+
 from pyard.loader.allele_list import load_allele_list
 from pyard.simple_table import Table
 
@@ -68,7 +70,7 @@ def test_load_allele_list_latest():
 
 
 def test_load_allele_list_url_error():
-    with patch(
+    with patch(  # noqa: SIM117
         "pyard.loader.allele_list.urlopen", side_effect=URLError("Network error")
     ):
         with pytest.raises(SystemExit):

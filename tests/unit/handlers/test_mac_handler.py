@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
+import sqlite3
+from unittest.mock import Mock, patch
 
 import pytest
-from unittest.mock import Mock, patch
-import sqlite3
 
-from pyard.handlers.mac_handler import MACHandler
 from pyard.exceptions import InvalidMACError
+from pyard.handlers.mac_handler import MACHandler
 
 
 class TestMACHandler:
@@ -93,7 +92,7 @@ class TestMACHandler:
 
     def test_expand_mac_invalid(self, mac_handler):
         """Test expand_mac with invalid MAC code"""
-        with patch.object(mac_handler, "is_mac", return_value=False):
+        with patch.object(mac_handler, "is_mac", return_value=False):  # noqa: SIM117
             with pytest.raises(InvalidMACError):
                 mac_handler.expand_mac("INVALID")
 

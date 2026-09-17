@@ -692,11 +692,10 @@ graph TB
 ### Development Workflow
 
 1. Fork and clone repository
-2. Create virtual environment: `make venv`
-3. Install dependencies: `make install`
-4. Make changes and add tests
-5. Run tests: `make test`
-6. Submit pull request
+2. Install dependencies with [uv](https://docs.astral.sh/uv/): `make install`
+3. Make changes and add tests
+4. Run tests: `make test`
+5. Submit pull request
 
 ---
 

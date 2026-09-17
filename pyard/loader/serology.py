@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import sys
-from typing import Tuple, List
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from ..simple_table import Table
 from ..loader import IMGT_HLA_URL
+from ..simple_table import Table
 
 
 def load_serology_mappings(imgt_version):
@@ -66,7 +67,7 @@ def load_serology_mappings(imgt_version):
         sys.exit(1)
 
 
-def load_serology_broad_split_mapping(imgt_version: str) -> Tuple[Table, Table]:
+def load_serology_broad_split_mapping(imgt_version: str) -> tuple[Table, Table]:
     """
     `rel_ser_ser.txt` — Serology-to-Serology Relationships
 
@@ -155,6 +156,6 @@ def load_serology_broad_split_mapping(imgt_version: str) -> Tuple[Table, Table]:
         sys.exit(1)
 
 
-def add_locus_name(locus: str, splits: str) -> List:
-    split_list = map(lambda sero: locus + sero, splits.split("/"))
+def add_locus_name(locus: str, splits: str) -> list:
+    split_list = (locus + sero for sero in splits.split("/"))
     return list(split_list)

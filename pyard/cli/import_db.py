@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 #    py-ard
 #    Copyright (c) 2023 Be The Match operated by National Marrow Donor Program. All Rights Reserved.
@@ -26,7 +24,7 @@ import pathlib
 import sys
 
 import pyard
-from pyard import db, data_repository
+from pyard import data_repository, db
 from pyard.misc import get_data_dir
 
 
@@ -53,7 +51,7 @@ def get_v2_v3_mapping(v2_v3_mapping):
     return None
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="""
         py-ard tool to generate reference SQLite database.
@@ -128,7 +126,7 @@ if __name__ == "__main__":
     print(f"Importing IPD/IMGT-HLA database version: {imgt_version}")
     if args.skip_mac:
         load_mac = False
-        print(f"Skipping MAC tables creation")
+        print("Skipping MAC tables creation")
     else:
         load_mac = True
 
@@ -156,7 +154,11 @@ if __name__ == "__main__":
         )
 
     if args.refresh_mac:
-        print(f"Updating MACs")
+        print("Updating MACs")
         db_connection, _ = db.create_db_connection(data_dir, imgt_version, ro=False)
         data_repository.generate_mac_codes(db_connection, refresh_mac=True)
         print(f"Updated MACs for {imgt_version} IPD/IMGT-HLA database.")
+
+
+if __name__ == "__main__":
+    main()

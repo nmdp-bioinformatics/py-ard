@@ -1,4 +1,4 @@
-from behave import *
+from behave import given, then, when
 from hamcrest import assert_that, is_
 
 
