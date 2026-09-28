@@ -462,7 +462,7 @@ def get_redux_config(ard_config) -> dict[str | Any, Any]:
 
 
 def main():
-    global ard, ard_config, verbose, failed_to_reduce_alleles, white_space_regex
+    global ard, ard_config, verbose
 
     # config is specified with a -c parameter
     parser = argparse.ArgumentParser()
