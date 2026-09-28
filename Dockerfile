@@ -4,7 +4,7 @@ LABEL MAINTAINER="Pradeep Bashyal"
 
 WORKDIR /app
 
-ARG PY_ARD_VERSION=2.4.1
+ARG PY_ARD_VERSION=2.4.2
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir "py-ard[deploy]==$PY_ARD_VERSION"

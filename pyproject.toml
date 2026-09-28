@@ -72,7 +72,7 @@ dev = [
 ]
 
 [tool.bumpversion]
-current_version = "2.4.1"
+current_version = "2.4.2"
 commit = true
 tag = true
 
