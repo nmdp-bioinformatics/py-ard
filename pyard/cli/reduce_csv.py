@@ -26,16 +26,21 @@
 #  For Excel output, openpyxl library needs to be installed.
 #       pip install openpyxl
 #
+from __future__ import annotations
+
 import argparse
 import json
+import pprint
 import re
 import sys
+from typing import Any
 from urllib.error import HTTPError
 
 import pandas as pd
 
 import pyard
 from pyard import drbx
+from pyard.ard import ARD
 from pyard.db import similar_alleles
 from pyard.exceptions import InvalidAlleleError, InvalidTypingError, PyArdError
 from pyard.misc import download_to_file, get_data_dir, get_imgt_version
@@ -45,6 +50,8 @@ from pyard.misc import download_to_file, get_data_dir, get_imgt_version
 ard = None
 ard_config = None
 verbose = False
+error_file = sys.stderr
+log_file = sys.stdout
 failed_to_reduce_alleles = []
 white_space_regex = re.compile(r"\s+")
 
@@ -126,7 +133,7 @@ def redux(allele, locus, column_name):
                 else:
                     # Watch out, we may get floats when exported from Excel.
                     message = f"Failed reducing '{allele}' in column {column_name}"
-                    print(message)
+                    print(message, file=error_file)
                     failed_to_reduce_alleles.append((column_name, allele))
                     return allele
 
@@ -137,9 +144,10 @@ def redux(allele, locus, column_name):
             reduced_allele = ard.redux(locus_allele, ard_config["redux_type"])
         except PyArdError as e:
             if verbose:
-                print(e)
+                print(e.message, file=error_file)
             message = f"Failed reducing '{locus_allele}' in column {column_name}"
-            print(message)
+            print(message, file=log_file)
+            print(message, file=log_file)
             failed_to_reduce_alleles.append((column_name, locus_allele))
             return allele
         # print(f"reduced to '{reduced_allele}'")
@@ -150,9 +158,9 @@ def redux(allele, locus, column_name):
                 allele = remove_locus_name(reduced_allele)
         else:
             if verbose:
-                print(f"Failed to reduce {locus_allele}")
+                print(f"Failed to reduce {locus_allele}", file=log_file)
         if verbose:
-            print(f"\t{locus_allele} => {allele}")
+            print(f"\t{locus_allele} => {allele}", file=log_file)
     else:
         if ard_config.get("convert_v2_to_v3"):
             if ard.is_v2(locus_allele):
@@ -162,7 +170,7 @@ def redux(allele, locus, column_name):
                 else:
                     allele = v3_allele
                 if verbose:
-                    print(f"\t{locus_allele} => {allele}")
+                    print(f"\t{locus_allele} => {allele}", file=log_file)
         elif ard_config.get("keep_locus_in_allele_name"):
             allele = locus_allele
 
@@ -193,7 +201,7 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
             locus_columns = locus_column_mapping[subject][locus]
             for column in locus_columns:
                 if verbose:
-                    print(f"Column:{column} =>")
+                    print(f"Column:{column} =>", file=log_file)
                 if ard_config.get("new_column_for_redux"):
                     # insert a new column
                     new_column_name = f"{reduce_prefix}{column}"
@@ -232,28 +240,32 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
                 )
                 df[f"{subject}_DRBX_1"], df[f"{subject}_DRBX_2"] = zip(*df_drbx)
 
-    if ard_config.get("generate_glstring"):
+    if ard_config.get("generate_glstring", False) or ard_config.get(
+        "generate_slugs", False
+    ):
         for subject in locus_column_mapping:
+            subject_loci_columns = locus_column_mapping[subject]
             slug_columns = []
-            for locus in locus_column_mapping[subject]:
-                slug_column = locus + "_slug"
+            for locus in subject_loci_columns:
+                slug_column = f"{subject}_{locus}_slug"
                 slug_columns.append(slug_column)
-                locus_typ_pair = locus_column_mapping[subject][locus]
+                locus_typ_pair = subject_loci_columns[locus]
                 if len(locus_typ_pair) > 1:
                     df[slug_column] = df[locus_typ_pair].apply(
                         create_reduced_slug, axis=1
                     )
                 else:
-                    df[slug_column] = df[locus_column_mapping[subject][locus][0]]
+                    df[slug_column] = df[subject_loci_columns[locus][0]]
 
                 if ard_config.get("suppress_reduced_locus_column"):
                     df.drop(columns=locus_typ_pair, inplace=True)
 
-            df[subject + "_gl"] = df[slug_columns].agg("^".join, axis=1)
-            df[subject + "_gl"] = df[subject + "_gl"].apply(
-                lambda gl: gl.replace("^+", "")
-            )
-            df.drop(columns=slug_columns, inplace=True)
+            if ard_config.get("generate_glstring"):
+                df[subject + "_gl"] = df[slug_columns].agg(
+                    lambda slugs: "^".join(slug for slug in slugs if slug), axis=1
+                )
+            if not ard_config.get("generate_slugs"):
+                df.drop(columns=slug_columns, inplace=True)
 
 
 def create_reduced_slug(locus_typ1_typ2_pair):
@@ -308,6 +320,9 @@ def apply_drbx(gl_string):
 
 def reduce_glstring(glstring: str) -> str:
     try:
+        if not glstring:
+            print("Missing glstring", file=error_file)
+            return ""
         ard_redux = ard.redux(glstring, ard_config["redux_type"])
         if ard_config.get("map_drb345_to_drbx"):
             glstring_drbx = apply_drbx(ard_redux)
@@ -315,7 +330,7 @@ def reduce_glstring(glstring: str) -> str:
         else:
             return ard_redux
     except (InvalidTypingError, InvalidAlleleError) as e:
-        print(f"Error reducing {glstring} \n", e.message, file=sys.stderr)
+        print(f"Error reducing {glstring} \n", e.message, file=error_file)
         return "Failed"
 
 
@@ -333,6 +348,117 @@ def reduce_glstring_columns(df, ard_config, glstring_columns):
         else:
             # Apply clean_locus function to the column and replace the column
             df[column] = df[column].apply(reduce_glstring)
+
+
+def reduce_and_save(
+    ard: ARD, ard_config, in_csv_filename, out_csv_filename, verbose: bool | Any
+):
+    global failed_to_reduce_alleles
+    # Read the Input File
+    # Read only the columns to be saved.
+    # Header is the first row
+    # Don't convert to NAs
+    columns_from_csv = ard_config["columns_from_csv"]
+    try:
+        df = pd.read_csv(
+            in_csv_filename,
+            usecols=columns_from_csv,
+            header=0,
+            dtype=str,
+            keep_default_na=False,
+        )[columns_from_csv]
+    except FileNotFoundError as e:
+        print(
+            f"File not found {in_csv_filename}. Error: {e}",
+            file=error_file,
+        )
+        sys.exit(1)
+
+    failed_to_reduce_alleles = []
+    locus_column_mapping = ard_config.get("locus_column_mapping", None)
+    if locus_column_mapping:
+        reduce_locus_columns(df, ard_config, locus_column_mapping, verbose)
+
+    glstring_columns = ard_config.get("glstring_columns", None)
+    if glstring_columns:
+        reduce_glstring_columns(df, ard_config, glstring_columns)
+
+    # Save as XLSX if specified
+    if ard_config["output_file_format"] == "xlsx":
+        out_csv_filename = f"{ard_config['out_csv_filename']}.xlsx"
+        df.to_excel(out_csv_filename, index=False)
+    else:
+        # Save as compressed CSV if specified
+        compression_type = ard_config["apply_compression"]
+        # Valid compression_type: gzip, zip, null
+        if compression_type == "gzip":
+            out_csv_filename = out_csv_filename + ".gz"
+        elif compression_type == "zip":
+            out_csv_filename = out_csv_filename + ".zip"
+
+        df.to_csv(
+            out_csv_filename,
+            index=False,
+            compression=compression_type,
+            header=True,
+        )
+
+    if len(failed_to_reduce_alleles) == 0:
+        print("No Errors", file=error_file)
+    else:
+        print("Summary", file=log_file)
+        print("-------", file=log_file)
+        print(
+            f"{len(failed_to_reduce_alleles)} alleles failed to reduce.",
+            file=log_file,
+        )
+        print(
+            "| Column  Name    |      Allele      |      Did you mean ?       ",
+            file=log_file,
+        )
+        print(
+            "| --------------- | ---------------- | ------------------------- ",
+            file=log_file,
+        )
+        for column_name, locus_allele in failed_to_reduce_alleles:
+            similar_allele_names = similar_alleles(ard.db_connection, locus_allele)
+            if similar_allele_names:
+                similar_allele_names = ",".join(
+                    sorted(similar_allele_names, reverse=True)
+                )
+            else:
+                similar_allele_names = "NA"
+            print(
+                f"| {column_name:15} | {locus_allele:16} | {similar_allele_names} ",
+                file=log_file,
+            )
+    # Done
+    print(f"Saved result to file: {out_csv_filename}")
+    if log_file is not sys.stdout:
+        print(f"Saved log to file: {log_file.name}")
+    if error_file is not sys.stderr:
+        print(f"Saved errors to file: {error_file.name}")
+
+
+def get_redux_config(ard_config) -> dict[str | Any, Any]:
+    csv_redux_config = {
+        "reduce_serology": ard_config.get("reduce_serology", True),
+        "reduce_v2": ard_config.get("reduce_v2", True),
+        "reduce_3field": ard_config.get("reduce_3field", True),
+        "reduce_P": ard_config.get("reduce_P", True),
+        "reduce_XX": ard_config.get("reduce_XX", True),
+        "reduce_MAC": ard_config.get("reduce_MAC", True),
+        "reduce_shortnull": ard_config.get("reduce_shortnull", True),
+        "ping": ard_config.get("ping", True),
+        "verbose_log": ard_config.get("verbose_log", True),
+        "ARS_as_lg": ard_config.get("ARS_as_lg", False),
+        "strict": ard_config.get("strict", True),
+        "ignore_allele_with_suffixes": tuple(
+            ard_config.get("ignore_allele_with_suffixes", "").split(",")
+        ),
+    }
+    pprint.pprint(csv_redux_config, indent=4, stream=log_file)
+    return csv_redux_config
 
 
 def main():
@@ -383,17 +509,17 @@ def main():
             try:
                 url = f"https://raw.githubusercontent.com/nmdp-bioinformatics/py-ard/master/extras/{sample_file}"
                 download_to_file(url, sample_file)
-                print(f"Created {sample_file}")
+                print(f"Created {sample_file}", file=log_file)
             except HTTPError:
-                print(f"Download failed for {sample_file}")
+                print(f"Download failed for {sample_file}", file=error_file)
         sys.exit(0)
 
     config_filename = args.config
     if not config_filename:
-        print("Config file required. Specify with -c/--config")
+        print("Config file required. Specify with -c/--config", file=error_file)
         sys.exit(1)
 
-    print("Using config file:", config_filename)
+    print("Using config file:", config_filename, file=log_file)
     with open(config_filename) as conf_file:
         ard_config = json.load(conf_file)
 
@@ -402,8 +528,6 @@ def main():
     else:
         verbose = False
 
-    white_space_regex = re.compile(r"\s+")
-
     if ard_config.get("output_file_format") == "xlsx":
         from importlib import util
 
@@ -411,31 +535,16 @@ def main():
         if not excel_support_available:
             print(
                 "For Excel output, openpyxl library needs to be installed. "
-                "Install with:"
+                "Install with:",
+                file=error_file,
             )
-            print("  pip install openpyxl")
+            print("  pip install openpyxl", file=error_file)
             sys.exit(1)
 
     data_dir = get_data_dir(args.data_dir)
     imgt_version = get_imgt_version(args.ipd_version)
     max_cache_size = ard_config.get("redux_cache_size", pyard.DEFAULT_CACHE_SIZE)
-    csv_redux_config = {
-        "reduce_serology": ard_config.get("reduce_serology", True),
-        "reduce_v2": ard_config.get("reduce_v2", True),
-        "reduce_3field": ard_config.get("reduce_3field", True),
-        "reduce_P": ard_config.get("reduce_P", True),
-        "reduce_XX": ard_config.get("reduce_XX", True),
-        "reduce_MAC": ard_config.get("reduce_MAC", True),
-        "reduce_shortnull": ard_config.get("reduce_shortnull", True),
-        "ping": ard_config.get("ping", True),
-        "verbose_log": ard_config.get("verbose_log", True),
-        "ARS_as_lg": ard_config.get("ARS_as_lg", False),
-        "strict": ard_config.get("strict", True),
-        "ignore_allele_with_suffixes": tuple(
-            ard_config.get("ignore_allele_with_suffixes", "").split(",")
-        ),
-    }
-    print(csv_redux_config)
+    csv_redux_config = get_redux_config(ard_config)
     ard = pyard.init(
         imgt_version=imgt_version,
         data_dir=data_dir,
@@ -443,81 +552,10 @@ def main():
         config=csv_redux_config,
     )
 
-    # Read the Input File
-    # Read only the columns to be saved.
-    # Header is the first row
-    # Don't convert to NAs
-    try:
-        df = pd.read_csv(
-            ard_config["in_csv_filename"],
-            usecols=ard_config["columns_from_csv"],
-            header=0,
-            dtype=str,
-            keep_default_na=False,
-        )
-    except FileNotFoundError as e:
-        print(
-            f"File not found {ard_config.get('in_csv_filename')}. Error: {e}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    in_csv_filename = ard_config["in_csv_filename"]
+    out_csv_filename = ard_config["out_csv_filename"]
 
-    failed_to_reduce_alleles = []
-    locus_column_mapping = ard_config.get("locus_column_mapping", None)
-    if locus_column_mapping:
-        reduce_locus_columns(df, ard_config, locus_column_mapping, verbose)
-
-    glstring_columns = ard_config.get("glstring_columns", None)
-    if glstring_columns:
-        reduce_glstring_columns(df, ard_config, glstring_columns)
-
-    # Save as XLSX if specified
-    if ard_config["output_file_format"] == "xlsx":
-        out_file_name = f"{ard_config['out_csv_filename']}.xlsx"
-        df.to_excel(out_file_name, index=False)
-    else:
-        # Save as compressed CSV if specified
-        out_file_name = ard_config["out_csv_filename"]
-        compression_type = ard_config["apply_compression"]
-        # Valid compression_type: gzip, zip, null
-        if compression_type == "gzip":
-            out_file_name = out_file_name + ".gz"
-        elif compression_type == "zip":
-            out_file_name = out_file_name + ".zip"
-
-        df.to_csv(out_file_name, index=False, compression=compression_type)
-
-    if len(failed_to_reduce_alleles) == 0:
-        print("No Errors", file=sys.stderr)
-    else:
-        print("Summary", file=sys.stderr)
-        print("-------", file=sys.stderr)
-        print(
-            f"{len(failed_to_reduce_alleles)} alleles failed to reduce.",
-            file=sys.stderr,
-        )
-        print(
-            "| Column  Name    |      Allele      |      Did you mean ?       ",
-            file=sys.stderr,
-        )
-        print(
-            "| --------------- | ---------------- | ------------------------- ",
-            file=sys.stderr,
-        )
-        for column_name, locus_allele in failed_to_reduce_alleles:
-            similar_allele_names = similar_alleles(ard.db_connection, locus_allele)
-            if similar_allele_names:
-                similar_allele_names = ",".join(
-                    sorted(similar_allele_names, reverse=True)
-                )
-            else:
-                similar_allele_names = "NA"
-            print(
-                f"| {column_name:15} | {locus_allele:16} | {similar_allele_names} ",
-                file=sys.stderr,
-            )
-    # Done
-    print(f"Saved result to file:{out_file_name}")
+    reduce_and_save(ard, ard_config, in_csv_filename, out_csv_filename, verbose)
 
 
 if __name__ == "__main__":
