@@ -123,6 +123,7 @@
   "new_column_for_redux": true,
   "reduced_column_prefix": "reduced_",
   "generate_glstring": true,
+  "generate_slugs": true,
   "homozygosify_glstring": true,
   "suppress_reduced_locus_column": true,
   "output_file_format": "csv",

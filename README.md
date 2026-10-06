@@ -4,7 +4,7 @@ Swiss army knife of **HLA** Nomenclature
 
 [![PyPi Version](https://img.shields.io/pypi/v/py-ard.svg)](https://pypi.python.org/pypi/py-ard)
 
-![py-ard-logo.png](images/py-ard-logo.png)
+![py-ard: redux() happens](images/py-ard-logo.png)
 
 **Note:**
 
