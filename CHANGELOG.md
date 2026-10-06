@@ -1,3 +1,16 @@
+<a id="2.4.2"></a>
+# [2.4.2 Fixes to batch process and RHEL9 bug](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.2) - 2026-10-06
+
+## What's Changed
+* Refactor batch processor by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#402](https://github.com/nmdp-bioinformatics/py-ard/pull/402)
+* Add support for Sqlite < 3.35 by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#404](https://github.com/nmdp-bioinformatics/py-ard/pull/404)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.1...2.4.2
+
+[Changes][2.4.2]
+
+
 <a id="2.4.1"></a>
 # [2.4.1 - Modernize build system](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.1) - 2026-09-28
 
@@ -820,6 +833,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.0...2.3.1
