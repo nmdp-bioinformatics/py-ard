@@ -172,8 +172,11 @@ class Table:
 
     def __setitem__(self, column: str, values):
         if column in self.columns:
-            self._conn.execute(f"ALTER TABLE {self._name} DROP COLUMN `{column}`")
-        self._conn.execute(f"ALTER TABLE {self._name} ADD COLUMN `{column}` TEXT")
+            # UPDATE without where clears the whole column
+            # Fix for sqlite < 3.35.0 Issue#403
+            self._conn.execute(f"UPDATE {self._name} SET `{column}` = NULL")
+        else:
+            self._conn.execute(f"ALTER TABLE {self._name} ADD COLUMN `{column}` TEXT")
         for i, value in enumerate(values):
             self._conn.execute(
                 f"UPDATE {self._name} SET `{column}` = ? WHERE rowid = ?",
