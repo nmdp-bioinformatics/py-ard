@@ -84,7 +84,6 @@ Feature: Validate Allele
 
     Examples:
       | Allele        | Validity |
-      | A*24:329      | InValid  |
       | DRBX*NNNN     | Invalid  |
       | A*30:02g      | Invalid  |
       | HLA-A*01:04Ng | Invalid  |

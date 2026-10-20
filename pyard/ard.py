@@ -302,9 +302,12 @@ class ARD:
     def validate(self, glstring: str) -> bool:
         return self.gl_processor.validate_gl_string(glstring)
 
-    def _get_non_strict_allele(self, allele: str) -> str:
-        """Handle non-strict allele validation"""
+    def _get_allele_ignoring_expression_character(self, allele: str) -> str:
+        """Return allele that is valid with any similar expression character or without"""
         if not self._is_allele_in_db(allele):
+            if allele[-1] in expression_chars:
+                # Remove the current expr char and try others
+                allele = allele[:-1]
             for expr_char in expression_chars:
                 if self._is_allele_in_db(allele + expr_char):
                     if self.config.verbose_log:
@@ -375,9 +378,6 @@ class ARD:
                 if fields in self.config.ignore_allele_with_suffixes:
                     return True
 
-        if not self.config.strict_enabled:
-            allele = self._get_non_strict_allele(allele)
-
         if (
             not self.is_mac(allele)
             and not self.is_XX(allele)
@@ -385,6 +385,12 @@ class ARD:
             and not self.is_v2(allele)
             and not self.is_shortnull(allele)
         ):
+            if (
+                self.config.expression_characters_enabled
+                or not self.config.strict_enabled
+            ):
+                allele = self._get_allele_ignoring_expression_character(allele)
+
             return self.is_valid_allele(allele)
 
         return True
