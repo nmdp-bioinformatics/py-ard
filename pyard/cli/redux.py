@@ -25,7 +25,7 @@ import sys
 import pyard.misc
 from pyard.constants import VALID_REDUCTION_MODES
 from pyard.exceptions import InvalidAlleleError, InvalidMACError, InvalidTypingError
-from pyard.misc import get_data_dir, get_imgt_version
+from pyard.misc import get_imgt_version
 
 
 def find_similar_alleles(ard, prefix):
@@ -178,7 +178,6 @@ def main():
     args = parser.parse_args()
 
     imgt_version = get_imgt_version(args.ipd_version)
-    data_dir = get_data_dir(args.data_dir)
 
     new_config = {}
     if args.non_strict:
@@ -187,7 +186,9 @@ def main():
     if args.verbose:
         new_config["verbose_log"] = True
 
-    ard = pyard.init(imgt_version=imgt_version, data_dir=data_dir, config=new_config)
+    ard = pyard.init(
+        imgt_version=imgt_version, data_dir=args.data_dir, config=new_config
+    )
 
     # Handle --version option
     if args.version:
@@ -229,6 +230,11 @@ def main():
         if args.validate and args.gl_string:
             ard.validate(args.gl_string)
 
+        if not args.gl_string:
+            print("No GL String supplied. Use -g")
+            parser.print_help()
+            sys.exit(1)
+
         if args.redux_type:
             print(ard.redux(args.gl_string, args.redux_type))
         else:
@@ -240,13 +246,13 @@ def main():
                 print()
     except InvalidAlleleError as e:
         print("Allele Error:", e.message, file=sys.stderr)
-        sys.exit(1)
+        sys.exit(2)
     except InvalidTypingError as e:
         print("Typing Error:", e.message, file=sys.stderr)
-        sys.exit(2)
+        sys.exit(3)
     except InvalidMACError as e:
         print("MAC Error:", e.message, file=sys.stderr)
-        sys.exit(3)
+        sys.exit(4)
     else:
         # Remove ard and close db connection
         del ard
