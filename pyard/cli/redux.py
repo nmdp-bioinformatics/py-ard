@@ -129,6 +129,13 @@ def main():
     )
     parser.add_argument("-g", "--gl", dest="gl_string", help="GL String to reduce")
     parser.add_argument(
+        "gl_string_positional",
+        nargs="?",
+        default=None,
+        metavar="GL_STRING",
+        help="GL String to reduce (same as -g/--gl)",
+    )
+    parser.add_argument(
         "-r",
         "--redux-type",
         choices=VALID_REDUCTION_MODES,
@@ -176,6 +183,10 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # Treat a bare positional argument the same as -g/--gl
+    if args.gl_string is None:
+        args.gl_string = args.gl_string_positional
 
     imgt_version = get_imgt_version(args.ipd_version)
 
