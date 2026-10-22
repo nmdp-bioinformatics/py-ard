@@ -40,9 +40,10 @@ class ARDConfig:
     ARS_as_lg: bool = False
     strict: bool = True
     ignore_allele_with_suffixes: tuple[str, ...] = ()
+    expression_character_is_optional: bool = True
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> ARDConfig:
+    def from_dict(cls, config_dict: dict | None) -> ARDConfig:
         """Create ARDConfig from dictionary"""
         if not config_dict:
             return cls()
@@ -68,6 +69,7 @@ class ARDConfig:
             "ARS_as_lg": self.ARS_as_lg,
             "strict": self.strict,
             "ignore_allele_with_suffixes": self.ignore_allele_with_suffixes,
+            "expression_character_is_optional": self.expression_character_is_optional,
         }
 
     @property
@@ -113,3 +115,15 @@ class ARDConfig:
     @property
     def strict_enabled(self) -> bool:
         return self.strict
+
+    @property
+    def ignore_allele_with_suffixes_enabled(self) -> bool:
+        return bool(self.ignore_allele_with_suffixes)
+
+    @property
+    def ignore_allele_suffixes(self) -> tuple[str, ...]:
+        return self.ignore_allele_with_suffixes
+
+    @property
+    def expression_characters_enabled(self) -> bool:
+        return self.expression_character_is_optional

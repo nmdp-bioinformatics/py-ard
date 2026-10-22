@@ -139,49 +139,8 @@ class ARD:
             self.db_connection.close()
 
     @functools.lru_cache(maxsize=DEFAULT_CACHE_SIZE)  # noqa: B019
-    def _redux_allele(
-        self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
-    ) -> str:
-        """Core allele reduction with ping logic"""
-        if not self.config.strict_enabled:
-            allele = self._get_non_strict_allele(allele)
-
-        # Handle P/G suffixes
-        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G", "P"]:
-            allele = allele[:-1]
-
-        # Handle ping mode
-        if self.config.ping and re_ping and redux_type in ("lg", "lgx", "U2"):
-            if allele in self.ars_mappings.p_not_g:
-                not_g_allele = self.ars_mappings.p_not_g[allele]
-                if redux_type == "lg":
-                    return self.allele_reducer.add_lg_suffix(not_g_allele)
-                return not_g_allele
-            else:
-                redux_allele = self._redux_allele(allele, redux_type, False)
-                if redux_allele.endswith("g"):
-                    no_suffix_allele = redux_allele[:-1]
-                elif redux_allele.endswith("ARS"):
-                    no_suffix_allele = redux_allele[:-3]
-                else:
-                    no_suffix_allele = redux_allele
-
-                if (
-                    no_suffix_allele == allele
-                    or "/" in no_suffix_allele
-                    or no_suffix_allele in self.ars_mappings.p_not_g.values()
-                ):
-                    return redux_allele
-
-                twice_redux_allele = self._redux_allele(
-                    no_suffix_allele, redux_type, False
-                )
-                if "/" in twice_redux_allele:
-                    return twice_redux_allele
-                if self.is_valid_allele(twice_redux_allele):
-                    return twice_redux_allele
-
-        return self.allele_reducer.reduce_allele(allele, redux_type, re_ping)
+    def _redux_allele(self, allele: str, redux_type: VALID_REDUCTION_TYPE) -> str:
+        return self.allele_reducer.reduce_allele_ping(allele, redux_type)
 
     def _redux_non_glstring(
         self, allele: str, glstring: str, redux_type: VALID_REDUCTION_TYPE
@@ -343,9 +302,12 @@ class ARD:
     def validate(self, glstring: str) -> bool:
         return self.gl_processor.validate_gl_string(glstring)
 
-    def _get_non_strict_allele(self, allele: str) -> str:
-        """Handle non-strict allele validation"""
+    def _get_allele_ignoring_expression_character(self, allele: str) -> str:
+        """Return allele that is valid with any similar expression character or without"""
         if not self._is_allele_in_db(allele):
+            if allele[-1] in expression_chars:
+                # Remove the current expr char and try others
+                allele = allele[:-1]
             for expr_char in expression_chars:
                 if self._is_allele_in_db(allele + expr_char):
                     if self.config.verbose_log:
@@ -416,9 +378,6 @@ class ARD:
                 if fields in self.config.ignore_allele_with_suffixes:
                     return True
 
-        if not self.config.strict_enabled:
-            allele = self._get_non_strict_allele(allele)
-
         if (
             not self.is_mac(allele)
             and not self.is_XX(allele)
@@ -426,6 +385,12 @@ class ARD:
             and not self.is_v2(allele)
             and not self.is_shortnull(allele)
         ):
+            if (
+                self.config.expression_characters_enabled
+                or not self.config.strict_enabled
+            ):
+                allele = self._get_allele_ignoring_expression_character(allele)
+
             return self.is_valid_allele(allele)
 
         return True

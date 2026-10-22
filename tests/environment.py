@@ -19,10 +19,13 @@
 #    > http://www.fsf.org/licensing/licenses/lgpl.html
 #    > http://www.opensource.org/licenses/lgpl-license.php
 #
+import os
+
 import pyard
 
 
 def before_all(context):
+    os.environ["PYARD_RC"] = "no"
     context.ard = pyard.init("3440", data_dir="/tmp/py-ard")
 
     # an ard with ARS suffix for lg

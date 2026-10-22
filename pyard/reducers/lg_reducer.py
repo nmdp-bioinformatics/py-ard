@@ -54,7 +54,7 @@ class LGXReducer(Reducer):
             return ":".join(allele.split(":")[0:2])
 
 
-class LGReducer(Reducer):
+class LGReducer(LGXReducer):
     """
     Strategy for LG reduction of HLA alleles (LGX + 'g' suffix).
 
@@ -95,9 +95,8 @@ class LGReducer(Reducer):
             >>> reducer.reduce("B*07:02:01")
             "B*07:02g"
         """
-        # First perform LGX reduction
-        lgx_strategy = LGXReducer(self.ard)
-        redux_allele = lgx_strategy.reduce(allele)
+        # First perform lgx reduction
+        redux_allele = super().reduce(allele)
 
         # Add appropriate suffix
         return self._add_lg_suffix(redux_allele)

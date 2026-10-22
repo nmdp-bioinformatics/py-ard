@@ -26,9 +26,48 @@ class AlleleHandler:
         # Factory that creates appropriate reduction strategy based on redux_type
         self.strategy_factory = StrategyFactory(ard_instance)
 
-    def reduce_allele(
-        self, allele: str, redux_type: VALID_REDUCTION_TYPE, re_ping=True
-    ) -> str:
+    def reduce_allele_ping(self, allele: str, redux_type: VALID_REDUCTION_TYPE) -> str:
+        """Core allele reduction with ping logic"""
+        if (
+            self.ard.config.expression_characters_enabled
+            or not self.ard.config.strict_enabled
+        ):
+            allele = self.ard._get_allele_ignoring_expression_character(allele)
+
+        # Handle P/G suffixes
+        if allele.endswith(("P", "G")) and redux_type in ["lg", "lgx", "G", "P"]:
+            allele = allele[:-1]
+
+        # Check if ping applies
+        ping_applies = self.ard.config.ping and redux_type in ("lg", "lgx", "U2")
+        if not ping_applies:
+            return self.reduce_allele(allele, redux_type)
+
+        # Ping mode: alleles mapped as "P but not G" resolve directly
+        if allele in self.ard.ars_mappings.p_not_g:
+            not_g_allele = self.ard.ars_mappings.p_not_g[allele]
+            if redux_type == "lg":
+                return self.add_lg_suffix(not_g_allele)
+            return not_g_allele
+
+        # Otherwise reduce once, strip the group suffix, and try reducing again
+        redux_allele = self.reduce_allele(allele, redux_type)
+        no_suffix_allele = self._strip_group_suffix(redux_allele)
+
+        if (
+            no_suffix_allele == allele
+            or "/" in no_suffix_allele
+            or no_suffix_allele in self.ard.ars_mappings.p_not_g.values()
+        ):
+            return redux_allele
+
+        twice_redux_allele = self.reduce_allele(no_suffix_allele, redux_type)
+        if "/" in twice_redux_allele or self.ard.is_valid_allele(twice_redux_allele):
+            return twice_redux_allele
+
+        return redux_allele
+
+    def reduce_allele(self, allele: str, redux_type: VALID_REDUCTION_TYPE) -> str:
         """Core allele reduction logic using Strategy Pattern
 
         Reduces an HLA allele to the specified resolution level by delegating
@@ -37,7 +76,6 @@ class AlleleHandler:
         Args:
             allele: HLA allele string to reduce (e.g., "A*01:01:01:01")
             redux_type: Type of reduction to perform (G, P, lg, lgx, W, exon, U2, S)
-            re_ping: Whether to re-ping for P groups when G groups are unavailable
 
         Returns:
             Reduced allele string according to the specified redux_type
@@ -69,3 +107,10 @@ class AlleleHandler:
         if self.ard.config.ars_as_lg_enabled:
             return redux_allele + "ARS"
         return redux_allele + "g"
+
+    def _strip_group_suffix(self, allele: str) -> str:
+        if allele.endswith("g"):
+            return allele[:-1]
+        if allele.endswith("ARS"):
+            return allele[:-3]
+        return allele

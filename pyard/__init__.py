@@ -38,7 +38,7 @@ __all__ = [
 ]
 
 __author__ = """NMDP Bioinformatics"""
-__version__ = "2.4.2"
+__version__ = "2.4.3"
 
 
 def init(
@@ -61,8 +61,8 @@ def init(
             if imgt_version is not None
             else rc.get("imgt_version", "Latest")
         ),
-        "data_dir": data_dir if data_dir is not None else rc.get("data_dir"),
-        "load_mac": load_mac if load_mac is not None else rc.get("load_mac", True),
+        "data_dir": data_dir if data_dir else rc.get("data_dir"),
+        "load_mac": load_mac if load_mac else rc.get("load_mac", True),
         "max_cache_size": (
             cache_size
             if cache_size is not None

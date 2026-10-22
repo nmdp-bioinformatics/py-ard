@@ -32,6 +32,7 @@ from pyard.misc import validate_reduction_type
 
 @pytest.fixture(scope="module")
 def ard():
+    os.environ["PYARD_RC"] = "no"
     db_version = "3440"
     return pyard.init(db_version, data_dir="/tmp/py-ard")
 
