@@ -61,12 +61,11 @@ test = [
     "behave==1.3.3; python_version >= '3.10'",
     "PyHamcrest==2.1.0; python_version >= '3.10'",
     "pytest==9.0.3; python_version >= '3.10'",
+    "allure-behave==2.15.3; python_version >= '3.10'",
 ]
 dev = [
-    "allure-behave==2.15.3; python_version >= '3.10'",
-    "flake8==7.3.0; python_version >= '3.10'",
-    "coverage==7.13.4; python_version >= '3.10'",
-    "pre-commit==4.5.1; python_version >= '3.10'",
+    "coverage>=7.13.4; python_version >= '3.10'",
+    "pre-commit>=4.6.2; python_version >= '3.10'",
     "bump-my-version; python_version >= '3.10'",
     "ruff>=0.16.7; python_version >= '3.10'",
 ]
