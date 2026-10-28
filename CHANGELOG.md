@@ -1,3 +1,19 @@
+<a id="2.4.3"></a>
+# [2.4.3 Bugfixes + pyard CLI changes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.3) - 2026-10-28
+
+## What's Changed
+* Bump urllib3 from 2.7.0 to 2.8.0 by [@dependabot](https://github.com/dependabot)[bot] in [#405](https://github.com/nmdp-bioinformatics/py-ard/pull/405)
+* Bump virtualenv from 21.7.9 to 21.7.13 by [@dependabot](https://github.com/dependabot)[bot] in [#406](https://github.com/nmdp-bioinformatics/py-ard/pull/406)
+* Bump werkzeug from 3.1.8 to 3.1.9 by [@dependabot](https://github.com/dependabot)[bot] in [#407](https://github.com/nmdp-bioinformatics/py-ard/pull/407)
+* Expression character is optional  + `--gl` optional in `pyard` cli + Cleanups by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#410](https://github.com/nmdp-bioinformatics/py-ard/pull/410)
+* Bump virtualenv from 21.7.13 for CVE fix by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#412](https://github.com/nmdp-bioinformatics/py-ard/pull/412)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.2...2.4.3
+
+[Changes][2.4.3]
+
+
 <a id="2.4.2"></a>
 # [2.4.2 Fixes to batch process and RHEL9 bug](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.2) - 2026-10-06
 
@@ -833,6 +849,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.3.1...2.4.0
