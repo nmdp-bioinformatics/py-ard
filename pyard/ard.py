@@ -345,7 +345,7 @@ class ARD:
             if self.config.strict_enabled:
                 return allele in self.ars_mappings.p_group.values()
             allele = allele[:-1]
-        elif allele.endswith("g"):
+        elif allele.endswith("g"):  # noqa: SIM102
             if not self.config.strict_enabled:
                 allele = allele[:-1]
 
