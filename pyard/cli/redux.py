@@ -149,6 +149,9 @@ def main():
         action="store_true",
         help="Validate the provided GL String",
     )
+    parser.add_argument(
+        "--lgx", dest="lgx", action="store_true", help="Perform lgx/ARD redux"
+    )
     parser.add_argument("--cwd", dest="cwd", help="Perform CWD redux")
     parser.add_argument(
         "--expand-mac", dest="expand_mac", help="Expand MAC to Allele List"
@@ -246,8 +249,9 @@ def main():
             parser.print_help()
             sys.exit(1)
 
-        if args.redux_type:
-            print(ard.redux(args.gl_string, args.redux_type))
+        redux_type = "lgx" if args.lgx else args.redux_type
+        if redux_type:
+            print(ard.redux(args.gl_string, redux_type))
         else:
             for redux_type in VALID_REDUCTION_MODES:
                 redux_type_info = f"Reduction Method: {redux_type}"
