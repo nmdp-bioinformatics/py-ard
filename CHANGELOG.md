@@ -1,3 +1,16 @@
+<a id="2.4.4"></a>
+# [CLI Updates (2.4.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.4) - 2026-11-17
+
+## What's Changed
+* Security Update (certifi) by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#414](https://github.com/nmdp-bioinformatics/py-ard/pull/414)
+* Add additional flags for CLI tools by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#415](https://github.com/nmdp-bioinformatics/py-ard/pull/415)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.3...2.4.4
+
+[Changes][2.4.4]
+
+
 <a id="2.4.3"></a>
 # [2.4.3 Bugfixes + pyard CLI changes](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.3) - 2026-10-28
 
@@ -849,6 +862,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.3...2.4.4
 [2.4.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.0...2.4.1
