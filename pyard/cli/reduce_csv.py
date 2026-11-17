@@ -385,7 +385,7 @@ def reduce_and_save(
 
     # Save as XLSX if specified
     if ard_config["output_file_format"] == "xlsx":
-        out_csv_filename = f"{ard_config['out_csv_filename']}.xlsx"
+        out_csv_filename = f"{out_csv_filename}.xlsx"
         df.to_excel(out_csv_filename, index=False)
     else:
         # Save as compressed CSV if specified
@@ -480,6 +480,16 @@ def main():
         help="IPD-IMGT/HLA db to use for redux",
     )
     parser.add_argument(
+        "--input-file",
+        dest="input_file",
+        help="Input CSV file. Overrides config file",
+    )
+    parser.add_argument(
+        "--output-file",
+        dest="output_file",
+        help="Output CSV file. Overrides config file",
+    )
+    parser.add_argument(
         "-q",
         "--quiet",
         dest="quiet",
@@ -552,8 +562,14 @@ def main():
         config=csv_redux_config,
     )
 
-    in_csv_filename = ard_config["in_csv_filename"]
-    out_csv_filename = ard_config["out_csv_filename"]
+    if args.input_file:
+        in_csv_filename = args.input_file
+    else:
+        in_csv_filename = ard_config["in_csv_filename"]
+    if args.output_file:
+        out_csv_filename = args.output_file
+    else:
+        out_csv_filename = ard_config["out_csv_filename"]
 
     reduce_and_save(ard, ard_config, in_csv_filename, out_csv_filename, verbose)
 
