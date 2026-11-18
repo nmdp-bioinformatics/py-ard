@@ -23,7 +23,9 @@ jobs:
       push: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.push) }}
       set-meta-labels: true
       set-meta-annotations: true
-      meta-images: nmdpbioinformatics/pyard-service:2.4.5
+      meta-images: nmdpbioinformatics/pyard-service
+      meta-tags: |
+        type=raw,value=2.4.5
     secrets:
       registry-auths: |
         - registry: docker.io
