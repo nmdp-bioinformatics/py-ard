@@ -1,5 +1,17 @@
+<a id="2.4.5"></a>
+# [2.4.5 Docker Service Deploy](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.5) - 2026-11-18
+
+## What's Changed
+* GH Action for Docker Deploy by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#416](https://github.com/nmdp-bioinformatics/py-ard/pull/416)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.4...2.4.5
+
+[Changes][2.4.5]
+
+
 <a id="2.4.4"></a>
-# [CLI Updates (2.4.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.4) - 2026-11-17
+# [Security + CLI Updates (2.4.4)](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.4) - 2026-11-17
 
 ## What's Changed
 * Security Update (certifi) by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#414](https://github.com/nmdp-bioinformatics/py-ard/pull/414)
@@ -862,6 +874,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.3...2.4.4
 [2.4.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.1...2.4.2
