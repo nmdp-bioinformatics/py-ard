@@ -26,6 +26,7 @@ jobs:
       meta-images: nmdpbioinformatics/pyard-service
       meta-tags: |
         type=raw,value=2.4.5
+        type=raw,value=latest
     secrets:
       registry-auths: |
         - registry: docker.io
