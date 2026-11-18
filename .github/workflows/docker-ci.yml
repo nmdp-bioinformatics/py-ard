@@ -1,0 +1,25 @@
+name: docker-release
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+jobs:
+  build:
+    uses: docker/github-builder/.github/workflows/build.yml@v1
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      output: image
+      push: ${{ github.event_name == 'release' }}
+      set-meta-labels: true
+      set-meta-annotations: true
+      meta-images: ${{ vars.DOCKERHUB_NAMESPACE }}/pyard-service:2.4.5
+    secrets:
+      registry-auths: |
+        - registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
