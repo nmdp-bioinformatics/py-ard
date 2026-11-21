@@ -193,6 +193,21 @@ def create_drbx(row, locus_in_allele_name):
     return drbx.map_drbx(row.values, locus_in_allele_name)
 
 
+def update_to_drbx(subject_loci_columns, drbx_loci, subject):
+    subject_loci_columns_drbx = {}
+    for locus, cols in subject_loci_columns.items():
+        if locus in drbx_loci:
+            if locus == "DRB3":
+                subject_loci_columns_drbx["DRBX"] = [
+                    f"{subject}_DRBX_1",
+                    f"{subject}_DRBX_2",
+                ]
+        else:
+            subject_loci_columns_drbx[locus] = cols
+
+    return subject_loci_columns_drbx
+
+
 def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
     reduce_prefix = ard_config.get("reduced_column_prefix", "reduced_")
     for subject in locus_column_mapping:
@@ -245,6 +260,10 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
     ):
         for subject in locus_column_mapping:
             subject_loci_columns = locus_column_mapping[subject]
+            if ard_config.get("map_drb345_to_drbx"):
+                subject_loci_columns = update_to_drbx(
+                    subject_loci_columns, drbx_loci, subject
+                )
             slug_columns = []
             for locus in subject_loci_columns:
                 slug_column = f"{subject}_{locus}_slug"
@@ -259,6 +278,13 @@ def reduce_locus_columns(df, ard_config, locus_column_mapping, verbose):
 
                 if ard_config.get("suppress_reduced_locus_column"):
                     df.drop(columns=locus_typ_pair, inplace=True)
+
+            if ard_config.get("map_drb345_to_drbx") and ard_config.get(
+                "suppress_reduced_locus_column"
+            ):
+                subject_loci_columns = locus_column_mapping[subject]
+                for locus in drbx_loci:
+                    df.drop(columns=subject_loci_columns[locus], inplace=True)
 
             if ard_config.get("generate_glstring"):
                 df[subject + "_gl"] = df[slug_columns].agg(

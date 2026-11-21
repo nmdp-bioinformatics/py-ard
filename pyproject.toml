@@ -71,7 +71,7 @@ dev = [
 ]
 
 [tool.bumpversion]
-current_version = "2.4.5"
+current_version = "2.4.6"
 commit = true
 tag = true
 
@@ -97,8 +97,8 @@ replace = "PYARD_VERSION := {new_version}"
 
 [[tool.bumpversion.files]]
 filename = ".github/workflows/docker-ci.yml"
-search = "pyard-service:{current_version}"
-replace = "pyard-service:{new_version}"
+search = "type=raw,value={current_version}"
+replace = "type=raw,value={new_version}"
 
 [tool.hatch.version]
 path = "pyard/__init__.py"
