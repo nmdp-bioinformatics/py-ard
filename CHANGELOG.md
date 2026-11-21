@@ -1,3 +1,15 @@
+<a id="2.4.6"></a>
+# [2.4.6 Fix missing `DRBX`](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.6) - 2026-11-21
+
+## What's Changed
+* Fix missing `DRBX` in glstring output by [@pbashyal-nmdp](https://github.com/pbashyal-nmdp) in [#418](https://github.com/nmdp-bioinformatics/py-ard/pull/418)
+
+
+**Full Changelog**: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.5...2.4.6
+
+[Changes][2.4.6]
+
+
 <a id="2.4.5"></a>
 # [2.4.5 Docker Service Deploy](https://github.com/nmdp-bioinformatics/py-ard/releases/tag/2.4.5) - 2026-11-18
 
@@ -874,6 +886,7 @@ yes
 [Changes][0.0.14]
 
 
+[2.4.6]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.3...2.4.4
 [2.4.3]: https://github.com/nmdp-bioinformatics/py-ard/compare/2.4.2...2.4.3
